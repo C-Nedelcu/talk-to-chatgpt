@@ -40,20 +40,20 @@ var CN_SAY_THIS_WORD_TO_PAUSE = "pause";
 
 **FAQ**
 
-* Q: What is the purpose of this project?
+* **Q: What is the purpose of this project?**
 * A: Fun, and nothing else. This AI is mind-bogglingly intelligent and I had a deep desire to converse with it orally, to make it more interesting. It's merely a proof of concept. Surely OpenAI themselves will make a proper version of this in the future, at which point my project will be completely useless.
 
-* Q: Is it safe to use?
+* **Q: Is it safe to use?**
 * A: It's simple javascript code that will execute only in the context of the ChatGPT webpage. As soon as you navigate away, everything is cleared. The javascript code is open source, so feel free to check out what it does.
 
-* Q: Will it always work?
+* **Q: Will it always work?**
 * A: it will probably not work for very long. The code is based on the current HTML structure of the ChatGPT page. If the authors change the HTML code, this project will likely stop working. It could be updated to maintain compatibility, but I'm not sure I'll be doing that.
 
-* Q: I have an error or a problem...
+* **Q: I have an error or a problem...**
 * A: Feel free to update the javascript yourself and propose changes on Github. I'm not really interested in maintaining this because it's a simple proof of concept, just for fun. It took me about 2 or 3 hours to write, but I don't intend to spend any more time on it.
 
-* Q: Can I make changes to your code?
+* **Q: Can I make changes to your code?**
 * A: Yes, feel free to make changes, and do whatever you want, commit, fork, just have fun.
 
-* Q: How do I know what languages are supported?
+* **Q: How do I know what languages are supported?**
 * A: this is entirely based on the Google Chrome APIs, so you need to ask Google, I cannot provide an up-to-date answer. I've only tested it with english and french.
