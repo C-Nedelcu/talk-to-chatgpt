@@ -4,7 +4,7 @@
 // Version		: 1.0
 // Git repo 	: https://github.com/C-Nedelcu/talk-to-chatgpt
 // Chat GPT URL	: https://chat.openai.com/chat
-// How to use   : A Youtube video URL will be inserted here when it's ready
+// How to use   : https://www.youtube.com/watch?v=gOagK0r5syM
 
 // ----------------------------
 // SETTINGS (FEEL FREE TO EDIT)
