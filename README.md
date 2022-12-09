@@ -1,4 +1,4 @@
-Talk-to-ChatGPT is a new javascript program that allows users to interact with the ChatGPT AI using their voice, rather than just by typing. With this tool, users can speak to the AI and receive spoken responses, making the interaction feel more natural and conversational. This could be useful in a variety of settings where it would be helpful to have a more human-like interaction with an AI. (Note: the AI itself wrote this sentence after I explained it what my code does).
+**Talk-to-ChatGPT** is a new javascript program that allows users to interact with the ChatGPT AI using their voice, rather than just by typing. With this tool, users can speak to the AI and receive spoken responses, making the interaction feel more natural and conversational. This could be useful in a variety of settings where it would be helpful to have a more human-like interaction with an AI. (Note: the AI itself wrote this sentence after I explained it what my code does).
 
 Now, with my own words. Talk-To-ChatGPT is a simple javascript snippet that will turn on voice recognition (also known as speech-to-text) so that you can actually speak to ChatGPT. When you receive a reply, the reply will be read out loud using text-to-speech.
 
@@ -7,12 +7,14 @@ The code is simple and uses standard Google Chrome APIs. It needs to be loaded t
 There are several settings you can tweak, these are found at the top of the javascript file.
 
 **How to use**
+
 Open ChatGPT: https://chat.openai.com/chat?
 Open the javascript console (right-click anywhere on the page, click Inspect, then open the 'Console' tab).
 Paste the javascript file into the console and press Enter.
 If you want to have fun with over an extended period of time, I recommend creating a bookmarklet.
 
 **Settings**
+
 The following settings are found at the top of the script. Edit them locally before you load the script.
 ```
 // Indicate a country code such as 'fr', 'en', or others, to use a particular language for the text-to-speech functionality (reading the bot's messages out loud)
