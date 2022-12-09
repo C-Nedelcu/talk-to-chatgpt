@@ -13,6 +13,12 @@ There are several settings you can tweak, these are found at the top of the java
 3. Paste the javascript file into the console and press Enter.
 4. If you want to have fun with over an extended period of time, I recommend creating a bookmarklet.
 
+If you need further help, a Youtube video explains the process: https://www.youtube.com/watch?v=gOagK0r5syM
+
+Demo (English): https://www.youtube.com/watch?v=LlfU3s3IOYg
+
+Demo (French): https://www.youtube.com/watch?v=ahxvmp7n8CE
+
 
 **Settings**
 
