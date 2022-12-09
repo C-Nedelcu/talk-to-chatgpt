@@ -8,10 +8,11 @@ There are several settings you can tweak, these are found at the top of the java
 
 **How to use**
 
-Open ChatGPT: https://chat.openai.com/chat?
-Open the javascript console (right-click anywhere on the page, click Inspect, then open the 'Console' tab).
-Paste the javascript file into the console and press Enter.
-If you want to have fun with over an extended period of time, I recommend creating a bookmarklet.
+1. Open ChatGPT: https://chat.openai.com/chat?
+2. Open the javascript console (right-click anywhere on the page, click Inspect, then open the 'Console' tab).
+3. Paste the javascript file into the console and press Enter.
+4. If you want to have fun with over an extended period of time, I recommend creating a bookmarklet.
+
 
 **Settings**
 
