@@ -1,7 +1,7 @@
 // TALK TO CHATGPT
 // ---------------
 // Author		: C. NEDELCU
-// Version		: 1.0
+// Version		: 1.1
 // Git repo 	: https://github.com/C-Nedelcu/talk-to-chatgpt
 // Chat GPT URL	: https://chat.openai.com/chat
 // How to use   : https://www.youtube.com/watch?v=gOagK0r5syM
@@ -16,7 +16,7 @@ var CN_WANTED_LANGUAGE_TEXT_TO_SPEECH = ""; // "fr";
 
 // Indicate a locale code such as 'fr-FR', 'en-US', to use a particular language for the speech recognition functionality (when you speak into the mic)
 // If you leave this blank, the system's default language will be used
-var CN_WANTED_LANGUAGE_SPEECH_REC = ""; // "fr-FR";
+var CN_WANTED_LANGUAGE_SPEECH_REC = ""; //"fr-FR";
 
 // Settings for the text-to-speech functionality (the bot's voice)
 var CN_TEXT_TO_SPEECH_RATE = 1.2; // The higher the rate, the faster the bot will speak
@@ -35,6 +35,8 @@ var CN_SAY_THIS_WORD_TO_PAUSE = "pause";
 // CODE (DO NOT ALTER)
 // -------------------
 var CN_MESSAGE_COUNT = 0;
+var CN_CURRENT_MESSAGE = null;
+var CN_CURRENT_MESSAGE_SENTENCES = [];
 var CN_SPEECHREC = null;
 var CN_IS_READING = false;
 var CN_IS_LISTENING = false;
@@ -47,6 +49,8 @@ var CN_TIMEOUT_KEEP_SPEECHREC_WORKING = null;
 
 // This function will say the given text out loud using the browser's speech synthesis API
 function CN_SayOutLoud(text) {
+	if (!text) return;
+	console.log("Saying out loud: "+text);
 	var msg = new SpeechSynthesisUtterance();
 	msg.text = text;
 	
@@ -54,7 +58,12 @@ function CN_SayOutLoud(text) {
 	msg.rate = CN_TEXT_TO_SPEECH_RATE;
 	msg.pitch = CN_TEXT_TO_SPEECH_PITCH;
 	msg.onstart = () => {
+		// If speech recognition is active, disable it
+		if (CN_IS_LISTENING) CN_SPEECHREC.stop();
+		
 		if (CN_FINISHED) return;
+		CN_IS_READING = true;
+		clearTimeout(CN_TIMEOUT_KEEP_SYNTHESIS_WORKING);
 		CN_TIMEOUT_KEEP_SYNTHESIS_WORKING = setTimeout(CN_KeepSpeechSynthesisActive, 5000);
 	};
 	msg.onend = () => {
@@ -66,9 +75,13 @@ function CN_SayOutLoud(text) {
 		
 		// restart listening
 		CN_IS_READING = false;
-		if (CN_SPEECHREC && !CN_IS_LISTENING) CN_SPEECHREC.start();
-		clearTimeout(CN_TIMEOUT_KEEP_SPEECHREC_WORKING);
-		CN_TIMEOUT_KEEP_SPEECHREC_WORKING = setTimeout(CN_KeepSpeechRecWorking, 100);
+		setTimeout(function() {
+			if (!window.speechSynthesis.speaking) {
+				if (CN_SPEECHREC && !CN_IS_LISTENING) CN_SPEECHREC.start();
+				clearTimeout(CN_TIMEOUT_KEEP_SPEECHREC_WORKING);
+				CN_TIMEOUT_KEEP_SPEECHREC_WORKING = setTimeout(CN_KeepSpeechRecWorking, 100);
+			}
+		}, 500);
 	}
 	CN_IS_READING = true;
 	window.speechSynthesis.speak(msg);
@@ -95,22 +108,52 @@ function CN_KeepSpeechSynthesisActive() {
 	CN_TIMEOUT_KEEP_SYNTHESIS_WORKING = setTimeout(CN_KeepSpeechSynthesisActive, 5000);
 }
 
+// Split the text into sentences so the speech synthesis can start speaking as soon as possible
+function CN_SplitIntoSentences(text) {
+	var sentences = [];
+	var currentSentence = "";
+	
+	for(var i=0; i<text.length; i++) {
+		//
+		var currentChar = text[i];
+		
+		// Add character to current sentence
+		currentSentence += currentChar;
+		
+		// is the current character a delimiter? if so, add current part to array and clear
+		if (currentChar == ',' || currentChar == ':' || currentChar == '.' || currentChar == '!' || currentChar == '?' || currentChar == ';') {
+			if (currentSentence.trim() != "") sentences.push(currentSentence.trim());
+			currentSentence = "";
+		}
+	}
+	
+	return sentences;
+}
+
 // Check for new messages the bot has sent. If a new message is found, it will be read out loud
 function CN_CheckNewMessages() {
-	
-	// Is streaming? wait 0.1 second and try again
-	if ($(".result-streaming").length) {
-		setTimeout(CN_CheckNewMessages, 50);
-		return;
-	}
-	
-	// Any new messages? // TODO: éviter les erreurs
+	// Any new messages?
 	var currentMessageCount = $(".text-base").length;
 	if (currentMessageCount > CN_MESSAGE_COUNT) {
+		// New message!
 		CN_MESSAGE_COUNT = currentMessageCount;
-		CN_ReadLatestMessage();
+		CN_CURRENT_MESSAGE = $(".text-base:last");
+		CN_CURRENT_MESSAGE_SENTENCES = []; // Reset list of parts already spoken
 	}
-	setTimeout(CN_CheckNewMessages, 50);
+	
+	// Split current message into parts
+	if (CN_CURRENT_MESSAGE && CN_CURRENT_MESSAGE.length) {
+		var currentText = CN_CURRENT_MESSAGE.text()+"";
+		var newSentences = CN_SplitIntoSentences(currentText);
+		if (newSentences != null && newSentences.length != CN_CURRENT_MESSAGE_SENTENCES.length) {
+			// There is a new part of a sentence!
+			CN_CURRENT_MESSAGE_SENTENCES = newSentences;
+			var lastPart = newSentences[newSentences.length-1];
+			CN_SayOutLoud(lastPart);
+		}
+	}
+	
+	setTimeout(CN_CheckNewMessages, 100);
 }
 
 // Send a message to the bot (will simply put text in the textarea and simulate a send button click)
@@ -192,7 +235,8 @@ function CN_KeepSpeechRecWorking() {
 		else {
 			if (!CN_IS_LISTENING) {
 				try {
-					CN_SPEECHREC.start();
+					if (!window.speechSynthesis.speaking)
+						CN_SPEECHREC.start();
 				} catch(e) { }
 			}
 		}
