@@ -56,7 +56,7 @@ A: It's simple javascript code that will execute only in the context of the Chat
 A: it will probably not work for very long. The code is based on the current HTML structure of the ChatGPT page. If the authors change the HTML code, this project will likely stop working. It could be updated to maintain compatibility, but I'm not sure I'll be doing that.
 
 **Q: I have an error or a problem...**
-A: Feel free to update the javascript yourself and propose changes on Github. I'm not really interested in maintaining this because it's a simple proof of concept, just for fun. It took me about 2 or 3 hours to write, but I don't intend to spend any more time on it.
+A: Feel free to update the javascript yourself and propose changes on Github. I'm not really interested in maintaining this because it's a simple proof of concept, just for fun. It took me about a few hours to write, but I don't intend to spend any more time on it.
 
 **Q: Can I make changes to your code?**
 A: Yes, feel free to make changes, and do whatever you want, commit, fork, just have fun.
