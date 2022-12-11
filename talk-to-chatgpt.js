@@ -45,7 +45,7 @@ var CN_PAUSED = false;
 var CN_WANTED_VOICE = null;
 var CN_TIMEOUT_KEEP_SYNTHESIS_WORKING = null;
 var CN_TIMEOUT_KEEP_SPEECHREC_WORKING = null;
-
+var CN_SPEECH_REC_SUPPORTED = false;
 
 // This function will say the given text out loud using the browser's speech synthesis API
 function CN_SayOutLoud(text) {
@@ -77,7 +77,7 @@ function CN_SayOutLoud(text) {
 		CN_IS_READING = false;
 		setTimeout(function() {
 			if (!window.speechSynthesis.speaking) {
-				if (CN_SPEECHREC && !CN_IS_LISTENING) CN_SPEECHREC.start();
+				if (CN_SPEECH_REC_SUPPORTED && CN_SPEECHREC && !CN_IS_LISTENING) CN_SPEECHREC.start();
 				clearTimeout(CN_TIMEOUT_KEEP_SPEECHREC_WORKING);
 				CN_TIMEOUT_KEEP_SPEECHREC_WORKING = setTimeout(CN_KeepSpeechRecWorking, 100);
 			}
@@ -95,7 +95,7 @@ function CN_ReadLatestMessage() {
 			CN_SPEECHREC.stop();
 		} catch(e) { }
 	}
-	var text = $(".text-base:last").find("p").text();
+	var text = jQuery(".text-base:last").find("p").text();
 	console.log("New message found, I will read this: " + text);
 	CN_SayOutLoud(text);
 }
@@ -133,11 +133,11 @@ function CN_SplitIntoSentences(text) {
 // Check for new messages the bot has sent. If a new message is found, it will be read out loud
 function CN_CheckNewMessages() {
 	// Any new messages?
-	var currentMessageCount = $(".text-base").length;
+	var currentMessageCount = jQuery(".text-base").length;
 	if (currentMessageCount > CN_MESSAGE_COUNT) {
 		// New message!
 		CN_MESSAGE_COUNT = currentMessageCount;
-		CN_CURRENT_MESSAGE = $(".text-base:last");
+		CN_CURRENT_MESSAGE = jQuery(".text-base:last");
 		CN_CURRENT_MESSAGE_SENTENCES = []; // Reset list of parts already spoken
 	}
 	
@@ -159,8 +159,8 @@ function CN_CheckNewMessages() {
 // Send a message to the bot (will simply put text in the textarea and simulate a send button click)
 function CN_SendMessage(text) {
 	// Send the message
-	$("textarea").val(text);
-	$("textarea").closest("div").find("button").click();
+	jQuery("textarea").val(text);
+	jQuery("textarea").closest("div").find("button").click();
 	
 	// Stop speech recognition until the answer is received
 	if (CN_SPEECHREC) {
@@ -176,8 +176,8 @@ function CN_StartSpeechRecognition() {
 		CN_TIMEOUT_KEEP_SPEECHREC_WORKING = setTimeout(CN_KeepSpeechRecWorking, 100);
 		return;
 	}
-	
-	CN_SPEECHREC = new webkitSpeechRecognition();
+	if (!CN_SPEECH_REC_SUPPORTED) return;
+	CN_SPEECHREC = ('webkitSpeechRecognition' in window) ? new webkitSpeechRecognition() : new SpeechRecognition();
 	CN_SPEECHREC.continuous = true;
 	CN_SPEECHREC.lang = CN_WANTED_LANGUAGE_SPEECH_REC;
 	CN_SPEECHREC.onstart = () => {
@@ -219,7 +219,7 @@ function CN_StartSpeechRecognition() {
 		
 		CN_SendMessage(final_transcript);
 	};
-	if (!CN_IS_LISTENING) CN_SPEECHREC.start();
+	if (!CN_IS_LISTENING && CN_SPEECH_REC_SUPPORTED) CN_SPEECHREC.start();
 	clearTimeout(CN_TIMEOUT_KEEP_SPEECHREC_WORKING);
 	CN_TIMEOUT_KEEP_SPEECHREC_WORKING = setTimeout(CN_KeepSpeechRecWorking, 100);
 }
@@ -235,7 +235,7 @@ function CN_KeepSpeechRecWorking() {
 		else {
 			if (!CN_IS_LISTENING) {
 				try {
-					if (!window.speechSynthesis.speaking)
+					if (CN_SPEECH_REC_SUPPORTED && !window.speechSynthesis.speaking)
 						CN_SPEECHREC.start();
 				} catch(e) { }
 			}
@@ -243,45 +243,73 @@ function CN_KeepSpeechRecWorking() {
 	}
 }
 
-// SCRIPT INITIALIZATION
-// Load jQuery, start reading aloud, start speech recognition
+
+// Perform initialization after jQuery is loaded
+function CN_InitScript() {
+	if (typeof $ === null || typeof $ === undefined) $ = jQuery;
+	
+	var warning = "";
+	if ('webkitSpeechRecognition' in window) {
+		console.log("Speech recognition API supported");
+		CN_SPEECH_REC_SUPPORTED = true;
+	} else {
+		console.log("speech recognition API not supported.");
+		CN_SPEECH_REC_SUPPORTED = false;
+		warning = "\n\nWARNING: speech recognition (speech-to-text) is only available in Google Chrome desktop version at the moment. If you are using another browser, you will not be able to dictate text, but you can still listen to the bot's responses.";
+	}
+	
+	// Alert message on start
+	alert("After you press OK, I will start listening to your audio. To stop the script, just say the word '" + CN_SAY_THIS_WORD_TO_STOP + "'. To pause, say 'pause'."+ warning);
+	
+	// Wait on voices to be loaded before fetching list
+	window.speechSynthesis.onvoiceschanged = function () {
+		if (!CN_WANTED_LANGUAGE_TEXT_TO_SPEECH) console.log("Reading with default browser voice");
+		else {
+			speechSynthesis.getVoices().forEach(function (voice) {
+				//console.log("Found possible voice: " + voice.name + " (" + voice.lang + ")");
+				if (voice.lang.substring(0, 2) == CN_WANTED_LANGUAGE_TEXT_TO_SPEECH) {
+					CN_WANTED_VOICE = voice;
+					console.log("I will read using voice " + voice.name + " (" + voice.lang + ")");
+					return false;
+				}
+			});
+			if (!CN_WANTED_VOICE)
+				console.log("No voice found for '" + CN_WANTED_LANGUAGE_TEXT_TO_SPEECH + "', reading with default browser voice");
+		}
+	};
+	
+	// Try and get voices
+	speechSynthesis.getVoices();
+	
+	setTimeout(function () {
+		// Check for new messages
+		CN_CheckNewMessages();
+		
+		// Start speech rec
+		CN_StartSpeechRecognition();
+	}, 100);
+}
+
+// MAIN ENTRY POINT
+// Load jQuery, then run initialization function
 (function () {
-	const script = document.createElement("script");
-	script.src = 'https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js';
-	script.type = 'text/javascript';
-	script.addEventListener('load', () => {
-		console.log("jQuery loaded");
-		
-		// Alert message on start
-		alert("After you press OK, I will start listening to your audio. To stop the script, just say the word '"+ CN_SAY_THIS_WORD_TO_STOP+"'. To pause, say 'pause'.");
-		
-		// Wait on voices to be loaded before fetching list
-		window.speechSynthesis.onvoiceschanged = function () {
-			if (!CN_WANTED_LANGUAGE_TEXT_TO_SPEECH) console.log("Reading with default browser voice");
-			else {
-				speechSynthesis.getVoices().forEach(function (voice) {
-					//console.log("Found possible voice: " + voice.name + " (" + voice.lang + ")");
-					if (voice.lang.substring(0, 2) == CN_WANTED_LANGUAGE_TEXT_TO_SPEECH) {
-						CN_WANTED_VOICE = voice;
-						console.log("I will read using voice " + voice.name + " (" + voice.lang + ")");
-						return false;
-					}
-				});
-				if (!CN_WANTED_VOICE)
-					console.log("No voice found for '"+ CN_WANTED_LANGUAGE_TEXT_TO_SPEECH+"', reading with default browser voice");
-			}
-		};
-		
-		// Try and get voices
-		speechSynthesis.getVoices();
-		
-		setTimeout(function() {
-			// Check for new messages
-			CN_CheckNewMessages();
-			
-			// Start speech rec
-			CN_StartSpeechRecognition();
-		}, 100);
-	});
-	document.head.appendChild(script);
+
+	function LoadScript(url, success) {
+		var script = document.createElement("script");
+		script.src = url;
+		var head = document.getElementsByTagName("head")[0],
+			done = !1;
+		script.onload = script.onreadystatechange = function () {
+			!done && (!this.readyState || this.readyState == "loaded" || this.readyState == "complete") && (done = !0, success(), script.onload = script.onreadystatechange = null, head.removeChild(script))
+			console.log("jQuery loaded");
+		}, head.appendChild(script)
+	}
+	
+	// Load the script
+	LoadScript("//code.jquery.com/jquery.min.js", function () {
+		return typeof jQuery == "undefined" ?
+			alert("Sorry, but jQuery was not able to load. The script cannot run. Try using Google Chrome on Windows 11") :
+			CN_InitScript();
+	})
+	
 })();

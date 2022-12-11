@@ -46,6 +46,12 @@ var CN_SAY_THIS_WORD_TO_PAUSE = "pause";
 
 **FAQ**
 
+**Q: Which web browsers are currently supported?** 
+A: The script fully works in Google Chrome (desktop). In other browsers, unfortunately, voice recognition/dictation doesn't work, due to API differences and some browsers not supporting
+this API properly. So if you don't use Google Chrome (desktop) you will only get text-to-speech functionality, in other words, you can listen to the bot's responses, but you can't speak to it.
+
+**Q: Can you make it speak faster or in a different voice?** A: If you look at the top of the javascript code, there are some settings you can adjust. Increase the value for CN_TEXT_TO_SPEECH_RATE to make it speak faster. You can change the pitch using CN_TEXT_TO_SPEECH_PITCH. As for going with an entirely different voice: the script will load the system's default voice (unless you specify a particular language). In short, if you want to hear a different voice, you can change your OS's text-to-speech settings.
+
 **Q: What is the purpose of this project?**
 A: Fun, and nothing else. This AI is mind-bogglingly intelligent and I had a deep desire to converse with it orally, to make it more interesting. It's merely a proof of concept. Surely OpenAI themselves will make a proper version of this in the future, at which point my project will be completely useless.
 
