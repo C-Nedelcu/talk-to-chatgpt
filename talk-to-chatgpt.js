@@ -1,7 +1,7 @@
 // TALK TO CHATGPT
 // ---------------
 // Author		: C. NEDELCU
-// Version		: 1.1
+// Version		: 1.2
 // Git repo 	: https://github.com/C-Nedelcu/talk-to-chatgpt
 // Chat GPT URL	: https://chat.openai.com/chat
 // How to use   : https://www.youtube.com/watch?v=gOagK0r5syM
