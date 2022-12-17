@@ -23,7 +23,7 @@ Demo (French): https://www.youtube.com/watch?v=Agz5cLDqst8
 **Settings**
 
 The following settings are found at the top of the script. Edit them locally before you load the script.
-```
+```js
 // Indicate a country code such as 'fr', 'en', or others, to use a particular language for the text-to-speech functionality (reading the bot's messages out loud)
 // If you leave this blank, the system's default voice will be used
 var CN_WANTED_LANGUAGE_TEXT_TO_SPEECH = ""; // "fr";
