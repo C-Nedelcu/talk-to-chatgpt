@@ -4,7 +4,11 @@ Now, with my own words. Talk-To-ChatGPT is a simple javascript snippet that will
 
 The code is simple and uses standard Google Chrome APIs. It needs to be loaded through the javascript console in Google Chrome, but you can also create a bookmarklet to enable it in a simpler way.
 
-There are several settings you can tweak, these are found at the top of the javascript file.
+Upon activating Talk-to-GPT, a 'Settings' button will appear on the top right corner of the screen. Use it to adjust settings such as the bot's voice, language, pitch, speed; or the voice recognition language and stop words. 
+
+
+![Settings dialog](/images/settings.png?raw=true "Settings dialog")
+
 
 **How to use**
 
@@ -22,7 +26,9 @@ Demo (French): https://www.youtube.com/watch?v=Agz5cLDqst8
 
 **Settings**
 
-The following settings are found at the top of the script. Edit them locally before you load the script.
+Since V1.3 you can change the settings directly from the settings dialog using the button that appears at the top right corner of the screen upon activating Talk-to-GPT. At the moment, the settings aren't saved anywhere, reverting to default values every time you reload Talk-to-GPT. A future version may bring settings persistence.
+
+Meanwhile, the following settings are found at the top of the script and let you change default values. Edit them locally before you load the script.
 ```js
 // Indicate a country code such as 'fr', 'en', or others, to use a particular language for the text-to-speech functionality (reading the bot's messages out loud)
 // If you leave this blank, the system's default voice will be used
@@ -68,4 +74,4 @@ A: Feel free to update the javascript yourself and propose changes on Github. I'
 A: Yes, feel free to make changes, and do whatever you want, commit, fork, just have fun.
 
 **Q: How do I know what languages are supported?**
-A: this is entirely based on the Google Chrome APIs, so you need to ask Google, I cannot provide an up-to-date answer. I've only tested it with english and french.
+A: this is entirely based on the Google Chrome APIs, so you need to ask Google, I cannot provide an up-to-date answer. I've only tested it with English and French. The languages in the settings menu are the same ones found on the Google demos.
