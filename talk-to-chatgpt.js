@@ -263,8 +263,9 @@ function CN_InitScript() {
 	
 	// Wait on voices to be loaded before fetching list
 	window.speechSynthesis.onvoiceschanged = function () {
-		if (!CN_WANTED_LANGUAGE_TEXT_TO_SPEECH) console.log("Reading with default browser voice");
-		else {
+		if (!CN_WANTED_LANGUAGE_TEXT_TO_SPEECH){
+			console.log("Reading with default browser voice");
+		} else {
 			speechSynthesis.getVoices().forEach(function (voice) {
 				//console.log("Found possible voice: " + voice.name + " (" + voice.lang + ")");
 				if (voice.lang.substring(0, 2) == CN_WANTED_LANGUAGE_TEXT_TO_SPEECH) {
