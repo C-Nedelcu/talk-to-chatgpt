@@ -16,7 +16,7 @@ The settings menu can be seen below. Settings are saved in a cookie and reloaded
 1. Open ChatGPT: https://chat.openai.com/chat?
 2. Open the javascript console (right-click anywhere on the page, click Inspect, then open the 'Console' tab).
 3. Paste the javascript file into the console and press Enter.
-4. If you want to have fun with over an extended period of time, I recommend creating a bookmarklet.
+4. If you want to have fun with this script over an extended period of time, I recommend installing it as bookmarklet.
 
 If you need further help, a Youtube video explains the process: https://www.youtube.com/watch?v=gOagK0r5syM Please note my recording software didn't properly record my voice during the tutorial, you can barely hear it. Watch the demos below for a clearer conversation.
 
