@@ -36,7 +36,7 @@ A: The script fully works in Google Chrome (desktop). In other browsers, unfortu
 this API properly. So if you don't use Google Chrome (desktop) you will only get text-to-speech functionality, in other words, you can listen to the bot's responses, but you can't speak to it.
 
 **Q: Are you going to make a Google Chrome extension?** 
-A: Yes, this is in the works. I expect the Google Chrome extension to reach the web store by January 2023 if all goes well.
+A: Yes, there is a Google Chrome extension. It is currently under review before it can be found on the Chrome extension store. If you want to use it as extension right now, you can download the chrome-extension folder on your computer and load it in Developer mode. I will update this with the link to the extension on the store when it is published.
 
 **Q: Can you make it speak faster or in a different voice or language?** A: Yes, use the settings menu. You can select a variety of settings among which the speech rate, voice type, and language.
 
