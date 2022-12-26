@@ -1,6 +1,8 @@
 **Talk-to-ChatGPT** is a javascript snippet that allows users to talk with the ChatGPT AI using their voice (speech recognition), and listen to the bot's answer with a voice (text-to-speech), rather than just by typing. With this tool, users can speak to the AI and receive spoken responses, making the interaction feel more natural and conversational. This could be useful in a variety of settings where it would be helpful to have a more human-like interaction with an AI.
 
-The javascript snippet displays a menu on the top right corner of the page where users can access settings (such as voice, language, and more), skip the current message, toggle voice recognition on or off, and toggle text-to-speech on or off.
+**Talk-to-ChatGPT also comes as a Google Chrome extension. It is currently under review before it can be found on the Chrome extension store. If you want to use it as extension right now, you can download the chrome-extension folder on your computer and load it in Developer mode.**
+
+Talk-to-ChatGPT displays a menu on the top right corner of the page where users can access settings (such as voice, language, and more), skip the current message, toggle voice recognition on or off, and toggle text-to-speech on or off.
 
 The code is simple and uses standard Google Chrome APIs. It needs to be loaded through the javascript console in Google Chrome, but you can also create a bookmarklet to turn it on more easily.
 
@@ -20,9 +22,11 @@ The settings menu can be seen below. Settings are saved in a cookie and reloaded
 
 If you need further help, a Youtube video explains the process: https://www.youtube.com/watch?v=gOagK0r5syM Please note my recording software didn't properly record my voice during the tutorial, you can barely hear it. Watch the demos below for a clearer conversation.
 
-Demo (English): https://www.youtube.com/watch?v=qccxC--9r3A
+Demo (English+French) v1.5: https://www.youtube.com/watch?v=vr-6L7Ix9FM
 
-Demo (French): https://www.youtube.com/watch?v=Agz5cLDqst8
+Demo (English) v1.2: https://www.youtube.com/watch?v=qccxC--9r3A
+
+Demo (French) v1.2: https://www.youtube.com/watch?v=Agz5cLDqst8
 
 
 **FAQ**
