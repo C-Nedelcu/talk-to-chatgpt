@@ -14,7 +14,7 @@ The settings menu can be seen below. Settings are saved in a cookie and reloaded
 
 Demo (English+French) v1.5: https://www.youtube.com/watch?v=vr-6L7Ix9FM
 
-**FAQ**
+# FAQ
 
 **Q: Can you make it speak faster or in a different voice or language?** A: Yes, use the settings menu. You can select a variety of settings among which the speech rate, voice type, and language.
 
@@ -35,3 +35,11 @@ A: Yes, feel free to make changes, and do whatever you want, commit, fork, just 
 
 **Q: How do I know what languages are supported?**
 A: this is entirely based on the Google Chrome APIs, so you need to ask Google, I cannot provide an up-to-date answer. I've only tested it with English and French. The languages in the settings menu are the same ones found on the Google demos.
+
+# Press coverage
+
+Talk-to-ChatGPT has been receiving press coverage since its release. It is currently featured on the following sites:
+
+* JustGeek - https://www.justgeek.fr/talk-to-chatgpt-discuter-a-voix-haute-avec-chatgpt-103657/
+* Comment Ca Marche - https://www.commentcamarche.net/informatique/technologies/27295-application-et-extension-vocale-chatgpt-de-nouveaux-outils-pour-l-ia/#talk-to-chatgpt--discuter-a-haute-voix-avec-lia
+* This list will be updated over time.
