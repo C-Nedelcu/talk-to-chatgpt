@@ -114,24 +114,28 @@ function CN_KeepSpeechSynthesisActive() {
 
 // Split the text into sentences so the speech synthesis can start speaking as soon as possible
 function CN_SplitIntoSentences(text) {
-	var sentences = [];
-	var currentSentence = "";
-	
-	for(var i=0; i<text.length; i++) {
-		//
-		var currentChar = text[i];
-		
-		// Add character to current sentence
-		currentSentence += currentChar;
-		
-		// is the current character a delimiter? if so, add current part to array and clear
-		if (currentChar == ',' || currentChar == ':' || currentChar == '.' || currentChar == '!' || currentChar == '?' || currentChar == ';') {
-			if (currentSentence.trim() != "") sentences.push(currentSentence.trim());
-			currentSentence = "";
-		}
-	}
-	
-	return sentences;
+  var sentences = [];
+  var delimiters = /[.!?:;]/; // Match sentence delimiters
+  var currentSentence = "";
+
+  for (var i = 0; i < text.length; i++) {
+    //
+    var currentChar = text[i];
+
+    // Add character to current sentence
+    currentSentence += currentChar;
+
+    // is the current character a delimiter? if so, add current part to array and clear
+    if (delimiters.test(currentChar)) {
+      // Only split the sentence if it has more than 75 characters
+      if (currentSentence.trim().length > 75) {
+        sentences.push(currentSentence.trim());
+      }
+      currentSentence = "";
+    }
+  }
+
+  return sentences;
 }
 
 // Check for new messages the bot has sent. If a new message is found, it will be read out loud
