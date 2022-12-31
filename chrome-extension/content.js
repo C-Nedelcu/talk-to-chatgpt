@@ -22,10 +22,10 @@ var CN_TEXT_TO_SPEECH_PITCH = 1; // This will alter the pitch for the bot's voic
 var CN_WANTED_LANGUAGE_SPEECH_REC = ""; //"fr-FR";
 
 // Determine which word will cause this scrip to stop.
-var CN_SAY_THIS_WORD_TO_STOP = "stop";
+var CN_SAY_THIS_WORD_TO_STOP = "stop speech";
 
 // Determine which word will cause this script to temporarily pause
-var CN_SAY_THIS_WORD_TO_PAUSE = "pause";
+var CN_SAY_THIS_WORD_TO_PAUSE = "pause speech";
 
 // Indicate "locale-voice name" (the possible values are difficult to determine, you should just ignore this and use the settings menu instead)
 var CN_WANTED_VOICE_NAME = "";
