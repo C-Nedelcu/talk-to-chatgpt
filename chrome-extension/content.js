@@ -4,7 +4,7 @@
 // Version		: 1.6
 // Git repo 	: https://github.com/C-Nedelcu/talk-to-chatgpt
 // Chat GPT URL	: https://chat.openai.com/chat
-// How to use   : https://www.youtube.com/watch?v=gOagK0r5syM
+// How to use   : https://www.youtube.com/watch?v=VXkLQMEs3lA
 
 
 // ----------------------------

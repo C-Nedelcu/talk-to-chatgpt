@@ -12,7 +12,7 @@ The settings menu can be seen below. Settings are saved in a cookie and reloaded
 
 ![Settings dialog](/images/settings.png?raw=true "Settings dialog")
 
-Demo (English+French) v1.5: https://www.youtube.com/watch?v=vr-6L7Ix9FM
+Demo (English+French) v1.6: https://www.youtube.com/watch?v=VXkLQMEs3lA
 
 # FAQ
 
