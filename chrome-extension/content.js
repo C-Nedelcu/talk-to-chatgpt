@@ -45,6 +45,7 @@ var CN_WANTED_VOICE_NAME = "";
 var CN_MESSAGE_COUNT = 0;
 var CN_CURRENT_MESSAGE = null;
 var CN_CURRENT_MESSAGE_SENTENCES = [];
+var CN_CURRENT_MESSAGE_SENTENCES_NEXT_READ = 0;
 var CN_SPEECHREC = null;
 var CN_IS_READING = false;
 var CN_IS_LISTENING = false;
@@ -178,6 +179,7 @@ function CN_CheckNewMessages() {
 		CN_MESSAGE_COUNT = currentMessageCount;
 		CN_CURRENT_MESSAGE = jQuery(".text-base:last");
 		CN_CURRENT_MESSAGE_SENTENCES = []; // Reset list of parts already spoken
+		CN_CURRENT_MESSAGE_SENTENCES_NEXT_READ = 0;
 	}
 	
 	// Split current message into parts
@@ -186,9 +188,14 @@ function CN_CheckNewMessages() {
 		var newSentences = CN_SplitIntoSentences(currentText);
 		if (newSentences != null && newSentences.length != CN_CURRENT_MESSAGE_SENTENCES.length) {
 			// There is a new part of a sentence!
+			var nextRead = CN_CURRENT_MESSAGE_SENTENCES_NEXT_READ;
+			for (i = nextRead; i < newSentences.length; i++) {
+				CN_CURRENT_MESSAGE_SENTENCES_NEXT_READ = i+1;
+
+				var lastPart = newSentences[i];
+				CN_SayOutLoud(lastPart);
+			}
 			CN_CURRENT_MESSAGE_SENTENCES = newSentences;
-			var lastPart = newSentences[newSentences.length-1];
-			CN_SayOutLoud(lastPart);
 		}
 	}
 	
