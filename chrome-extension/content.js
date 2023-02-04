@@ -1,7 +1,7 @@
 ﻿// TALK TO CHATGPT
 // ---------------
 // Author		: C. NEDELCU
-// Version		: 1.6
+// Version		: 1.6.1
 // Git repo 	: https://github.com/C-Nedelcu/talk-to-chatgpt
 // Chat GPT URL	: https://chat.openai.com/chat
 // How to use   : https://www.youtube.com/watch?v=VXkLQMEs3lA
@@ -461,7 +461,7 @@ function CN_InitScript() {
 	// Add icons on the top right corner
 	jQuery("body").append("<span style='position: fixed; top: 8px; right: 16px; display: inline-block; " +
 		"background: #888; color: white; padding: 8px; font-size: 16px; border-radius: 4px; text-align: center;" +
-		"font-weight: bold; z-index: 1111;' id='TTGPTSettings'><a href='https://github.com/C-Nedelcu/talk-to-chatgpt' target=_blank title='Visit project website'>Talk-to-ChatGPT v1.6</a><br />" +
+		"font-weight: bold; z-index: 1111;' id='TTGPTSettings'><a href='https://github.com/C-Nedelcu/talk-to-chatgpt' target=_blank title='Visit project website'>Talk-to-ChatGPT v1.6.1</a><br />" +
 		"<span style='font-size: 16px;' class='CNStartZone'>" +
 		"<button style='border: 1px solid #CCC; padding: 4px; margin: 6px; background: #FFF; border-radius: 4px; color:black;' id='CNStartButton'>▶️ START</button>"+
 		"</span>"+
