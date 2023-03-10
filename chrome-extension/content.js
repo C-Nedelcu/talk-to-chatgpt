@@ -283,6 +283,7 @@ function CN_StartSpeechRecognition() {
 			if (event.results[i].isFinal)
 				final_transcript += event.results[i][0].transcript;
 		}
+		CN_CURRENT_SPEECHREC_INTERVAL_REMAINING_MILLISECONDS = CN_SPEECHREC_INTERVAL;
 		console.log("You have said the following words: "+final_transcript);
 		if (final_transcript.toLowerCase() == CN_SAY_THIS_WORD_TO_STOP) {
 			console.log("You said '"+ CN_SAY_THIS_WORD_TO_STOP+"'. Conversation ended");
