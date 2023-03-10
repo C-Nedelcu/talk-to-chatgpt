@@ -1,4 +1,4 @@
-﻿// TALK TO CHATGPT
+// TALK TO CHATGPT
 // ---------------
 // Author		: C. NEDELCU
 // Version		: 1.6.1
@@ -42,7 +42,7 @@ var CN_WANTED_VOICE_NAME = "";
 // -------------------
 // CODE (DO NOT ALTER)
 // -------------------
-var CN_MESSAGE_COUNT = 0;
+var CN_MESSAGE = null;
 var CN_CURRENT_MESSAGE = null;
 var CN_CURRENT_MESSAGE_SENTENCES = [];
 var CN_CURRENT_MESSAGE_SENTENCES_NEXT_READ = 0;
@@ -57,7 +57,8 @@ var CN_TIMEOUT_KEEP_SPEECHREC_WORKING = null;
 var CN_SPEECH_REC_SUPPORTED = false;
 var CN_SPEAKING_DISABLED = false;
 var CN_SPEECHREC_DISABLED = false;
-
+var CN_SPEECHREC_INTERVAL = 100
+var CN_CURRENT_SPEECHREC_INTERVAL_REMAINING_MILLISECONDS = null
 // This function will say the given text out loud using the browser's speech synthesis API
 function CN_SayOutLoud(text) {
 	if (!text || CN_SPEAKING_DISABLED) {
@@ -220,14 +221,27 @@ function CN_SendMessage(text) {
 	
 	// Send the message, if autosend is enabled
 	if (CN_AUTO_SEND_AFTER_SPEAKING) {
-		jQuery("textarea").closest("div").find("button").click();
-		
-		// Stop speech recognition until the answer is received
-		if (CN_SPEECHREC) {
-			clearTimeout(CN_TIMEOUT_KEEP_SPEECHREC_WORKING);
-			CN_SPEECHREC.stop();
-		}
-	} else {
+		const timeoutBeforeSendMessage = () => {
+				CN_CURRENT_SPEECHREC_INTERVAL_REMAINING_MILLISECONDS -= 10
+				if ((CN_CURRENT_SPEECHREC_INTERVAL_REMAINING_MILLISECONDS) < 0) {
+					console.log("SPEECHREC end and send")
+					CN_CURRENT_SPEECHREC_INTERVAL_REMAINING_MILLISECONDS = null
+				jQuery("textarea").closest("div").find("button").click();
+
+				// Stop speech recognition until the answer is received
+				if (CN_SPEECHREC) {
+					clearTimeout(CN_TIMEOUT_KEEP_SPEECHREC_WORKING);
+					CN_SPEECHREC.stop();
+				}
+				} else {
+				console.log("SPEECHREC continue")
+				setTimeout(timeoutBeforeSendMessage, 10)
+				}
+				}
+
+				timeoutBeforeSendMessage()
+				}
+				else {
 		// No autosend, so continue recognizing
 		clearTimeout(CN_TIMEOUT_KEEP_SPEECHREC_WORKING);
 		CN_TIMEOUT_KEEP_SPEECHREC_WORKING = setTimeout(CN_KeepSpeechRecWorking, 100);
@@ -518,7 +532,10 @@ function CN_OnSettingsIconClick() {
 	// 3. AI voice pitch
 	rows += "<tr><td>AI voice pitch:</td><td><input type=number step='.1' id='TTGPTPitch' style='width: 100px; color: black;' value='"+CN_TEXT_TO_SPEECH_PITCH+"' /></td></tr>";
 	
-	// 4. Speech recognition language CN_WANTED_LANGUAGE_SPEECH_REC
+	// 4. Speech pause interval
+	rows += "<tr><td>Speech pause interval:</td><td><input type=number step='1' id='TTGPTTimeout' style='width: 100px; color: black;' value='" + CN_SPEECHREC_INTERVAL + "' /></td></tr>";
+
+	// 5. Speech recognition language CN_WANTED_LANGUAGE_SPEECH_REC
 	var languages = "<option value=''></option>";
 	for(var i in CN_SPEECHREC_LANGS) {
 		var languageName = CN_SPEECHREC_LANGS[i][0];
@@ -531,16 +548,16 @@ function CN_OnSettingsIconClick() {
 	}
 	rows += "<tr><td>Speech recognition language:</td><td><select id='TTGPTRecLang' style='width: 300px; color: black;' >"+languages+"</select></td></tr>";
 	
-	// 5. 'Stop' word
+	// 6. 'Stop' word
 	rows += "<tr><td>'Stop' word:</td><td><input type=text id='TTGPTStopWord' style='width: 100px; color: black;' value='"+CN_SAY_THIS_WORD_TO_STOP+"' /></td></tr>";
 	
-	// 6. 'Pause' word
+	// 7. 'Pause' word
 	rows += "<tr><td>'Pause' word:</td><td><input type=text id='TTGPTPauseWord' style='width: 100px; color: black;' value='"+CN_SAY_THIS_WORD_TO_PAUSE+"' /></td></tr>";
 	
-	// 7. Autosend
+	// 8. Autosend
 	rows += "<tr><td>Automatic send:</td><td><input type=checkbox id='TTGPTAutosend' "+(CN_AUTO_SEND_AFTER_SPEAKING?"checked=checked":"")+" /> <label for='TTGPTAutosend'>Automatically send message to ChatGPT after speaking</label></td></tr>";
 	
-	// 8. Manual send word
+	// 9. Manual send word
 	rows += "<tr><td>Manual send word(s):</td><td><input type=text id='TTGPTSendWord' style='width: 300px; color: black;' value='"+CN_SAY_THIS_TO_SEND+"' /> If 'automatic send' is disabled, you can trigger the sending of the message by saying this word (or sequence of words)</td></tr>";
 	
 	// Prepare save/close buttons
@@ -585,6 +602,7 @@ function CN_SaveSettings() {
 		CN_SAY_THIS_WORD_TO_PAUSE = jQuery("#TTGPTPauseWord").val();
 		CN_AUTO_SEND_AFTER_SPEAKING = jQuery("#TTGPTAutosend").prop("checked");
 		CN_SAY_THIS_TO_SEND = jQuery("#TTGPTSendWord").val();
+		CN_SPEECHREC_INTERVAL = jQuery("#TTGPTTimeout").val();
 
 		// Apply language to speech recognition instance
 		if (CN_SPEECHREC) CN_SPEECHREC.lang = CN_WANTED_LANGUAGE_SPEECH_REC;
@@ -598,7 +616,8 @@ function CN_SaveSettings() {
 			CN_SAY_THIS_WORD_TO_STOP,
 			CN_SAY_THIS_WORD_TO_PAUSE,
 			CN_AUTO_SEND_AFTER_SPEAKING?1:0,
-			CN_SAY_THIS_TO_SEND
+			CN_SAY_THIS_TO_SEND,
+			CN_SPEECHREC_INTERVAL
 		];
 		CN_SetCookie("CN_TTGPT", JSON.stringify(settings));
 	} catch(e) { alert('Invalid settings values'); return; }
@@ -626,6 +645,7 @@ function CN_RestoreSettings() {
 			CN_SAY_THIS_WORD_TO_PAUSE = settings[5];
 			if (settings.hasOwnProperty(6)) CN_AUTO_SEND_AFTER_SPEAKING = settings[6] == 1;
 			if (settings.hasOwnProperty(7)) CN_SAY_THIS_TO_SEND = settings[7];
+			if (settings.hasOwnProperty(8)) CN_SPEECHREC_INTERVAL = settings[8];
 		}
 	} catch (ex) {
 		console.error(ex);
