@@ -709,12 +709,12 @@ function CN_OnSettingsIconClick() {
 
   ttgptModal.querySelectorAll("button").forEach((btn) => {
     btn.classList.value =
-      " py-3 px-3 gap-3 rounded-md hover:bg-gray-500/10 transition-colors duration-200 text-white cursor-pointer text-sm mb-2 flex-shrink-0 border border-white/20 bg-gray-900";
+      " py-3 px-3 gap-3 rounded-md hover:bg-gray-500/10 transition-colors duration-200 text-white cursor-pointer text-sm mb-2 flex-shrink-0 border border-white/20 bg-gray-900 text-gray-800";
   });
 
   ttgptModal.querySelectorAll('input[type="text"]').forEach((input) => {
     input.classList.value =
-      " flex flex-col w-full py-2 flex-grow md:py-3 md:pl-4 relative border border-black/10 bg-white dark:border-gray-900/50 dark:text-white dark:bg-gray-700 rounded-md shadow-[0_0_10px_rgba(0,0,0,0.10)] dark:shadow-[0_0_15px_rgba(0,0,0,0.10)]";
+      " flex flex-col w-full py-2 flex-grow md:py-3 md:pl-4 relative border border-black/10 bg-white dark:border-gray-900/50 dark:text-white dark:bg-gray-700 rounded-md shadow-[0_0_10px_rgba(0,0,0,0.10)] dark:shadow-[0_0_15px_rgba(0,0,0,0.10)] text-gray-800";
     input.style.color = "white";
     input.style.width = "100%";
     input.style.height = "37px";
@@ -722,7 +722,7 @@ function CN_OnSettingsIconClick() {
 
   ttgptModal.querySelectorAll('input[type="number"]').forEach((input) => {
     input.classList.value =
-      " flex flex-col w-full py-2 flex-grow md:py-3 md:pl-4 relative border border-black/10 bg-white dark:border-gray-900/50 dark:text-white dark:bg-gray-700 rounded-md shadow-[0_0_10px_rgba(0,0,0,0.10)] dark:shadow-[0_0_15px_rgba(0,0,0,0.10)]";
+      " flex flex-col w-full py-2 flex-grow md:py-3 md:pl-4 relative border border-black/10 bg-white dark:border-gray-900/50 dark:text-white dark:bg-gray-700 rounded-md shadow-[0_0_10px_rgba(0,0,0,0.10)] dark:shadow-[0_0_15px_rgba(0,0,0,0.10)] text-gray-800";
     input.style.color = "white";
     input.style.width = "100%";
     input.style.height = "37px";
@@ -730,7 +730,7 @@ function CN_OnSettingsIconClick() {
 
   ttgptModal.querySelectorAll("select").forEach((select) => {
     select.classList.value =
-      " flex flex-col w-full py-2 flex-grow md:py-3 md:pl-4 relative border border-black/10 bg-white dark:border-gray-900/50 dark:text-white dark:bg-gray-700 rounded-md shadow-[0_0_10px_rgba(0,0,0,0.10)] dark:shadow-[0_0_15px_rgba(0,0,0,0.10)]";
+      " flex flex-col w-full py-2 flex-grow md:py-3 md:pl-4 relative border border-black/10 bg-white dark:border-gray-900/50 dark:text-white dark:bg-gray-700 rounded-md shadow-[0_0_10px_rgba(0,0,0,0.10)] dark:shadow-[0_0_15px_rgba(0,0,0,0.10)] text-gray-800";
     select.style.color = "white";
     select.style.width = "100%";
     //   select.style.height = "50px";
