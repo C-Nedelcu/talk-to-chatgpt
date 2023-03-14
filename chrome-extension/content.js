@@ -570,7 +570,7 @@ function CN_InitScript() {
     heading.attr("href", "javascript:void(0)");
     heading.attr("onClick", () => {});
 
-    
+    ttgpt.css("background", "transparent");
     startBtn.css("cssText", "");
 
     startBtn.removeClass();
