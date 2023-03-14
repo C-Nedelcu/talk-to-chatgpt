@@ -709,7 +709,7 @@ function CN_OnSettingsIconClick() {
 
   ttgptModal.querySelectorAll("button").forEach((btn) => {
     btn.classList.value =
-      " py-3 px-3 gap-3 rounded-md hover:bg-gray-500/10 transition-colors duration-200 text-white cursor-pointer text-sm mb-2 flex-shrink-0 border border-white/20 bg-gray-900 text-gray-800";
+      " py-3 px-3 gap-3 rounded-md hover:bg-gray-500/10 transition-colors duration-200 text-white cursor-pointer text-sm mb-2 flex-shrink-0 border border-white/20 bg-gray-900 dark:text-gray-800";
   });
 
   ttgptModal.querySelectorAll('input[type="text"]').forEach((input) => {
