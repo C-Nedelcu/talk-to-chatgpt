@@ -549,26 +549,34 @@ function CN_InitScript() {
 		}, 100);*/
   }, 100);
 
-  var ttgpt = jQuery("#TTGPTSettings");
-  var startBtn = jQuery("#CNStartButton");
-  var heading = jQuery("#TTGPTSettings a");
-  var br = jQuery("#TTGPTSettings br");
-  br.remove();
+  setTimeout(() => {
+    var ttgpt = jQuery("#TTGPTSettings");
+    var startBtn = jQuery("#CNStartButton");
+    console.log(ttgpt, startBtn);
 
-  ttgpt.style.padding = "0px 8px 0px 8px";
-  heading.style.color = "transparent";
-  heading.style.height = "1px";
-  heading.style.pointerEvents = "none";
-  heading.style.display = "block";
+    var heading = jQuery("#TTGPTSettings a");
+    var br = jQuery("#TTGPTSettings br");
+    br.remove();
 
-  heading.href = "javascript:void(0)";
-  heading.onClick = () => {};
+    // CHange above operations to jQuery
+    ttgpt.css("padding", "0px 8px 0px 8px");
+    heading.css("color", "transparent");
+    heading.css("height", "1px");
+    heading.css("pointer-events", "none");
+    heading.css("display", "block");
 
-  ttgpt.style.background = "#3e3f4b";
-  startBtn.style.cssText = "";
-  startBtn.classList.value =
-    "flex py-3 px-3 items-center justify-center w-full gap-3 rounded-md hover:bg-gray-500/10 transition-colors duration-200 text-white cursor-pointer text-sm mb-2 flex-shrink-0 border border-white/20 mt-3";
-  startBtn.textContent = "🎙️Start Talking";
+    heading.attr("href", "javascript:void(0)");
+    heading.attr("onClick", () => {});
+
+    ttgpt.css("background", "#3e3f4b");
+    startBtn.css("cssText", "");
+
+    startBtn.removeClass();
+    startBtn.addClass(
+      "flex py-3 px-3 items-center justify-center w-full gap-3 rounded-md hover:bg-gray-500/10 transition-colors duration-200 text-white cursor-pointer text-sm mb-2 flex-shrink-0 border border-white/20 mt-3"
+    );
+    startBtn.text("🎙️Start Talking");
+  }, 100);
 }
 
 // Open settings menu
