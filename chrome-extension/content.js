@@ -565,6 +565,8 @@ function CN_InitScript() {
     heading.css("pointer-events", "none");
     heading.css("display", "block");
 
+    ttgpt.addClass("bg-gray-100 dark:bg-white/5 p-3 rounded-md shadow-md");
+
     heading.attr("href", "javascript:void(0)");
     heading.attr("onClick", () => {});
 
@@ -573,7 +575,7 @@ function CN_InitScript() {
 
     startBtn.removeClass();
     startBtn.addClass(
-      "flex py-3 px-3 items-center justify-center w-full gap-3 rounded-md hover:bg-gray-500/10 transition-colors duration-200 text-white cursor-pointer text-sm mb-2 flex-shrink-0 border border-white/20 mt-3"
+      "flex py-3 px-3 items-center justify-center w-full gap-3 rounded-md btn relative btn-primary mb-2 mt-3"
     );
     startBtn.text("🎙️Start Talking");
   }, 100);
