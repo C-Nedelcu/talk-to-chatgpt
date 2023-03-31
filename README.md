@@ -44,7 +44,10 @@ A: this is entirely based on the Google Chrome APIs, so you need to ask Google, 
 
 Talk-to-ChatGPT has been receiving press coverage since its release. It is currently featured on the following sites:
 
+* BGR.com - https://bgr.com/tech/free-talk-to-chatgpt-chrome-extension-gives-ai-a-voice/
+* GeekFlare - https://geekflare.com/best-chatgpt-chrome-extensions/
+* NerdsChalk - https://nerdschalk.com/talk-to-chatgpt/
+* GBAtemp - https://gbatemp.net/threads/talk-to-chatgpt-actual-vocal-discussion-with-an-ai-using-voice-recognition-and-text-to-speech-in-chrome.622942/
 * JustGeek - https://www.justgeek.fr/talk-to-chatgpt-discuter-a-voix-haute-avec-chatgpt-103657/
 * Comment Ca Marche - https://www.commentcamarche.net/informatique/technologies/27295-application-et-extension-vocale-chatgpt-de-nouveaux-outils-pour-l-ia/#talk-to-chatgpt--discuter-a-haute-voix-avec-lia
-* GBAtemp - https://gbatemp.net/threads/talk-to-chatgpt-actual-vocal-discussion-with-an-ai-using-voice-recognition-and-text-to-speech-in-chrome.622942/
 * This list will be updated over time.
