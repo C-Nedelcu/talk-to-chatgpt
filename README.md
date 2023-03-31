@@ -1,22 +1,4 @@
-# UPDATE 30/03/2023: breaking changes have been introduced to the ChatGPT UI rendering this extension unusable at the moment. We are working on a fix. 
-
-# -
-
-# -
-
-# - 
-
-# -
-
-# -
-
-# -
-
-# -
-
-# -
-
-# -
+# UPDATE 31/03/2023: version 1.6.2 of the extension fixes breaking changes that were introduced by a recent ChatGPT UI update. You can install the extension update manually by downloading it from the Github repo. Or wait until the new version is approved by Google and starts appearing on the extension store. It has been submitted on March 31st early morning. This version restores normal functionality but doesn't add new features (still working on v1.7)
 
 # -
 
