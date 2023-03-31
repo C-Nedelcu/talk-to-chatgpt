@@ -1,7 +1,7 @@
 ﻿// TALK TO CHATGPT
 // ---------------
 // Author		: C. NEDELCU
-// Version		: 1.6.1
+// Version		: 1.6.2
 // Git repo 	: https://github.com/C-Nedelcu/talk-to-chatgpt
 // Chat GPT URL	: https://chat.openai.com/chat
 // How to use   : https://www.youtube.com/watch?v=VXkLQMEs3lA
@@ -177,7 +177,7 @@ function CN_CheckNewMessages() {
 	if (currentMessageCount > CN_MESSAGE_COUNT) {
 		// New message!
 		CN_MESSAGE_COUNT = currentMessageCount;
-		CN_CURRENT_MESSAGE = jQuery(".text-base:last");
+		CN_CURRENT_MESSAGE = jQuery(".text-base:last").find(".items-start");
 		CN_CURRENT_MESSAGE_SENTENCES = []; // Reset list of parts already spoken
 		CN_CURRENT_MESSAGE_SENTENCES_NEXT_READ = 0;
 	}
@@ -219,6 +219,7 @@ function CN_SendMessage(text) {
 	jQuery("textarea").css("height", height+"px");
 	
 	// Send the message, if autosend is enabled
+	jQuery("textarea").closest("div").find("button").prop("disabled", false);
 	if (CN_AUTO_SEND_AFTER_SPEAKING) {
 		jQuery("textarea").closest("div").find("button").click();
 		
@@ -461,7 +462,7 @@ function CN_InitScript() {
 	// Add icons on the top right corner
 	jQuery("body").append("<span style='position: fixed; top: 8px; right: 16px; display: inline-block; " +
 		"background: #888; color: white; padding: 8px; font-size: 16px; border-radius: 4px; text-align: center;" +
-		"font-weight: bold; z-index: 1111;' id='TTGPTSettings'><a href='https://github.com/C-Nedelcu/talk-to-chatgpt' target=_blank title='Visit project website'>Talk-to-ChatGPT v1.6.1</a><br />" +
+		"font-weight: bold; z-index: 1111;' id='TTGPTSettings'><a href='https://github.com/C-Nedelcu/talk-to-chatgpt' target=_blank title='Visit project website'>Talk-to-ChatGPT v1.6.2</a><br />" +
 		"<span style='font-size: 16px;' class='CNStartZone'>" +
 		"<button style='border: 1px solid #CCC; padding: 4px; margin: 6px; background: #FFF; border-radius: 4px; color:black;' id='CNStartButton'>▶️ START</button>"+
 		"</span>"+
