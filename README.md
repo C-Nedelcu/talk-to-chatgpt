@@ -1,5 +1,3 @@
-# UPDATE 03/04/2023: version 1.6.2 of the extension fixes breaking changes that were introduced by a recent ChatGPT UI update. You can install the extension update by forcing the update in your Chrome extension settings, or wait until the new version installs automatically on your browser. This version restores normal functionality but doesn't add new features (still working on v1.7)
-
 **Talk-to-ChatGPT** is a Google Chrome extension that allows users to talk with the ChatGPT AI using their voice (speech recognition), and listen to the bot's answer with a voice (text-to-speech), rather than just by typing. With this tool, users can speak to the AI and receive spoken responses, making the interaction feel more natural and conversational. This could be useful in a variety of settings where it would be helpful to have a more human-like interaction with an AI.
 
 **The Talk-to-ChatGPT Google Chrome extension can be downloaded from the Chrome Web store here:** https://chrome.google.com/webstore/detail/talk-to-chatgpt/hodadfhfagpiemkeoliaelelfbboamlk
@@ -14,9 +12,11 @@ The settings menu can be seen below. Settings are saved in a cookie and reloaded
 
 ![Settings dialog](/images/settings.png?raw=true "Settings dialog")
 
-Demo (English+French) v1.6: https://www.youtube.com/watch?v=VXkLQMEs3lA
+Demo V2.0: https://www.youtube.com/watch?v=sKjkOwkoMNM
 
 # FAQ
+
+**Q: Which web browsers are supported?** A: This extension is designed for Google Chrome desktop version only. It has been reported to work with Microsoft Edge too, but I do not actively support it. The extension will not work in any other web browser, especially not mobile browsers, because these browsers do not support the necessary APIs (speech recognition and speech synthesis).
 
 **Q: Can you make it speak faster or in a different voice or language?** A: Yes, use the settings menu. You can select a variety of settings among which the speech rate, voice type, and language.
 
