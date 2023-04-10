@@ -1,7 +1,7 @@
 ﻿// TALK TO CHATGPT
 // ---------------
 // Author		: C. NEDELCU
-// Version		: 1.6.2
+// Version		: 2.0.0
 // Git repo 	: https://github.com/C-Nedelcu/talk-to-chatgpt
 // Chat GPT URL	: https://chat.openai.com/chat
 // How to use   : https://www.youtube.com/watch?v=VXkLQMEs3lA
@@ -29,6 +29,9 @@ var CN_SAY_THIS_WORD_TO_PAUSE = "pause";
 
 // Determine whether messages are sent immediately after speaing
 var CN_AUTO_SEND_AFTER_SPEAKING = true;
+
+// Determine whether commas should be ignored as sentence separators
+var CN_IGNORE_COMMAS = false;
 
 // Determine which word(s) will cause this script to send the current message (if auto-send disabled)
 var CN_SAY_THIS_TO_SEND = "send message now"; 
@@ -145,22 +148,22 @@ function CN_SplitIntoSentences(text) {
 		// is the current character a delimiter? if so, add current part to array and clear
 		if (
 			// Latin punctuation
-		       currentChar == ',' 
-			|| currentChar == ':' 
+		       currentChar == (CN_IGNORE_COMMAS?'.':',')
+			|| currentChar == (CN_IGNORE_COMMAS ? '.' : ':')
 			|| currentChar == '.' 
 			|| currentChar == '!' 
 			|| currentChar == '?' 
-			|| currentChar == ';'
+			|| currentChar == (CN_IGNORE_COMMAS ? '.' : ';')
 			|| currentChar == '…'
 			// Chinese/japanese punctuation
-			|| currentChar == '、' 
-			|| currentChar == '，'
+			|| currentChar == (CN_IGNORE_COMMAS ? '.' : '、')
+			|| currentChar == (CN_IGNORE_COMMAS ? '.' : '，')
 			|| currentChar == '。'
 			|| currentChar == '．'
 			|| currentChar == '！'
 			|| currentChar == '？'
-			|| currentChar == '；'
-			|| currentChar == '：'
+			|| currentChar == (CN_IGNORE_COMMAS ? '.' : '；')
+			|| currentChar == (CN_IGNORE_COMMAS ? '.' : '：')
 			) {
 			if (currentSentence.trim() != "") sentences.push(currentSentence.trim());
 			currentSentence = "";
@@ -270,8 +273,9 @@ function CN_StartSpeechRecognition() {
 			if (event.results[i].isFinal)
 				final_transcript += event.results[i][0].transcript;
 		}
-		console.log("You have said the following words: "+final_transcript);
-		if (final_transcript.toLowerCase() == CN_SAY_THIS_WORD_TO_STOP) {
+		
+		console.log("Voice recognition: '"+ (final_transcript)+"'");
+		if (CN_RemovePunctuation(final_transcript) == CN_SAY_THIS_WORD_TO_STOP.toLowerCase().trim()) {
 			console.log("You said '"+ CN_SAY_THIS_WORD_TO_STOP+"'. Conversation ended");
 			CN_FINISHED = true;
 			CN_PAUSED = false;
@@ -284,7 +288,7 @@ function CN_StartSpeechRecognition() {
 			jQuery(".CNActionButtons").hide();
 			
 			return;
-		} else if (final_transcript.toLowerCase() == CN_SAY_THIS_WORD_TO_PAUSE) {
+		} else if (CN_RemovePunctuation(final_transcript) == CN_SAY_THIS_WORD_TO_PAUSE.toLowerCase().trim()) {
 			console.log("You said '"+ CN_SAY_THIS_WORD_TO_PAUSE+"' Conversation paused");
 			CN_PAUSED = true;
 			if (CN_SPEECHREC) CN_SPEECHREC.stop();
@@ -292,7 +296,7 @@ function CN_StartSpeechRecognition() {
 			CN_PAUSED = false;
 			console.log("Conversation resumed");
 			return;
-		} else if (final_transcript.toLowerCase().trim() == CN_SAY_THIS_TO_SEND.toLowerCase().trim() && !CN_AUTO_SEND_AFTER_SPEAKING) {
+		} else if (CN_RemovePunctuation(final_transcript) == CN_SAY_THIS_TO_SEND.toLowerCase().trim() && !CN_AUTO_SEND_AFTER_SPEAKING) {
 			console.log("You said '"+ CN_SAY_THIS_TO_SEND+"' - the message will be sent");
 			
 			// Click button
@@ -401,7 +405,7 @@ function CN_ToggleButtonClick() {
 	}
 }
 
-// Start Talk-to-GPT (Start button)
+// Start Talk-to-ChatGPT (Start button)
 function CN_StartTTGPT() {
 	CN_SayOutLoud("OK");
 	CN_FINISHED = false;
@@ -462,16 +466,16 @@ function CN_InitScript() {
 	// Add icons on the top right corner
 	jQuery("body").append("<span style='position: fixed; top: 8px; right: 16px; display: inline-block; " +
 		"background: #888; color: white; padding: 8px; font-size: 16px; border-radius: 4px; text-align: center;" +
-		"font-weight: bold; z-index: 1111;' id='TTGPTSettings'><a href='https://github.com/C-Nedelcu/talk-to-chatgpt' target=_blank title='Visit project website'>Talk-to-ChatGPT v1.6.2</a><br />" +
+		"font-weight: bold; z-index: 1111;' id='TTGPTSettings'><a href='https://github.com/C-Nedelcu/talk-to-chatgpt' target=_blank title='Visit project website'>Talk-to-ChatGPT v2.0.0</a><br />" +
 		"<span style='font-size: 16px;' class='CNStartZone'>" +
-		"<button style='border: 1px solid #CCC; padding: 4px; margin: 6px; background: #FFF; border-radius: 4px; color:black;' id='CNStartButton'>▶️ START</button>"+
+		"<button style='border: 1px solid #CCC; padding: 4px; margin: 6px; background: #FFF; border-radius: 4px; color:black;' id='CNStartButton' title='ALT+SHIFT+S'>▶️ START</button>"+
 		"</span>"+
 		"<span style='font-size: 20px; display:none;' class='CNActionButtons'>" +
-		"<span class='CNToggle' title='Voice recognition enabled. Click to disable' data-cn='micon'>🎙️ </span>  " + // Microphone enabled
-		"<span class='CNToggle' title='Voice recognition disabled. Click to enable' style='display:none;' data-cn='micoff'>🤫 </span>  " + // Microphone disabled
-		"<span class='CNToggle' title='Text-to-speech (bot voice) enabled. Click to disable. This will skip the current message entirely.' data-cn='speakon'>🔊 </span>  " + // Speak out loud
-		"<span class='CNToggle' title='Text-to-speech (bot voice) disabled. Click to enable' style='display:none;' data-cn='speakoff'>🔇 </span>  " + // Mute
-		"<span class='CNToggle' title='Skip the message currently being read by the bot.' data-cn='skip'>⏩ </span>  " + // Skip
+		"<span class='CNToggle' title='Voice recognition enabled. Click to disable. (Shortcut: ALT+SHIFT+H)' data-cn='micon'>🎙️ </span>  " + // Microphone enabled
+		"<span class='CNToggle' title='Voice recognition disabled. Click to enable. (Shortcut: ALT+SHIFT+H)' style='display:none;' data-cn='micoff'>🤫 </span>  " + // Microphone disabled
+		"<span class='CNToggle' title='Text-to-speech (bot voice) enabled. Click to disable. This will skip the current message entirely. (Shortcut: ALT+SHIFT+V)' data-cn='speakon'>🔊 </span>  " + // Speak out loud
+		"<span class='CNToggle' title='Text-to-speech (bot voice) disabled. Click to enable. (Shortcut: ALT+SHIFT+V)' style='display:none;' data-cn='speakoff'>🔇 </span>  " + // Mute
+		"<span class='CNToggle' title='Skip the message currently being read by the bot. (Shortcut: ALT+SHIFT+L)' data-cn='skip'>⏩ </span>  " + // Skip
 		"<span class='CNToggle' title='Open settings menu to change bot voice, language, and other settings' data-cn='settings'>⚙️</span> " + // Settings
 		"</span></span>");
 	
@@ -483,12 +487,54 @@ function CN_InitScript() {
 		jQuery(".CNToggle").css("cursor", "pointer");
 		jQuery(".CNToggle").on("click", CN_ToggleButtonClick);
 		jQuery("#CNStartButton").on("click", CN_StartTTGPT);
-		// Say OK to confirm it has started
-		/*setTimeout(function() {
-		
-		}, 100);*/
 	}, 100);
+	
+	// Start key detection
+	jQuery(document).on('keydown', function (e) {
+		// ALT+SHIFT+S: Start
+		if (e.altKey && e.shiftKey && e.which === 83) {
+			console.log('ALT+SHIFT+S pressed, starting Talk-To-ChatGPT');
+			CN_StartTTGPT();
+		}
+		
+		// ALT+SHIFT+H: Hush
+		if (e.altKey && e.shiftKey && e.which === 72) {
+			// Is the current mode 'micon' or 'micoff'?
+			var wantMicOff = jQuery(".CNToggle[data-cn=micon]").css("display") == "none";
+			if (wantMicOff) {
+				// Turn off bot voice
+				console.log('ALT+SHIFT+H pressed, turning off speech recognition');
+				jQuery(".CNToggle[data-cn=micoff]").click();
+			} else {
+				// Turn on bot voice
+				console.log('ALT+SHIFT+H pressed, turning on speech recognition');
+				jQuery(".CNToggle[data-cn=micon]").click();
+			}
+		}
+		
+		// ALT+SHIFT+V: suspend bot Voice
+		if (e.altKey && e.shiftKey && e.which === 86) {
+			// Is the current mode 'speakon' or 'speakoff'?
+			var wantSpeakOff = jQuery(".CNToggle[data-cn=speakon]").css("display") == "none";
+			if (wantSpeakOff) {
+				// Turn off bot voice
+				console.log('ALT+SHIFT+V pressed, turning bot voice off');
+				jQuery(".CNToggle[data-cn=speakoff]").click();
+			} else {
+				// Turn on bot voice
+				console.log('ALT+SHIFT+V pressed, turning bot voice on');
+				jQuery(".CNToggle[data-cn=speakon]").click();
+			}
+		}
+		
+		// ALT+SHIFT+L: skip current message
+		if (e.altKey && e.shiftKey && e.which === 76) {
+			console.log('ALT+SHIFT+L pressed, skipping current message');
+			jQuery(".CNToggle[data-cn=skip]").click();
+		}
+	});
 }
+
 
 // Open settings menu
 function CN_OnSettingsIconClick() {
@@ -500,7 +546,7 @@ function CN_OnSettingsIconClick() {
 	
 	// Prepare settings row
 	var rows = "";
-	  
+	
 	// 1. Bot's voice
 	var voices = "";
 	var n = 0;
@@ -511,13 +557,13 @@ function CN_OnSettingsIconClick() {
 		voices += "<option value='"+n+"' "+SEL+">"+label+"</option>";
 		n++;
 	});
-	rows += "<tr><td>AI voice and language:</td><td><select id='TTGPTVoice' style='width: 300px; color: black'>"+voices+"</select></td></tr>";
+	rows += "<tr><td style='white-space: nowrap'>AI voice and language:</td><td><select id='TTGPTVoice' style='width: 250px; padding: 2px; color: black'>"+voices+"</select></td></tr>";
 	
 	// 2. AI talking speed
-	rows += "<tr><td>AI talking speed (speech rate):</td><td><input type=number step='.1' id='TTGPTRate' style='color: black; width: 100px;' value='"+CN_TEXT_TO_SPEECH_RATE+"' /></td></tr>";
+	rows += "<tr><td style='white-space: nowrap'>AI talking speed (speech rate):</td><td><input type=number step='.1' id='TTGPTRate' style='color: black; padding: 2px; width: 100px;' value='"+CN_TEXT_TO_SPEECH_RATE+"' /></td></tr>";
 	
 	// 3. AI voice pitch
-	rows += "<tr><td>AI voice pitch:</td><td><input type=number step='.1' id='TTGPTPitch' style='width: 100px; color: black;' value='"+CN_TEXT_TO_SPEECH_PITCH+"' /></td></tr>";
+	rows += "<tr><td style='white-space: nowrap'>AI voice pitch:</td><td><input type=number step='.1' id='TTGPTPitch' style='width: 100px; padding: 2px; color: black;' value='"+CN_TEXT_TO_SPEECH_PITCH+"' /></td></tr>";
 	
 	// 4. Speech recognition language CN_WANTED_LANGUAGE_SPEECH_REC
 	var languages = "<option value=''></option>";
@@ -530,35 +576,47 @@ function CN_OnSettingsIconClick() {
 			languages += "<option value='"+languageCode+"' "+SEL+">"+languageName+" - "+languageCode+"</option>";
 		}
 	}
-	rows += "<tr><td>Speech recognition language:</td><td><select id='TTGPTRecLang' style='width: 300px; color: black;' >"+languages+"</select></td></tr>";
+	rows += "<tr><td style='white-space: nowrap'>Speech recognition language:</td><td><select id='TTGPTRecLang' style='width: 250px; padding: 2px; color: black;' >"+languages+"</select></td></tr>";
 	
 	// 5. 'Stop' word
-	rows += "<tr><td>'Stop' word:</td><td><input type=text id='TTGPTStopWord' style='width: 100px; color: black;' value='"+CN_SAY_THIS_WORD_TO_STOP+"' /></td></tr>";
+	rows += "<tr><td style='white-space: nowrap'>'Stop' word:</td><td><input type=text id='TTGPTStopWord' style='width: 100px; padding: 2px; color: black;' value='"+CN_SAY_THIS_WORD_TO_STOP+"' /></td></tr>";
 	
 	// 6. 'Pause' word
-	rows += "<tr><td>'Pause' word:</td><td><input type=text id='TTGPTPauseWord' style='width: 100px; color: black;' value='"+CN_SAY_THIS_WORD_TO_PAUSE+"' /></td></tr>";
+	rows += "<tr><td style='white-space: nowrap'>'Pause' word:</td><td><input type=text id='TTGPTPauseWord' style='width: 100px; padding: 2px; color: black;' value='"+CN_SAY_THIS_WORD_TO_PAUSE+"' /></td></tr>";
 	
 	// 7. Autosend
-	rows += "<tr><td>Automatic send:</td><td><input type=checkbox id='TTGPTAutosend' "+(CN_AUTO_SEND_AFTER_SPEAKING?"checked=checked":"")+" /> <label for='TTGPTAutosend'>Automatically send message to ChatGPT after speaking</label></td></tr>";
+	rows += "<tr><td style='white-space: nowrap'>Automatic send:</td><td><input type=checkbox id='TTGPTAutosend' "+(CN_AUTO_SEND_AFTER_SPEAKING?"checked=checked":"")+" /> <label for='TTGPTAutosend'>Automatically send message to ChatGPT after speaking</label></td></tr>";
 	
 	// 8. Manual send word
-	rows += "<tr><td>Manual send word(s):</td><td><input type=text id='TTGPTSendWord' style='width: 300px; color: black;' value='"+CN_SAY_THIS_TO_SEND+"' /> If 'automatic send' is disabled, you can trigger the sending of the message by saying this word (or sequence of words)</td></tr>";
+	rows += "<tr><td style='white-space: nowrap'>Manual send word(s):</td><td><input type=text id='TTGPTSendWord' style='width: 250px; padding: 2px; color: black;' value='" + CN_SAY_THIS_TO_SEND + "' /><span style='font-size: 10px;'>If 'automatic send' is disabled, you can trigger the sending of the message by saying this word (or sequence of words)</span></td></tr>";
+	
+	// 9. Split sentences with commas
+	rows += "<tr><td style='white-space: nowrap'>Punctuation in sentences:</td><td><input type=checkbox id='TTGPTIgnoreCommas' " + (CN_IGNORE_COMMAS ? "checked=checked" : "") + " /> <label for='TTGPTIgnoreCommas'>Don't use commas/semicolons/etc. to break down replies into sentences</label></td></tr>";
+	
+	// Keyboard shortcuts
+	rows += "<tr><td style='white-space: nowrap'>Keyboard shortcuts:</td><td><ul>" +
+		"<li>ALT+SHIFT+S: <u>S</u>tart Talk-To-ChatGPT</li>" +
+		"<li>ALT+SHIFT+H: suspend/resume speech recognition (<u>H</u>ush)</li>" +
+		"<li>ALT+SHIFT+V: suspend/resume bot's voice (<u>V</u>oice)</li>" +
+		"<li>ALT+SHIFT+L: skip current message (<u>L</u>eap)</li>" +
+		"</ul></td></tr>";
 	
 	// Prepare save/close buttons
-	var closeRow = "<tr><td colspan=2 style='text-align: center'><br /><button id='TTGPTSave' style='font-weight: bold;'>✓ Save</button>&nbsp;<button id='TTGPTCancel' style='margin-left: 20px;'>✗ Cancel</button></td></tr>";
+	var closeRow = "<tr><td colspan=2 style='text-align: center'><br /><button id='TTGPTSave' style='font-size: 18px; font-weight: bold;'>✓ Save</button>&nbsp;<button id='TTGPTCancel' style='margin-left: 40px; font-size: 18px;'>✗ Cancel</button></td></tr>";
 	
 	// Prepare settings table
-	var table = "<table cellpadding=6 cellspacing=0 style='margin: 30px;'>"+rows+closeRow+"</table>";
+	var table = "<table cellpadding=6 cellspacing=2 style='margin-top: 30px;'>"+rows+closeRow+"</table>";
 	
 	// A short text at the beginning
-	var desc = "<div style='margin: 8px;'>Please note: some the voices and speech recognition languages do not appear to work. If the one you select doesn't work, try reloading the page. " +
+	var desc = "<div style='text-align: justify; margin: 8px;'>Please note: some the voices and speech recognition languages do not appear to work. If the one you select doesn't work, try reloading the page. " +
 		"If it still doesn't work after reloading the page, please try selecting another voice or language. " +
 		"Also, sometimes the text-to-speech API takes time to kick in, give it a few seconds to hear the bot speak. <b>Remember this is an experimental extension created just for fun.</b> " +
 		"Check out the <a href='https://github.com/C-Nedelcu/talk-to-chatgpt' target=_blank style='text-decoration: underline'>project page</a> to get the source code." +
 		"</div>";
 	
 	// Open a whole screenful of settings
-	jQuery("body").append("<div style='background: rgba(0,0,0,0.7); position: absolute; top: 0; right: 0; left: 0; bottom: 0; z-index: 999999; padding: 20px; color: white; font-size: 14px;' id='TTGPTSettingsArea'><h1>⚙️ Talk-to-GPT settings</h1>"+desc+table+"</div>");
+	jQuery("body").append("<div style='background: rgba(0,0,0,0.7); position: absolute; overflow-y: auto; top: 0; right: 0; left: 0; bottom: 0; z-index: 999999; padding: 20px; color: white; font-size: 13px;' id='TTGPTSettingsArea'>" +
+		"<div style='width: 600px; margin-left: auto; margin-right: auto; overflow-y: auto;'><h1>⚙️ Talk-to-ChatGPT settings</h1>"+desc+table+"</div></div>");
 	
 	// Assign events
 	setTimeout(function() {
@@ -586,7 +644,8 @@ function CN_SaveSettings() {
 		CN_SAY_THIS_WORD_TO_PAUSE = jQuery("#TTGPTPauseWord").val();
 		CN_AUTO_SEND_AFTER_SPEAKING = jQuery("#TTGPTAutosend").prop("checked");
 		CN_SAY_THIS_TO_SEND = jQuery("#TTGPTSendWord").val();
-
+		CN_IGNORE_COMMAS = jQuery("#TTGPTIgnoreCommas").prop("checked");
+		
 		// Apply language to speech recognition instance
 		if (CN_SPEECHREC) CN_SPEECHREC.lang = CN_WANTED_LANGUAGE_SPEECH_REC;
 		
@@ -599,7 +658,8 @@ function CN_SaveSettings() {
 			CN_SAY_THIS_WORD_TO_STOP,
 			CN_SAY_THIS_WORD_TO_PAUSE,
 			CN_AUTO_SEND_AFTER_SPEAKING?1:0,
-			CN_SAY_THIS_TO_SEND
+			CN_SAY_THIS_TO_SEND,
+			CN_IGNORE_COMMAS?1:0
 		];
 		CN_SetCookie("CN_TTGPT", JSON.stringify(settings));
 	} catch(e) { alert('Invalid settings values'); return; }
@@ -627,6 +687,7 @@ function CN_RestoreSettings() {
 			CN_SAY_THIS_WORD_TO_PAUSE = settings[5];
 			if (settings.hasOwnProperty(6)) CN_AUTO_SEND_AFTER_SPEAKING = settings[6] == 1;
 			if (settings.hasOwnProperty(7)) CN_SAY_THIS_TO_SEND = settings[7];
+			if (settings.hasOwnProperty(8)) CN_IGNORE_COMMAS = settings[8] == 1;
 		}
 	} catch (ex) {
 		console.error(ex);
@@ -640,6 +701,13 @@ function CN_CloseSettingsDialog() {
 	
 	// Resume listening
 	CN_PAUSED = false;
+}
+
+// Remove punctuation in a sentence. This function was written by ChatGPT on the 9th of April 2023. Thanks Chatty!
+function CN_RemovePunctuation(str) {
+	const regexPonctuation = /[\u2000-\u206F\u2E00-\u2E7F\\'!"#$%&()*+,\-./:;<=>?@\[\]^_`{|}~]/g;
+	str = str.replace(regexPonctuation, '')+"";
+	return str.toLowerCase().trim();
 }
 
 // Sets a cookie
