@@ -4,7 +4,7 @@
 
 **The Talk-to-ChatGPT Google Chrome extension can be downloaded from the Chrome Web store here:** https://chrome.google.com/webstore/detail/talk-to-chatgpt/hodadfhfagpiemkeoliaelelfbboamlk
 
-After installing the Google Chrome extension, open or reload the ChatGPT page ( https://chat.openai.com/chat ) and you should be seeing a 'Start' button on the top right corner of the page. After you click Start, you will be asked for permission to use your Microphone. This is required to enable voice recognition.
+After installing the Google Chrome extension, open or reload the ChatGPT page ( https://chat.openai.com/ ) and you should be seeing a 'Start' button on the top right corner of the page. After you click Start, you will be asked for permission to use your Microphone. This is required to enable voice recognition.
 
 ![Talk-to-GPT Menu](/images/menu.png?raw=true&v2.0 "Talk-to-GPT Menu")
 
