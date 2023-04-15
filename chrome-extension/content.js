@@ -1,7 +1,7 @@
 ﻿// TALK TO CHATGPT
 // ---------------
 // Author		: C. NEDELCU
-// Version		: 2.0.1
+// Version		: 2.0.2
 // Git repo 	: https://github.com/C-Nedelcu/talk-to-chatgpt
 // Chat GPT URL	: https://chat.openai.com/chat
 // How to use   : https://www.youtube.com/watch?v=VXkLQMEs3lA
@@ -208,23 +208,23 @@ function CN_CheckNewMessages() {
 // Send a message to the bot (will simply put text in the textarea and simulate a send button click)
 function CN_SendMessage(text) {
 	// Put message in textarea
-	jQuery("textarea:first").focus();
-	var existingText = jQuery("textarea:first").val();
+	jQuery("textarea.w-full").focus();
+	var existingText = jQuery("textarea.w-full").val();
 	
 	// Is there already existing text?
-	if (!existingText) jQuery("textarea").val(text);
-	else jQuery("textarea").val(existingText+" "+text);
+	if (!existingText) jQuery("textarea.w-full").val(text);
+	else jQuery("textarea.w-full").val(existingText+" "+text);
 	
 	// Change height in case
 	var fullText = existingText+" "+text;
 	var rows = Math.ceil( fullText.length / 88);
 	var height = rows * 24;
-	jQuery("textarea").css("height", height+"px");
+	jQuery("textarea.w-full").css("height", height+"px");
 	
 	// Send the message, if autosend is enabled
-	jQuery("textarea").closest("div").find("button").prop("disabled", false);
+	jQuery("textarea.w-full").closest("div").find("button").prop("disabled", false);
 	if (CN_AUTO_SEND_AFTER_SPEAKING) {
-		jQuery("textarea").closest("div").find("button").click();
+		jQuery("textarea.w-full").closest("div").find("button").click();
 		
 		// Stop speech recognition until the answer is received
 		if (CN_SPEECHREC) {
@@ -300,7 +300,7 @@ function CN_StartSpeechRecognition() {
 			console.log("You said '"+ CN_SAY_THIS_TO_SEND+"' - the message will be sent");
 			
 			// Click button
-			jQuery("textarea").closest("div").find("button").click();
+			jQuery("textarea.w-full").closest("div").find("button").click();
 		
 			// Stop speech recognition until the answer is received
 			if (CN_SPEECHREC) {
@@ -423,6 +423,20 @@ function CN_StartTTGPT() {
 	}, 1000);
 }
 
+// Check we are on the correct page
+function CN_CheckCorrectPage() {
+	console.log("Checking we are on the correct page...");
+	var wrongPage = jQuery("textarea.w-full").length == 0; // no textarea... login page?
+	
+	if (wrongPage) {
+		// We are on the wrong page, keep checking
+		setTimeout(CN_CheckCorrectPage, 1000);
+	} else {
+		// We are on the right page, let's go!
+		CN_InitScript();
+	}
+}
+
 // Perform initialization after jQuery is loaded
 function CN_InitScript() {
 	if (typeof $ === null || typeof $ === undefined) $ = jQuery;
@@ -466,7 +480,7 @@ function CN_InitScript() {
 	// Add icons on the top right corner
 	jQuery("body").append("<span style='position: fixed; top: 8px; right: 16px; display: inline-block; " +
 		"background: #888; color: white; padding: 8px; font-size: 16px; border-radius: 4px; text-align: center;" +
-		"font-weight: bold; z-index: 1111;' id='TTGPTSettings'><a href='https://github.com/C-Nedelcu/talk-to-chatgpt' target=_blank title='Visit project website'>Talk-to-ChatGPT v2.0.1</a><br />" +
+		"font-weight: bold; z-index: 1111;' id='TTGPTSettings'><a href='https://github.com/C-Nedelcu/talk-to-chatgpt' target=_blank title='Visit project website'>Talk-to-ChatGPT v2.0.2</a><br />" +
 		"<span style='font-size: 16px;' class='CNStartZone'>" +
 		"<button style='border: 1px solid #CCC; padding: 4px; margin: 6px; background: #FFF; border-radius: 4px; color:black;' id='CNStartButton' title='ALT+SHIFT+S'>▶️ START</button>"+
 		"</span>"+
@@ -740,7 +754,7 @@ function CN_GetCookie(name) {
 	setTimeout(function() {
 		typeof jQuery == "undefined" ?
 			alert("[Talk-to-ChatGPT] Sorry, but jQuery was not able to load. The script cannot run. Try using Google Chrome on Windows 11") :
-			CN_InitScript();
+			CN_CheckCorrectPage();
 	}, 500);
 	
 })();
