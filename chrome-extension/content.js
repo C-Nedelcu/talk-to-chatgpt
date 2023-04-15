@@ -125,7 +125,7 @@ function CN_AfterSpeakOutLoudFinished() {
 	}, 500);
 }
 
-// This is a workaround for Chrome's bug in the speech synthesis API (https://stackoverflow.com/questions/21947730/chrome-speech-synthesis-with-longer-texts)
+// This is a workaround for Chromium's bug in the speech synthesis API (https://stackoverflow.com/questions/21947730/chrome-speech-synthesis-with-longer-texts)
 function CN_KeepSpeechSynthesisActive() {
 	console.log("Keeping speech synthesis active...");
 	window.speechSynthesis.pause();
@@ -448,7 +448,7 @@ function CN_InitScript() {
 	} else {
 		console.log("speech recognition API not supported.");
 		CN_SPEECH_REC_SUPPORTED = false;
-		warning = "\n\nWARNING: speech recognition (speech-to-text) is only available in Google Chrome desktop version at the moment. If you are using another browser, you will not be able to dictate text, but you can still listen to the bot's responses.";
+		warning = "\n\nWARNING: speech recognition (speech-to-text) is only available in Chromium-based browsers - desktop version at the moment. If you are using another browser, you will not be able to dictate text, but you can still listen to the bot's responses.";
 	}
 	
 	// Restore settings
@@ -795,7 +795,7 @@ function CN_GetCookie(name) {
 	
 	setTimeout(function() {
 		typeof jQuery == "undefined" ?
-			alert("[Talk-to-ChatGPT] Sorry, but jQuery was not able to load. The script cannot run. Try using Google Chrome on Windows 11") :
+			alert("[Talk-to-ChatGPT] Sorry, but jQuery was not able to load. The script cannot run. Try using Google Chrome or Edge on Windows 11") :
 			CN_CheckCorrectPage();
 	}, 500);
 	
