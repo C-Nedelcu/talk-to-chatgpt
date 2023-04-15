@@ -1,11 +1,11 @@
 ﻿// TALK TO CHATGPT
 // ---------------
 // Author		: C. NEDELCU
-// Version		: 2.0.2
+// Version		: 2.1.0
 // Git repo 	: https://github.com/C-Nedelcu/talk-to-chatgpt
 // Chat GPT URL	: https://chat.openai.com/chat
 // How to use   : https://www.youtube.com/watch?v=VXkLQMEs3lA
-
+// Credits		: C. NEDELCU (code), pixelsoda (GUI), S. James (GUI)
 
 // ----------------------------
 // SETTINGS (FEEL FREE TO EDIT)
@@ -86,7 +86,7 @@ function CN_SayOutLoud(text) {
 	msg.pitch = CN_TEXT_TO_SPEECH_PITCH;
 	msg.onstart = () => {
 		// Make border green
-		$("#TTGPTSettings").css("border-bottom", "8px solid green");
+		$("#CNStatusBar").css("background", "green");
 		
 		// If speech recognition is active, disable it
 		if (CN_IS_LISTENING) CN_SPEECHREC.stop();
@@ -106,7 +106,7 @@ function CN_SayOutLoud(text) {
 // Occurs when speaking out loud is finished
 function CN_AfterSpeakOutLoudFinished() {
 	// Make border grey again
-	$("#TTGPTSettings").css("border", "2px solid #888");
+	$("#CNStatusBar").css("background", "grey");
 	
 	if (CN_FINISHED) return;
 	
@@ -250,15 +250,15 @@ function CN_StartSpeechRecognition() {
 	CN_SPEECHREC.continuous = true;
 	CN_SPEECHREC.lang = CN_WANTED_LANGUAGE_SPEECH_REC;
 	CN_SPEECHREC.onstart = () => {
-		// Make border red
-		$("#TTGPTSettings").css("border-bottom", "8px solid red");
+		// Make bar red
+		$("#CNStatusBar").css("background", "red");
 		
 		CN_IS_LISTENING = true;
 		console.log("I'm listening");
 	};
 	CN_SPEECHREC.onend = () => {
 		// Make border grey again
-		$("#TTGPTSettings").css("border", "2px solid #888");
+		$("#CNStatusBar").css("background", "grey");
 		
 		CN_IS_LISTENING = false;
 		console.log("I've stopped listening");
@@ -478,20 +478,58 @@ function CN_InitScript() {
 	};
 	
 	// Add icons on the top right corner
-	jQuery("body").append("<span style='position: fixed; top: 8px; right: 16px; display: inline-block; " +
-		"background: #888; color: white; padding: 8px; font-size: 16px; border-radius: 4px; text-align: center;" +
-		"font-weight: bold; z-index: 1111;' id='TTGPTSettings'><a href='https://github.com/C-Nedelcu/talk-to-chatgpt' target=_blank title='Visit project website'>Talk-to-ChatGPT v2.0.2</a><br />" +
-		"<span style='font-size: 16px;' class='CNStartZone'>" +
-		"<button style='border: 1px solid #CCC; padding: 4px; margin: 6px; background: #FFF; border-radius: 4px; color:black;' id='CNStartButton' title='ALT+SHIFT+S'>▶️ START</button>"+
-		"</span>"+
-		"<span style='font-size: 20px; display:none;' class='CNActionButtons'>" +
-		"<span class='CNToggle' title='Voice recognition enabled. Click to disable. (Shortcut: ALT+SHIFT+H)' data-cn='micon'>🎙️ </span>  " + // Microphone enabled
-		"<span class='CNToggle' title='Voice recognition disabled. Click to enable. (Shortcut: ALT+SHIFT+H)' style='display:none;' data-cn='micoff'>🤫 </span>  " + // Microphone disabled
-		"<span class='CNToggle' title='Text-to-speech (bot voice) enabled. Click to disable. This will skip the current message entirely. (Shortcut: ALT+SHIFT+V)' data-cn='speakon'>🔊 </span>  " + // Speak out loud
-		"<span class='CNToggle' title='Text-to-speech (bot voice) disabled. Click to enable. (Shortcut: ALT+SHIFT+V)' style='display:none;' data-cn='speakoff'>🔇 </span>  " + // Mute
-		"<span class='CNToggle' title='Skip the message currently being read by the bot. (Shortcut: ALT+SHIFT+L)' data-cn='skip'>⏩ </span>  " + // Skip
-		"<span class='CNToggle' title='Open settings menu to change bot voice, language, and other settings' data-cn='settings'>⚙️</span> " + // Settings
-		"</span></span>");
+	jQuery("body").append(
+		"<div style='position: fixed; top: 8px; right: 16px; display: inline-block; " +
+			"background: #41464c; color: white; padding: 0; font-size: 16px; border-radius: 8px; text-align: center;" +
+			"font-weight: bold; z-index: 1111;' id='TTGPTSettings'>" +
+		
+			// Logo / title
+			"<div style='padding: 4px 40px; border-bottom: 1px solid grey;'>" +
+				"<a href='https://github.com/C-Nedelcu/talk-to-chatgpt' " +
+					"style='display: inline-block; font-size: 20px; line-height: 80%; padding: 8px 0;' " +
+					"target=_blank title='Visit project website'>TALK-TO-ChatGPT<br />" +
+					"<div style='text-align: right; font-size: 12px; color: grey'>V2.1.0</div>" +
+				"</a>" +
+			"</div>" +
+			
+			// Below logo
+			"<div>" +
+				
+				// Start button
+				"<div style='font-size: 16px; padding: 8px;' class='CNStartZone'>" +
+					"<button style='border: 2px solid grey; padding: 6px 40px; margin: 6px; border-radius: 6px; opacity: 0.7;' id='CNStartButton' title='ALT+SHIFT+S'><i class=\"fa-solid fa-play\"></i>&nbsp;&nbsp;START</button>"+
+				"</div>"+
+		
+				// Action buttons
+				"<div style='font-size: 20px; padding: 12px 8px; padding-bottom: 0px; display:none;' class='CNActionButtons'>" +
+					"<table width='100%' cellpadding=0 cellspacing=0><tr>" +
+						"<td width='24%' style='text-align: center;'>" +
+							"<span class='CNToggle' title='Voice recognition enabled. Click to disable. (Shortcut: ALT+SHIFT+H)' data-cn='micon' style='opacity: 0.7;'><i class=\"fa-solid fa-microphone\"></i></span>" + // Microphone enabled
+							"<span class='CNToggle' title='Voice recognition disabled. Click to enable. (Shortcut: ALT+SHIFT+H)' style='display:none; color: red; opacity: 0.7;' data-cn='micoff'><i class=\"fa-solid fa-microphone-slash\"></i></span>" + // Microphone disabled
+						"</td>"+
+						"<td width='1%' style='border-left: 1px solid grey; padding-left: 0 !important; padding-right: 0 !important; font-size: 1px; width: 1px;'>&nbsp;</td>"+
+						"<td width='24%' style='text-align: center;'>" +
+							"<span class='CNToggle' title='Text-to-speech (bot voice) enabled. Click to disable. This will skip the current message entirely. (Shortcut: ALT+SHIFT+V)' data-cn='speakon' style='opacity: 0.7;'><i class=\"fa-solid fa-volume-high\"></i></span>" + // Speak out loud
+							"<span class='CNToggle' title='Text-to-speech (bot voice) disabled. Click to enable. (Shortcut: ALT+SHIFT+V)' style='display:none; color: red; opacity: 0.7;' data-cn='speakoff'><i class=\"fa-solid fa-volume-xmark\"></i></span>  " + // Mute
+						"</td>"+
+						"<td width='1%' style='border-left: 1px solid grey; padding-left: 0 !important; padding-right: 0 !important; font-size: 1px; width: 1px;'>&nbsp;</td>" +
+						"<td width='24%' style='text-align: center;'>" +
+							"<span class='CNToggle' title='Skip the message currently being read by the bot. (Shortcut: ALT+SHIFT+L)' data-cn='skip' style='opacity: 0.7;'><i class=\"fa-solid fa-angles-right\"></i></span>" + // Skip
+						"</td>"+
+						"<td width='1%' style='border-left: 1px solid grey; padding-left: 0 !important; padding-right: 0 !important; font-size: 1px; width: 1px;'>&nbsp;</td>" +
+						"<td width='24%' style='text-align: center;'>" +
+							"<span class='CNToggle' title='Open settings menu to change bot voice, language, and other settings' data-cn='settings' style='opacity: 0.7;'><i class=\"fa-solid fa-sliders\"></i></span>" + // Settings
+						"</td>"+
+					"</tr></table>" +
+					
+					// Colored bar - transparent by default, red when mic on, green when bot speaks
+					"<div style='padding-top: 12px; padding-bottom: 6px;'>" +
+						"<div id='CNStatusBar' style='background: grey; width: 100%; height: 8px; border-radius: 4px; overflow: hidden;'>&nbsp;</div>" +
+					"</div>" +
+				"</div>" +
+			"</div>" +
+		"</div>"
+	);
 	
 	setTimeout(function () {
 		// Try and get voices
@@ -501,6 +539,10 @@ function CN_InitScript() {
 		jQuery(".CNToggle").css("cursor", "pointer");
 		jQuery(".CNToggle").on("click", CN_ToggleButtonClick);
 		jQuery("#CNStartButton").on("click", CN_StartTTGPT);
+		
+		// Make icons change opacity on hover
+		jQuery(".CNToggle, #CNStartButton").on("mouseenter", function() { jQuery(this).css("opacity", 1); });
+		jQuery(".CNToggle, #CNStartButton").on("mouseleave", function() { jQuery(this).css("opacity", 0.7); });
 	}, 100);
 	
 	// Start key detection
