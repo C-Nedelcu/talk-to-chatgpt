@@ -6,13 +6,13 @@
 
 After installing the Google Chrome extension, open or reload the ChatGPT page ( https://chat.openai.com/ ) and you should be seeing a 'Start' button on the top right corner of the page. After you click Start, you will be asked for permission to use your Microphone. This is required to enable voice recognition.
 
-![Talk-to-GPT Menu](/images/menu.png?raw=true&v2.0 "Talk-to-GPT Menu")
+![Talk-to-GPT Menu](/images/menu.png?raw=true&v2.2 "Talk-to-GPT Menu")
 
 Once started, Talk-to-ChatGPT displays a menu on the top right corner of the page where users can access settings (such as voice, language, and more), skip the current message, toggle voice recognition on or off, and toggle text-to-speech on or off.
 
 The settings menu can be seen below. Settings are saved in a cookie and reloaded automatically each time you activate the script.
 
-![Settings dialog](/images/settings.png?raw=true&v2.0 "Settings dialog")
+![Settings dialog](/images/settings.png?raw=true&v2.2 "Settings dialog")
 
 Demo V2.0: https://www.youtube.com/watch?v=sKjkOwkoMNM
 
