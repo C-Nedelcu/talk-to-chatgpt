@@ -1,7 +1,7 @@
 ﻿// TALK TO CHATGPT
 // ---------------
 // Author		: C. NEDELCU
-// Version		: 2.1.0
+// Version		: 2.2.0
 // Git repo 	: https://github.com/C-Nedelcu/talk-to-chatgpt
 // Chat GPT URL	: https://chat.openai.com/chat
 // How to use   : https://www.youtube.com/watch?v=VXkLQMEs3lA
@@ -26,6 +26,9 @@ var CN_SAY_THIS_WORD_TO_STOP = "stop";
 
 // Determine which word will cause this script to temporarily pause
 var CN_SAY_THIS_WORD_TO_PAUSE = "pause";
+
+// Do we keep listening even when paused, so that we can resume by a vocal command?
+var CN_KEEP_LISTENING = true;
 
 // Determine whether messages are sent immediately after speaing
 var CN_AUTO_SEND_AFTER_SPEAKING = true;
@@ -60,6 +63,8 @@ var CN_TIMEOUT_KEEP_SPEECHREC_WORKING = null;
 var CN_SPEECH_REC_SUPPORTED = false;
 var CN_SPEAKING_DISABLED = false;
 var CN_SPEECHREC_DISABLED = false;
+var CN_CONVERSATION_SUSPENDED = false;
+var CN_BAR_COLOR_FLASH_GREY = false;
 
 // This function will say the given text out loud using the browser's speech synthesis API
 function CN_SayOutLoud(text) {
@@ -238,6 +243,49 @@ function CN_SendMessage(text) {
 	}
 }
 
+// Flash the red bar
+function CN_FlashRedBar() {
+	clearTimeout(CN_TIMEOUT_FLASHBAR);
+	
+	// Conversation no longer suspended?
+	if (!CN_CONVERSATION_SUSPENDED) {
+		return;
+	}
+	
+	// Is it green? don't do anything
+	if (CN_IS_READING) {
+		// Ignore
+	} else if (CN_BAR_COLOR_FLASH_GREY) {
+		// Grey? switch to red
+		$("#CNStatusBar").css("background", "red");
+		CN_BAR_COLOR_FLASH_GREY = false;
+	} else {
+		// Anything else? switch to grey
+		$("#CNStatusBar").css("background", "grey");
+		CN_BAR_COLOR_FLASH_GREY = true;
+	}
+	
+	// Set another timeout
+	CN_TIMEOUT_FLASHBAR = setTimeout(function () {
+		CN_FlashRedBar();
+	}, 500);
+}
+
+// Resume after suspension
+function CN_ResumeAfterSuspension() {
+	// Finish alternating colors, reset to grey
+	clearTimeout(CN_TIMEOUT_FLASHBAR);
+	$("#CNStatusBar").css("background", "grey");
+	
+	// Hide suspend area
+	jQuery("#CNSuspendedArea").hide();
+	
+	// Say OK and resume conversation
+	CN_PAUSED = false;
+	CN_CONVERSATION_SUSPENDED = false;
+	CN_SayOutLoud("OK");
+}
+
 // Start speech recognition using the browser's speech recognition API
 function CN_StartSpeechRecognition() {
 	if (CN_IS_READING) {
@@ -276,6 +324,12 @@ function CN_StartSpeechRecognition() {
 		
 		console.log("Voice recognition: '"+ (final_transcript)+"'");
 		if (CN_RemovePunctuation(final_transcript) == CN_SAY_THIS_WORD_TO_STOP.toLowerCase().trim()) {
+			
+			if (CN_CONVERSATION_SUSPENDED) {
+				console.log("Conversation is currently suspended, voice command ignored. Use the pause word to resume conversation.");
+				return;
+			}
+			
 			console.log("You said '"+ CN_SAY_THIS_WORD_TO_STOP+"'. Conversation ended");
 			CN_FINISHED = true;
 			CN_PAUSED = false;
@@ -289,14 +343,48 @@ function CN_StartSpeechRecognition() {
 			
 			return;
 		} else if (CN_RemovePunctuation(final_transcript) == CN_SAY_THIS_WORD_TO_PAUSE.toLowerCase().trim()) {
-			console.log("You said '"+ CN_SAY_THIS_WORD_TO_PAUSE+"' Conversation paused");
-			CN_PAUSED = true;
-			if (CN_SPEECHREC) CN_SPEECHREC.stop();
-			alert("Conversation paused, the browser is no longer listening. Click OK to resume");
-			CN_PAUSED = false;
-			console.log("Conversation resumed");
+			
+			// Conversation was suspended: resume it
+			if (CN_CONVERSATION_SUSPENDED) {
+				console.log("You said '" + CN_SAY_THIS_WORD_TO_PAUSE + "' - Conversation resumed");
+				CN_ResumeAfterSuspension();
+				return;
+			}
+			
+			// Conversation wasn't suspended;
+			console.log("You said '"+ CN_SAY_THIS_WORD_TO_PAUSE+"' - Conversation paused");
+			
+			// Do we keep listening?
+			if (CN_KEEP_LISTENING) {
+				
+				// Yes, don't stop mic, just stop conversation
+				CN_CONVERSATION_SUSPENDED = true;
+				CN_TIMEOUT_FLASHBAR = setTimeout(function() {
+					CN_FlashRedBar();
+				}, 500);
+				
+				// Show suspend area
+				jQuery("#CNSuspendedArea").show();
+				
+				return;
+				
+			} else {
+				// No, stop mic, resume when OK button is clicked
+				CN_PAUSED = true;
+				if (CN_SPEECHREC) CN_SPEECHREC.stop();
+				alert("Conversation paused, the browser is no longer listening. Click OK to resume");
+				CN_PAUSED = false;
+				console.log("Conversation resumed");
+			}
+			
 			return;
 		} else if (CN_RemovePunctuation(final_transcript) == CN_SAY_THIS_TO_SEND.toLowerCase().trim() && !CN_AUTO_SEND_AFTER_SPEAKING) {
+			
+			if (CN_CONVERSATION_SUSPENDED) {
+				console.log("Conversation is currently suspended, voice command ignored. Use the pause word to resume conversation.");
+				return;
+			}
+			
 			console.log("You said '"+ CN_SAY_THIS_TO_SEND+"' - the message will be sent");
 			
 			// Click button
@@ -311,6 +399,13 @@ function CN_StartSpeechRecognition() {
 			return;
 		}
 		
+		// Are we speaking?
+		if (CN_CONVERSATION_SUSPENDED) {
+			console.log("Conversation is currently suspended, voice command ignored. Use the pause word to resume conversation.");
+			return;
+		}
+		
+		// Send the message
 		CN_SendMessage(final_transcript);
 	};
 	if (!CN_IS_LISTENING && CN_SPEECH_REC_SUPPORTED && !CN_SPEECHREC_DISABLED) CN_SPEECHREC.start();
@@ -418,6 +513,14 @@ function CN_StartTTGPT() {
 		// Start speech rec
 		CN_StartSpeechRecognition();
 		
+		// Make sure message count starts from last; we don't want to read the latest message
+		var currentMessageCount = jQuery(".text-base").length;
+		if (currentMessageCount > CN_MESSAGE_COUNT) {
+			// New message!
+			CN_MESSAGE_COUNT = currentMessageCount;
+			CN_CURRENT_MESSAGE = null; // Set current message to null
+		}
+		
 		// Check for new messages
 		CN_CheckNewMessages();
 	}, 1000);
@@ -488,7 +591,7 @@ function CN_InitScript() {
 				"<a href='https://github.com/C-Nedelcu/talk-to-chatgpt' " +
 					"style='display: inline-block; font-size: 20px; line-height: 80%; padding: 8px 0;' " +
 					"target=_blank title='Visit project website'>TALK-TO-ChatGPT<br />" +
-					"<div style='text-align: right; font-size: 12px; color: grey'>V2.1.0</div>" +
+					"<div style='text-align: right; font-size: 12px; color: grey'>V2.2.0</div>" +
 				"</a>" +
 			"</div>" +
 			
@@ -526,7 +629,16 @@ function CN_InitScript() {
 					"<div style='padding-top: 12px; padding-bottom: 6px;'>" +
 						"<div id='CNStatusBar' style='background: grey; width: 100%; height: 8px; border-radius: 4px; overflow: hidden;'>&nbsp;</div>" +
 					"</div>" +
-				"</div>" +
+		
+					// Pause bar - click button to resume
+					"<div style='padding-top: 12px; padding-bottom: 12px; display: none;' id='CNSuspendedArea'>" +
+						"<div style='font-size: 11px; color: grey;'><b>CONVERSATION PAUSED</b><br />Click button below or speak the pause word to resume</div>" +
+						"<div style='padding: 10px;'>" +
+							"<button style='font-size: 13px; border: 2px solid grey; padding: 6px 40px; margin: 6px; border-radius: 6px; opacity: 0.7;' id='CNResumeButton'><i class=\"fa-solid fa-play\"></i>&nbsp;&nbsp;RESUME</button>" +
+						"</div>" +
+					"</div>" +
+					
+		"</div>" +
 			"</div>" +
 		"</div>"
 	);
@@ -539,14 +651,20 @@ function CN_InitScript() {
 		jQuery(".CNToggle").css("cursor", "pointer");
 		jQuery(".CNToggle").on("click", CN_ToggleButtonClick);
 		jQuery("#CNStartButton").on("click", CN_StartTTGPT);
+		jQuery("#CNResumeButton").on("click", CN_ResumeAfterSuspension);
 		
 		// Make icons change opacity on hover
-		jQuery(".CNToggle, #CNStartButton").on("mouseenter", function() { jQuery(this).css("opacity", 1); });
-		jQuery(".CNToggle, #CNStartButton").on("mouseleave", function() { jQuery(this).css("opacity", 0.7); });
+		jQuery(".CNToggle, #CNStartButton, #CNResumeButton").on("mouseenter", function() { jQuery(this).css("opacity", 1); });
+		jQuery(".CNToggle, #CNStartButton, #CNResumeButton").on("mouseleave", function() { jQuery(this).css("opacity", 0.7); });
+		jQuery(document).on("mouseenter", "#TTGPTSave, #TTGPTCancel", function() { jQuery(this).css("opacity", 1); } );
+		jQuery(document).on("mouseleave", "#TTGPTSave, #TTGPTCancel", function() { jQuery(this).css("opacity", 0.7); } );
 	}, 100);
 	
 	// Start key detection
 	jQuery(document).on('keydown', function (e) {
+		// Conversation suspended? don't do anything
+		if (CN_CONVERSATION_SUSPENDED) return;
+		
 		// ALT+SHIFT+S: Start
 		if (e.altKey && e.shiftKey && e.which === 83) {
 			console.log('ALT+SHIFT+S pressed, starting Talk-To-ChatGPT');
@@ -639,14 +757,17 @@ function CN_OnSettingsIconClick() {
 	
 	// 6. 'Pause' word
 	rows += "<tr><td style='white-space: nowrap'>'Pause' word:</td><td><input type=text id='TTGPTPauseWord' style='width: 100px; padding: 2px; color: black;' value='"+CN_SAY_THIS_WORD_TO_PAUSE+"' /></td></tr>";
+
+	// 7. Keep listening until resume
+	rows += "<tr><td style='white-space: nowrap'>Keep listening when paused:</td><td><input type=checkbox id='TTGPTKeepListening' " + (CN_KEEP_LISTENING ? "checked=checked" : "") + " /> <label for='TTGPTKeepListening'>When paused, keep the microphone open, and resume conversation when the 'pause' word (defined above) is spoken</label></td></tr>";
 	
-	// 7. Autosend
+	// 8. Autosend
 	rows += "<tr><td style='white-space: nowrap'>Automatic send:</td><td><input type=checkbox id='TTGPTAutosend' "+(CN_AUTO_SEND_AFTER_SPEAKING?"checked=checked":"")+" /> <label for='TTGPTAutosend'>Automatically send message to ChatGPT after speaking</label></td></tr>";
 	
-	// 8. Manual send word
+	// 9. Manual send word
 	rows += "<tr><td style='white-space: nowrap'>Manual send word(s):</td><td><input type=text id='TTGPTSendWord' style='width: 250px; padding: 2px; color: black;' value='" + CN_SAY_THIS_TO_SEND + "' /><span style='font-size: 10px;'>If 'automatic send' is disabled, you can trigger the sending of the message by saying this word (or sequence of words)</span></td></tr>";
 	
-	// 9. Split sentences with commas
+	// 10. Split sentences with commas
 	rows += "<tr><td style='white-space: nowrap'>Punctuation in sentences:</td><td><input type=checkbox id='TTGPTIgnoreCommas' " + (CN_IGNORE_COMMAS ? "checked=checked" : "") + " /> <label for='TTGPTIgnoreCommas'>Don't use commas/semicolons/etc. to break down replies into sentences</label></td></tr>";
 	
 	// Keyboard shortcuts
@@ -658,21 +779,29 @@ function CN_OnSettingsIconClick() {
 		"</ul></td></tr>";
 	
 	// Prepare save/close buttons
-	var closeRow = "<tr><td colspan=2 style='text-align: center'><br /><button id='TTGPTSave' style='font-size: 18px; font-weight: bold;'>✓ Save</button>&nbsp;<button id='TTGPTCancel' style='margin-left: 40px; font-size: 18px;'>✗ Cancel</button></td></tr>";
+	var closeRow = "<tr><td colspan=2 style='text-align: center'><br />" +
+		"<button id='TTGPTSave' style='border: 2px solid grey; border-radius: 4px; padding: 6px 24px; font-size: 18px; font-weight: bold; opacity: 0.7;'>✓ Save</button>&nbsp;" +
+		"<button id='TTGPTCancel' style='border: 2px solid grey; border-radius: 4px; padding: 6px 24px; margin-left: 40px; font-size: 18px; opacity: 0.7;'>✗ Cancel</button></td></tr>";
 	
 	// Prepare settings table
-	var table = "<table cellpadding=6 cellspacing=2 style='margin-top: 30px;'>"+rows+closeRow+"</table>";
+	var table = "<table cellpadding=6 cellspacing=2 style='margin-top: 15px;'>"+rows+closeRow+"</table>";
 	
 	// A short text at the beginning
-	var desc = "<div style='text-align: justify; margin: 8px;'>Please note: some the voices and speech recognition languages do not appear to work. If the one you select doesn't work, try reloading the page. " +
-		"If it still doesn't work after reloading the page, please try selecting another voice or language. " +
-		"Also, sometimes the text-to-speech API takes time to kick in, give it a few seconds to hear the bot speak. <b>Remember this is an experimental extension created just for fun.</b> " +
-		"Check out the <a href='https://github.com/C-Nedelcu/talk-to-chatgpt' target=_blank style='text-decoration: underline'>project page</a> to get the source code." +
+	var desc = "<div style='text-align: justify; margin: 8px;'>Please note: some voices and languages do not appear to work. If the one you select doesn't work, try using another one. " +
+		"Check out the <a href='https://github.com/C-Nedelcu/talk-to-chatgpt' target=_blank style='text-decoration: underline'>project page</a> to get the source code and updates." +
 		"</div>";
+
+	// Add donations frame
+	var donations = "<br/><h2>Support the project</h2><p style='font-size: 15px; margin-top: 15px;'>Are you enjoying Talk-To-ChatGPT and want me to continue improving it? \n" +
+		"\t\t<b>You can help by making a donation to the project.</b> \n" +
+		"\t\tPlease click the button below to proceed.</p><br />\n" +
+		"\t\t<center><a target=_blank href='https://www.paypal.com/donate/?business=BZ43BM7XSSKKW&no_recurring=0&item_name=Are+you+enjoying+Talk-To-ChatGPT?+If+so%2C+consider+making+a+donation+to+keep+the+project+going%2C+and+I%27ll+continue+improving+it%21&currency_code=EUR'>\n" +
+		"\t\t\t<img src='https://edunext.com.sg/paypal.png' alt='' height=80 style='height: 80px;' />\n" +
+		"\t\t</a></center>";
 	
 	// Open a whole screenful of settings
 	jQuery("body").append("<div style='background: rgba(0,0,0,0.7); position: absolute; overflow-y: auto; top: 0; right: 0; left: 0; bottom: 0; z-index: 999999; padding: 20px; color: white; font-size: 13px;' id='TTGPTSettingsArea'>" +
-		"<div style='width: 600px; margin-left: auto; margin-right: auto; overflow-y: auto;'><h1>⚙️ Talk-to-ChatGPT settings</h1>"+desc+table+"</div></div>");
+		"<div style='width: 600px; margin-left: auto; margin-right: auto; overflow-y: auto;'><h1>⚙️ Talk-to-ChatGPT settings</h1>"+desc+table+donations+"</div></div>");
 	
 	// Assign events
 	setTimeout(function() {
@@ -698,6 +827,7 @@ function CN_SaveSettings() {
 		CN_WANTED_LANGUAGE_SPEECH_REC = jQuery("#TTGPTRecLang").val();
 		CN_SAY_THIS_WORD_TO_STOP = jQuery("#TTGPTStopWord").val();
 		CN_SAY_THIS_WORD_TO_PAUSE = jQuery("#TTGPTPauseWord").val();
+		CN_KEEP_LISTENING = jQuery("#TTGPTKeepListening").prop("checked");
 		CN_AUTO_SEND_AFTER_SPEAKING = jQuery("#TTGPTAutosend").prop("checked");
 		CN_SAY_THIS_TO_SEND = jQuery("#TTGPTSendWord").val();
 		CN_IGNORE_COMMAS = jQuery("#TTGPTIgnoreCommas").prop("checked");
@@ -715,7 +845,8 @@ function CN_SaveSettings() {
 			CN_SAY_THIS_WORD_TO_PAUSE,
 			CN_AUTO_SEND_AFTER_SPEAKING?1:0,
 			CN_SAY_THIS_TO_SEND,
-			CN_IGNORE_COMMAS?1:0
+			CN_IGNORE_COMMAS?1:0,
+			CN_KEEP_LISTENING?1:0
 		];
 		CN_SetCookie("CN_TTGPT", JSON.stringify(settings));
 	} catch(e) { alert('Invalid settings values'); return; }
@@ -744,6 +875,7 @@ function CN_RestoreSettings() {
 			if (settings.hasOwnProperty(6)) CN_AUTO_SEND_AFTER_SPEAKING = settings[6] == 1;
 			if (settings.hasOwnProperty(7)) CN_SAY_THIS_TO_SEND = settings[7];
 			if (settings.hasOwnProperty(8)) CN_IGNORE_COMMAS = settings[8] == 1;
+			if (settings.hasOwnProperty(9)) CN_KEEP_LISTENING = settings[9] == 1;
 		}
 	} catch (ex) {
 		console.error(ex);
