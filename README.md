@@ -72,6 +72,10 @@ Talk-to-ChatGPT has been receiving press coverage since its release. It is curre
 
 # Change log
 
+Version 2.3.0 - April 18th, 2023
+* New: option to skip code blocks while reading bot's response (#17)
+* Fixed: when speech recognition returns an empty sentence, this could cause the addon to disfunction (#72)
+
 Version 2.2.0 - April 16th, 2023:
 * New: 'pause' vocal command was revamped. When you say the pause word, the addon will continue listening but won't send anything to ChatGPT. To resume normal functionality, say the pause word again, or click the Resume button
 * Updated: minor UI and text updates here and there
