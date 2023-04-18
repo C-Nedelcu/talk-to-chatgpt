@@ -1,10 +1,13 @@
-## UPDATE 16/04/2023: OpenAI changed the ChatGPT URL from chat.openai.com/chat to chat.openai.com, which broke the extension. V2.0.1 is currently pending review on the Chrome/Edge stores. For now, you can install the extension manually through dev mode, instructions given below. V2.2 is already available with tons of new features.
+## UPDATE 16/04/2023: OpenAI recently changed the ChatGPT URL, which broke the extension. An update is currently pending review on the Chrome/Edge stores. For now, you can install the extension manually through dev mode, instructions given below (v2.2 is already available with several new features).
 
-**Talk-to-ChatGPT** is a Google Chrome extension that allows users to talk with the ChatGPT AI using their voice (speech recognition), and listen to the bot's answer with a voice (text-to-speech), rather than just by typing. With this tool, users can speak to the AI and receive spoken responses, making the interaction feel more natural and conversational. This could be useful in a variety of settings where it would be helpful to have a more human-like interaction with an AI.
+**Talk-to-ChatGPT** is a Google Chrome and Microsoft Edge extension that allows users to talk with the ChatGPT AI using their voice (speech recognition), and listen to the bot's answer with a voice (text-to-speech), rather than just by typing. With this tool, users can speak to the AI and receive spoken responses, making the interaction feel more natural and conversational. This could be useful in a variety of settings where it would be helpful to have a more human-like interaction with an AI.
 
-**The Talk-to-ChatGPT Google Chrome extension can be downloaded from the Chrome Web store here:** https://chrome.google.com/webstore/detail/talk-to-chatgpt/hodadfhfagpiemkeoliaelelfbboamlk
+The extension can be downloaded from here:
+* From the **Chrome Web store** here: https://chrome.google.com/webstore/detail/talk-to-chatgpt/hodadfhfagpiemkeoliaelelfbboamlk
+* From the **Edge Web store** here: (link coming soon, extension is under review, you can download/install manually for now)
+* Manual installation option, detailed further below
 
-After installing the Google Chrome extension, open or reload the ChatGPT page ( https://chat.openai.com/ ) and you should be seeing a 'Start' button on the top right corner of the page. After you click Start, you will be asked for permission to use your Microphone. This is required to enable voice recognition.
+After installing the extension, open or reload the ChatGPT page ( https://chat.openai.com/ ) and you should be seeing a 'Start' button on the top right corner of the page. After you click Start, you will be asked for permission to use your Microphone. This is required to enable voice recognition.
 
 ![Talk-to-GPT Menu](/images/menu.png?raw=true&v2.2? "Talk-to-ChatGPT Menu")
 
@@ -18,26 +21,27 @@ Demo V2.0: https://www.youtube.com/watch?v=sKjkOwkoMNM
 
 # How to install
 
-**Option 1: CHROME STORE** 
-You can download the extension from the Chrome extension store here: https://chrome.google.com/webstore/detail/talk-to-chatgpt/hodadfhfagpiemkeoliaelelfbboamlk 
+### Option 1: CHROME or EDGE STORE
+* Google Chrome: download from the Chrome extension store at https://chrome.google.com/webstore/detail/talk-to-chatgpt/hodadfhfagpiemkeoliaelelfbboamlk 
+* Microsoft Edge: the extension is still under review, link will be given soon, use manual install for now
 
-**Option 2: MANUAL INSTALL** 
-If the extension is temporarily unavailable (this can happen when OpenAI make breaking changes), or if you want to install the latest updates before they are available on the Chrome web store, you can install the extension manually. Here is how you do it.
+### Option 2: MANUAL INSTALL
+If the extension is temporarily unavailable (this can happen when OpenAI make breaking changes), or if you want to install the latest updates before they are available on the Chrome/Edge web store, you can install the extension manually. Here is how you do it.
 1. Download the .zip file here: https://github.com/C-Nedelcu/talk-to-chatgpt/raw/main/chrome-extension/chrome-extension.zip (this link will always point to the latest version)
 2. Extract the .zip file in a folder somewhere
-3. Follow this tutorial to install the extension in Chrome in dev mode: https://webkul.com/blog/how-to-install-the-unpacked-extension-in-chrome/
+3. Follow this tutorial to install the extension in Chrome/Edge in dev mode: https://webkul.com/blog/how-to-install-the-unpacked-extension-in-chrome/
 
 # FAQ
 
-**Q: Which web browsers are supported?** A: This extension is designed for Google Chrome desktop version only. It has been reported to work with Microsoft Edge too, but I do not actively support it. The extension will not work in any other web browser, especially not mobile browsers, because these browsers do not support the necessary APIs (speech recognition and speech synthesis).
+**Q: Which web browsers are supported?** A: This extension is designed for Google Chrome and Microsoft Edge, desktop version only. The extension will not work in any other web browser, especially not mobile browsers, because these browsers do not support the necessary APIs for speech recognition and speech synthesis.
 
 **Q: Can you make it speak faster or in a different voice or language?** A: Yes, use the settings menu. You can select a variety of settings among which the speech rate, voice type, and language.
 
 **Q: What is the purpose of this project?**
-A: Fun, and nothing else. This AI is mind-bogglingly intelligent and I had a deep desire to converse with it orally, to make it more interesting. It's merely a proof of concept. Surely OpenAI themselves will make a proper version of this in the future, at which point my project will be completely useless.
+A: Originally, it was mostly a fun proof of concept. This AI is mind-bogglingly intelligent and I had a deep desire to converse with it orally, to make it more interesting. Surely OpenAI themselves will make a proper voice-controlled version of ChatGPT in the future, at which point my project will be rendered useless. For now, it seems to be helping people with disabilities / visually impaired people, so I'm going to be actively working on the project for as long as I can, as a form of contribution to society.
 
 **Q: Is it safe to use?**
-A: It's simple javascript code that will execute only in the context of the ChatGPT webpage. As soon as you navigate away, everything is cleared. The javascript code is open source, so feel free to check out what it does.
+A: Yes, it's simple javascript code that will execute only in the context of the ChatGPT webpage. It doesn't request any particular permissions, and it is fully open source. As soon as you navigate away from ChatGPT, everything is cleared, except for the addon settings.
 
 **Q: Will it always work?**
 A: it might not work indefinitely, and here's why. The code is based on the current HTML structure of the ChatGPT page. If OpenAI change the HTML code, this project will likely stop working. I will probably keep updating it to maintain compatibility, but I'm not sure I'll be doing that forever. If you want to contribute to the project you are more than welcome to submit your own changes through Github.
@@ -49,7 +53,7 @@ A: Feel free to update the javascript yourself and propose changes on Github, or
 A: Yes, feel free to make changes, and do whatever you want, commit, fork, just have fun.
 
 **Q: How do I know what languages are supported?**
-A: this is entirely based on the Google Chrome APIs, so you need to ask Google, I cannot provide an up-to-date answer. I've only tested it with English and French. The languages in the settings menu are the same ones found on the Google demos.
+A: this is entirely based on the web browser APIs (Google Chrome, Microsoft Edge), so you need to ask Google or Microsoft, as I cannot provide an up-to-date answer. I've only tested it with English, French, and Chinese. The languages in the settings menu are the same ones found on the Google and Edge demos.
 
 # Press coverage
 
