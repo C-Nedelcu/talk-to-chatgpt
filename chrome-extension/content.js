@@ -1,7 +1,7 @@
 ﻿// TALK TO CHATGPT
 // ---------------
 // Author		: C. NEDELCU
-// Version		: 2.2.0
+// Version		: 2.3.0
 // Git repo 	: https://github.com/C-Nedelcu/talk-to-chatgpt
 // Chat GPT URL	: https://chat.openai.com/chat
 // How to use   : https://www.youtube.com/watch?v=VXkLQMEs3lA
@@ -41,6 +41,10 @@ var CN_SAY_THIS_TO_SEND = "send message now";
 
 // Indicate "locale-voice name" (the possible values are difficult to determine, you should just ignore this and use the settings menu instead)
 var CN_WANTED_VOICE_NAME = "";
+
+// Ignore code blocks - anything contained in <pre>
+var CN_IGNORE_CODE_BLOCKS = false;
+
 
 // ----------------------------
 
@@ -193,6 +197,12 @@ function CN_CheckNewMessages() {
 	// Split current message into parts
 	if (CN_CURRENT_MESSAGE && CN_CURRENT_MESSAGE.length) {
 		var currentText = CN_CURRENT_MESSAGE.text()+"";
+		
+		// Remove code blocks?
+		if (CN_IGNORE_CODE_BLOCKS) {
+			currentText = CN_CURRENT_MESSAGE.find(".markdown").contents().not("pre").text();
+		}
+		
 		var newSentences = CN_SplitIntoSentences(currentText);
 		if (newSentences != null && newSentences.length != CN_CURRENT_MESSAGE_SENTENCES.length) {
 			// There is a new part of a sentence!
@@ -323,6 +333,13 @@ function CN_StartSpeechRecognition() {
 		}
 		
 		console.log("Voice recognition: '"+ (final_transcript)+"'");
+		
+		// Empty? https://github.com/C-Nedelcu/talk-to-chatgpt/issues/72
+		if (final_transcript.trim() == "") {
+			console.log("Empty sentence detected, ignoring");
+			return;
+		}
+		
 		if (CN_RemovePunctuation(final_transcript) == CN_SAY_THIS_WORD_TO_STOP.toLowerCase().trim()) {
 			
 			if (CN_CONVERSATION_SUSPENDED) {
@@ -591,7 +608,7 @@ function CN_InitScript() {
 				"<a href='https://github.com/C-Nedelcu/talk-to-chatgpt' " +
 					"style='display: inline-block; font-size: 20px; line-height: 80%; padding: 8px 0;' " +
 					"target=_blank title='Visit project website'>TALK-TO-ChatGPT<br />" +
-					"<div style='text-align: right; font-size: 12px; color: grey'>V2.2.0</div>" +
+					"<div style='text-align: right; font-size: 12px; color: grey'>V2.3.0</div>" +
 				"</a>" +
 			"</div>" +
 			
@@ -770,6 +787,9 @@ function CN_OnSettingsIconClick() {
 	// 10. Split sentences with commas
 	rows += "<tr><td style='white-space: nowrap'>Punctuation in sentences:</td><td><input type=checkbox id='TTGPTIgnoreCommas' " + (CN_IGNORE_COMMAS ? "checked=checked" : "") + " /> <label for='TTGPTIgnoreCommas'>Don't use commas/semicolons/etc. to break down replies into sentences</label></td></tr>";
 	
+	// 11. Split sentences with commas
+	rows += "<tr><td style='white-space: nowrap'>Ignore code blocks:</td><td><input type=checkbox id='TTGPTIgnoreCode' " + (CN_IGNORE_CODE_BLOCKS ? "checked=checked" : "") + " /> <label for='TTGPTIgnoreCode'>Don't read blocks of code out loud (ignore them altogether)</label></td></tr>";
+	
 	// Keyboard shortcuts
 	rows += "<tr><td style='white-space: nowrap'>Keyboard shortcuts:</td><td><ul>" +
 		"<li>ALT+SHIFT+S: <u>S</u>tart Talk-To-ChatGPT</li>" +
@@ -831,6 +851,7 @@ function CN_SaveSettings() {
 		CN_AUTO_SEND_AFTER_SPEAKING = jQuery("#TTGPTAutosend").prop("checked");
 		CN_SAY_THIS_TO_SEND = jQuery("#TTGPTSendWord").val();
 		CN_IGNORE_COMMAS = jQuery("#TTGPTIgnoreCommas").prop("checked");
+		CN_IGNORE_CODE_BLOCKS = jQuery("#TTGPTIgnoreCode").prop("checked");
 		
 		// Apply language to speech recognition instance
 		if (CN_SPEECHREC) CN_SPEECHREC.lang = CN_WANTED_LANGUAGE_SPEECH_REC;
@@ -846,7 +867,8 @@ function CN_SaveSettings() {
 			CN_AUTO_SEND_AFTER_SPEAKING?1:0,
 			CN_SAY_THIS_TO_SEND,
 			CN_IGNORE_COMMAS?1:0,
-			CN_KEEP_LISTENING?1:0
+			CN_KEEP_LISTENING?1:0,
+			CN_IGNORE_CODE_BLOCKS?1:0
 		];
 		CN_SetCookie("CN_TTGPT", JSON.stringify(settings));
 	} catch(e) { alert('Invalid settings values'); return; }
@@ -876,6 +898,7 @@ function CN_RestoreSettings() {
 			if (settings.hasOwnProperty(7)) CN_SAY_THIS_TO_SEND = settings[7];
 			if (settings.hasOwnProperty(8)) CN_IGNORE_COMMAS = settings[8] == 1;
 			if (settings.hasOwnProperty(9)) CN_KEEP_LISTENING = settings[9] == 1;
+			if (settings.hasOwnProperty(10)) CN_IGNORE_CODE_BLOCKS = settings[10] == 1;
 		}
 	} catch (ex) {
 		console.error(ex);
