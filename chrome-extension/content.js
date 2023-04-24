@@ -1,7 +1,7 @@
 ﻿// TALK TO CHATGPT
 // ---------------
 // Author		: C. NEDELCU
-// Version		: 2.3.0
+// Version		: 2.4.0
 // Git repo 	: https://github.com/C-Nedelcu/talk-to-chatgpt
 // Chat GPT URL	: https://chat.openai.com/chat
 // How to use   : https://www.youtube.com/watch?v=VXkLQMEs3lA
@@ -192,19 +192,24 @@ function CN_CheckNewMessages() {
 		CN_CURRENT_MESSAGE = jQuery(".text-base:last").find(".items-start");
 		CN_CURRENT_MESSAGE_SENTENCES = []; // Reset list of parts already spoken
 		CN_CURRENT_MESSAGE_SENTENCES_NEXT_READ = 0;
+		console.log("New message detected! "+ currentMessageCount+ "/" + CN_CURRENT_MESSAGE.length);
 	}
 	
 	// Split current message into parts
 	if (CN_CURRENT_MESSAGE && CN_CURRENT_MESSAGE.length) {
-		var currentText = CN_CURRENT_MESSAGE.text()+"";
+		var currentText = jQuery(".text-base:last").find(".items-start").text()+"";
+		console.log("currentText:" + currentText);
 		
 		// Remove code blocks?
 		if (CN_IGNORE_CODE_BLOCKS) {
 			currentText = CN_CURRENT_MESSAGE.find(".markdown").contents().not("pre").text();
+			console.log("[CODE] currentText:" + currentText);
 		}
 		
 		var newSentences = CN_SplitIntoSentences(currentText);
 		if (newSentences != null && newSentences.length != CN_CURRENT_MESSAGE_SENTENCES.length) {
+			console.log("[NEW SENTENCES] newSentences:" + newSentences.length);
+			
 			// There is a new part of a sentence!
 			var nextRead = CN_CURRENT_MESSAGE_SENTENCES_NEXT_READ;
 			for (i = nextRead; i < newSentences.length; i++) {
@@ -601,14 +606,14 @@ function CN_InitScript() {
 	jQuery("body").append(
 		"<div style='position: fixed; top: 8px; right: 16px; display: inline-block; " +
 			"background: #41464c; color: white; padding: 0; font-size: 16px; border-radius: 8px; text-align: center;" +
-			"font-weight: bold; z-index: 1111;' id='TTGPTSettings'>" +
+			"cursor: move; font-weight: bold; z-index: 1111;' id='TTGPTSettings'>" +
 		
 			// Logo / title
 			"<div style='padding: 4px 40px; border-bottom: 1px solid grey;'>" +
 				"<a href='https://github.com/C-Nedelcu/talk-to-chatgpt' " +
 					"style='display: inline-block; font-size: 20px; line-height: 80%; padding: 8px 0;' " +
 					"target=_blank title='Visit project website'>TALK-TO-ChatGPT<br />" +
-					"<div style='text-align: right; font-size: 12px; color: grey'>V2.3.0</div>" +
+					"<div style='text-align: right; font-size: 12px; color: grey'>V2.4.0</div>" +
 				"</a>" +
 			"</div>" +
 			
@@ -675,6 +680,30 @@ function CN_InitScript() {
 		jQuery(".CNToggle, #CNStartButton, #CNResumeButton").on("mouseleave", function() { jQuery(this).css("opacity", 0.7); });
 		jQuery(document).on("mouseenter", "#TTGPTSave, #TTGPTCancel", function() { jQuery(this).css("opacity", 1); } );
 		jQuery(document).on("mouseleave", "#TTGPTSave, #TTGPTCancel", function() { jQuery(this).css("opacity", 0.7); } );
+		
+		// Make TTGPTSettings draggable
+		jQuery("#TTGPTSettings").mousedown(function(e) {
+			window.my_dragging = {};
+			my_dragging.pageX0 = e.pageX;
+			my_dragging.pageY0 = e.pageY;
+			my_dragging.elem = this;
+			my_dragging.offset0 = $(this).offset();
+			function handle_dragging(e) {
+				var left = my_dragging.offset0.left + (e.pageX - my_dragging.pageX0);
+				var top = my_dragging.offset0.top + (e.pageY - my_dragging.pageY0);
+				jQuery(my_dragging.elem).css('right', '');
+				jQuery(my_dragging.elem)
+					.offset({top: top, left: left});
+			}
+			function handle_mouseup(e) {
+				jQuery('body')
+					.off('mousemove', handle_dragging)
+					.off('mouseup', handle_mouseup);
+			}
+			jQuery('body')
+				.on('mouseup', handle_mouseup)
+				.on('mousemove', handle_dragging);
+		});
 	}, 100);
 	
 	// Start key detection
