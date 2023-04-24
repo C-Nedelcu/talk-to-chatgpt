@@ -1,5 +1,3 @@
-## UPDATE 16/04/2023: OpenAI recently changed the ChatGPT URL, which broke the extension. An update is currently pending review on the Chrome/Edge stores. For now, you can install the extension manually through dev mode, instructions given below (v2.2 is already available with several new features).
-
 **Talk-to-ChatGPT** is a Google Chrome and Microsoft Edge extension that allows users to talk with the ChatGPT AI using their voice (speech recognition), and listen to the bot's answer with a voice (text-to-speech), rather than just by typing. With this tool, users can speak to the AI and receive spoken responses, making the interaction feel more natural and conversational. This could be useful in a variety of settings where it would be helpful to have a more human-like interaction with an AI.
 
 The extension can be downloaded from here:
@@ -71,6 +69,10 @@ Talk-to-ChatGPT has been receiving press coverage since its release. It is curre
 * This list will be updated over time.
 
 # Change log
+
+Version 2.3.0 - April 18th, 2023
+* New: option to skip code blocks while reading bot's response (#17)
+* Fixed: when speech recognition returns an empty sentence, this could cause the addon to disfunction (#72)
 
 Version 2.2.0 - April 16th, 2023:
 * New: 'pause' vocal command was revamped. When you say the pause word, the addon will continue listening but won't send anything to ChatGPT. To resume normal functionality, say the pause word again, or click the Resume button
