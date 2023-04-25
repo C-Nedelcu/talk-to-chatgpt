@@ -66,9 +66,14 @@ Talk-to-ChatGPT has been receiving press coverage since its release. It is curre
 * GBAtemp - https://gbatemp.net/threads/talk-to-chatgpt-actual-vocal-discussion-with-an-ai-using-voice-recognition-and-text-to-speech-in-chrome.622942/
 * JustGeek - https://www.justgeek.fr/talk-to-chatgpt-discuter-a-voix-haute-avec-chatgpt-103657/
 * Comment Ca Marche - https://www.commentcamarche.net/informatique/technologies/27295-application-et-extension-vocale-chatgpt-de-nouveaux-outils-pour-l-ia/#talk-to-chatgpt--discuter-a-haute-voix-avec-lia
+* Le Blog du Moderateur - https://www.blogdumoderateur.com/meilleures-extensions-chrome-chatgpt/
 * This list will be updated over time.
 
 # Change log
+
+Version 2.4.0 - April 24th, 2023 (pending Chrome/Edge store validation)
+* New: the widget can be dragged around
+* Fixed: issue with jQuery being unable to read message contents and speak out loud
 
 Version 2.3.0 - April 18th, 2023
 * New: option to skip code blocks while reading bot's response (#17)
