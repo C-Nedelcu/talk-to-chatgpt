@@ -78,7 +78,7 @@ Version 2.5.0 - April 25th, 2023 (pending Chrome/Edge store validation)
 * Fixed: forbid punctuation in voice commands as they may break settings storage
 * Fixed: text-to-speech sometimes wouldn't work when 'skip code blocks' option was enabled due to jQuery issue
 
-Version 2.4.0 - April 24th, 2023 (pending Chrome/Edge store validation)
+Version 2.4.0 - April 24th, 2023 (pending Edge store validation)
 * New: the widget can be dragged around
 * Fixed: issue with jQuery being unable to read message contents and speak out loud
 
