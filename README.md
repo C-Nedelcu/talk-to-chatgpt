@@ -71,14 +71,19 @@ Talk-to-ChatGPT has been receiving press coverage since its release. It is curre
 
 # Change log
 
-Version 2.5.0 - April 25th, 2023 (pending Chrome/Edge store validation)
+Version 2.6.0 - April 29th, 2023 (pending beta testing)
+* New: ElevenLabs API support (#70, #41, #34)
+* Updated: beep tone at the start instead of saying 'OK', so as to avoid consuming ElevenLabs quota
+* Fixed: stability improvements
+
+Version 2.5.0 - April 25th, 2023 (pending Edge store validation)
 * New: beep tones when pausing and unpausing (#83)
 * Updated: the pause word will work even when spoken twice instead of once, to tackle issue with the speech recognition API
 * Updated: settings menu divided into sections
 * Fixed: forbid punctuation in voice commands as they may break settings storage
 * Fixed: text-to-speech sometimes wouldn't work when 'skip code blocks' option was enabled due to jQuery issue
 
-Version 2.4.0 - April 24th, 2023 (pending Edge store validation)
+Version 2.4.0 - April 24th, 2023
 * New: the widget can be dragged around
 * Fixed: issue with jQuery being unable to read message contents and speak out loud
 
