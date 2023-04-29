@@ -2,7 +2,7 @@
 
 The extension can be downloaded from here:
 * From the **Chrome Web store** here: https://chrome.google.com/webstore/detail/talk-to-chatgpt/hodadfhfagpiemkeoliaelelfbboamlk
-* From the **Edge Web store** here: (link coming soon, extension is under review, you can download/install manually for now)
+* From the **Edge Web store** here: https://microsoftedge.microsoft.com/addons/detail/talktochatgpt/bkkdkngklccknmoalpoakglipbibafpn
 * Manual installation option, detailed further below
 
 After installing the extension, open or reload the ChatGPT page ( https://chat.openai.com/ ) and you should be seeing a 'Start' button on the top right corner of the page. After you click Start, you will be asked for permission to use your Microphone. This is required to enable voice recognition.
@@ -21,7 +21,7 @@ Demo V2.0: https://www.youtube.com/watch?v=sKjkOwkoMNM
 
 ### Option 1: CHROME or EDGE STORE
 * Google Chrome: download from the Chrome extension store at https://chrome.google.com/webstore/detail/talk-to-chatgpt/hodadfhfagpiemkeoliaelelfbboamlk 
-* Microsoft Edge: the extension is still under review, link will be given soon, use manual install for now
+* Microsoft Edge: download from the Edge extension store at https://microsoftedge.microsoft.com/addons/detail/talktochatgpt/bkkdkngklccknmoalpoakglipbibafpn
 
 ### Option 2: MANUAL INSTALL
 If the extension is temporarily unavailable (this can happen when OpenAI make breaking changes), or if you want to install the latest updates before they are available on the Chrome/Edge web store, you can install the extension manually. Here is how you do it.
@@ -71,7 +71,14 @@ Talk-to-ChatGPT has been receiving press coverage since its release. It is curre
 
 # Change log
 
-Version 2.4.0 - April 24th, 2023 (pending Chrome/Edge store validation)
+Version 2.5.0 - April 25th, 2023 (pending Chrome/Edge store validation)
+* New: beep tones when pausing and unpausing (#83)
+* Updated: the pause word will work even when spoken twice instead of once, to tackle issue with the speech recognition API
+* Updated: settings menu divided into sections
+* Fixed: forbid punctuation in voice commands as they may break settings storage
+* Fixed: text-to-speech sometimes wouldn't work when 'skip code blocks' option was enabled due to jQuery issue
+
+Version 2.4.0 - April 24th, 2023 (pending Edge store validation)
 * New: the widget can be dragged around
 * Fixed: issue with jQuery being unable to read message contents and speak out loud
 
