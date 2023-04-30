@@ -1,4 +1,6 @@
-**Talk-to-ChatGPT** is a Google Chrome and Microsoft Edge extension that allows users to talk with the ChatGPT AI using their voice (speech recognition), and listen to the bot's answer with a voice (text-to-speech), rather than just by typing. With this tool, users can speak to the AI and receive spoken responses, making the interaction feel more natural and conversational. This could be useful in a variety of settings where it would be helpful to have a more human-like interaction with an AI.
+**Talk-to-ChatGPT** is a Google Chrome and Microsoft Edge extension that allows users to talk with the ChatGPT AI using their voice (speech recognition), and listen to the bot's answer with a voice (text-to-speech), rather than just by typing. With this tool, users can speak to the AI and receive spoken responses, making the interaction feel more natural and conversational. This could be useful in a variety of settings where it would be helpful to have a more human-like interaction with an AI. 
+
+**As of version 2.6, we now support ElevenLabs API integration, which means you can create your own voices for text-to-speech!** This new version is currently pending publication on the Google and Chrome extension store, if you download it now from the store you'll only get v2.5.0. So you can either download and install v2.6.0 manually using the method explained below, or just wait a few more days and install it from the store (ETA: May 4th).
 
 The extension can be downloaded from here:
 * From the **Chrome Web store** here: https://chrome.google.com/webstore/detail/talk-to-chatgpt/hodadfhfagpiemkeoliaelelfbboamlk
@@ -7,15 +9,17 @@ The extension can be downloaded from here:
 
 After installing the extension, open or reload the ChatGPT page ( https://chat.openai.com/ ) and you should be seeing a 'Start' button on the top right corner of the page. After you click Start, you will be asked for permission to use your Microphone. This is required to enable voice recognition.
 
-![Talk-to-GPT Menu](/images/menu.png?raw=true&v2.2? "Talk-to-ChatGPT Menu")
+![Talk-to-GPT Widget](/images/260-main.png?raw=true "Talk-to-ChatGPT Widget")
 
 Once started, Talk-to-ChatGPT displays a menu on the top right corner of the page where users can access settings (such as voice, language, and more), skip the current message, toggle voice recognition on or off, and toggle text-to-speech on or off.
 
 The settings menu can be seen below. Settings are saved in a cookie and reloaded automatically each time you activate the script.
 
-![Settings dialog](/images/settings.png?raw=true&v2.2? "Settings dialog")
+![Talk-to-GPT Settings 1](/images/260-settings-1.png?raw=true "Talk-to-ChatGPT Settings 1")
 
-Demo V2.0: https://www.youtube.com/watch?v=sKjkOwkoMNM
+![Talk-to-GPT Settings 2](/images/260-settings-1.png?raw=true "Talk-to-ChatGPT Settings 1")
+
+Demo V2.6 with ElevenLabs support: https://www.youtube.com/watch?v=gnijfWuenKA
 
 # How to install
 
@@ -71,7 +75,7 @@ Talk-to-ChatGPT has been receiving press coverage since its release. It is curre
 
 # Change log
 
-Version 2.6.0 - April 29th, 2023 (pending beta testing)
+Version 2.6.0 - April 29th, 2023 (pending Chrome and Edge store validation)
 * New: ElevenLabs API support (#70, #41, #34)
 * Updated: beep tone at the start instead of saying 'OK', so as to avoid consuming ElevenLabs quota
 * Fixed: stability improvements
