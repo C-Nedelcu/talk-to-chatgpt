@@ -1,6 +1,6 @@
 **Talk-to-ChatGPT** is a Google Chrome and Microsoft Edge extension that allows users to talk with the ChatGPT AI using their voice (speech recognition), and listen to the bot's answer with a voice (text-to-speech), rather than just by typing. With this tool, users can speak to the AI and receive spoken responses, making the interaction feel more natural and conversational. This could be useful in a variety of settings where it would be helpful to have a more human-like interaction with an AI. 
 
-**As of version 2.6, we now support ElevenLabs API integration, which means you can create your own voices for text-to-speech!** This new version is currently pending publication on the Google and Chrome extension store, if you download it now from the store you'll only get v2.5.0. So you can either download and install v2.6.0 manually using the method explained below, or just wait a few more days and install it from the store (ETA: May 4th).
+**As of version 2.6, we now support ElevenLabs API integration, which means you can create your own voices for text-to-speech!** This new version is available on the Google Chrome extension store. As for Microsoft Edge, validation is still pending (ETA: May 4th. But you can still install it manually right now by following the steps below).
 
 The extension can be downloaded from here:
 * From the **Chrome Web store** here: https://chrome.google.com/webstore/detail/talk-to-chatgpt/hodadfhfagpiemkeoliaelelfbboamlk
