@@ -75,7 +75,7 @@ Talk-to-ChatGPT has been receiving press coverage since its release. It is curre
 
 # Change log
 
-Version 2.6.0 - April 29th, 2023 (pending Chrome and Edge store validation)
+Version 2.6.0 - April 29th, 2023 (pending Edge store validation)
 * New: ElevenLabs API support (#70, #41, #34)
 * Updated: beep tone at the start instead of saying 'OK', so as to avoid consuming ElevenLabs quota
 * Fixed: stability improvements
