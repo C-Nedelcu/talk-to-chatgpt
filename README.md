@@ -15,7 +15,7 @@ The settings menu can be seen below. Settings are saved in a cookie and reloaded
 
 ![Talk-to-GPT Settings 1](/images/260-settings-1.png?raw=true "Talk-to-ChatGPT Settings 1")
 
-![Talk-to-GPT Settings 2](/images/260-settings-1.png?raw=true "Talk-to-ChatGPT Settings 1")
+![Talk-to-GPT Settings 2](/images/260-settings-2.png?raw=true "Talk-to-ChatGPT Settings 2")
 
 Demo V2.6 with ElevenLabs support: https://www.youtube.com/watch?v=gnijfWuenKA
 
