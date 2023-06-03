@@ -1,7 +1,7 @@
 ﻿// TALK TO CHATGPT
 // ---------------
 // Author		: C. NEDELCU
-// Version		: 2.6.0
+// Version		: 2.6.1
 // Git repo 	: https://github.com/C-Nedelcu/talk-to-chatgpt
 // Chat GPT URL	: https://chat.openai.com/chat
 // How to use   : https://www.youtube.com/watch?v=VXkLQMEs3lA
@@ -504,23 +504,23 @@ function CN_CheckNewMessages() {
 // Send a message to the bot (will simply put text in the textarea and simulate a send button click)
 function CN_SendMessage(text) {
 	// Put message in textarea
-	jQuery("textarea.w-full").focus();
-	var existingText = jQuery("textarea.w-full").val();
+	jQuery("#prompt-textarea").focus();
+	var existingText = jQuery("#prompt-textarea").val();
 	
 	// Is there already existing text?
-	if (!existingText) jQuery("textarea.w-full").val(text);
-	else jQuery("textarea.w-full").val(existingText+" "+text);
+	if (!existingText) CN_SetTextareaValue(text);
+	else CN_SetTextareaValue(existingText+" "+text);
 	
 	// Change height in case
 	var fullText = existingText+" "+text;
 	var rows = Math.ceil( fullText.length / 88);
 	var height = rows * 24;
-	jQuery("textarea.w-full").css("height", height+"px");
+	jQuery("#prompt-textarea").css("height", height+"px");
 	
 	// Send the message, if autosend is enabled
-	jQuery("textarea.w-full").closest("div").find("button").prop("disabled", false);
+	jQuery("#prompt-textarea").closest("div").find("button").prop("disabled", false);
 	if (CN_AUTO_SEND_AFTER_SPEAKING) {
-		jQuery("textarea.w-full").closest("div").find("button").click();
+		jQuery("#prompt-textarea").closest("div").find("button").click();
 		
 		// Stop speech recognition until the answer is received
 		if (CN_SPEECHREC) {
@@ -702,7 +702,7 @@ function CN_StartSpeechRecognition() {
 			console.log("You said '"+ CN_SAY_THIS_TO_SEND+"' - the message will be sent");
 			
 			// Click button
-			jQuery("textarea.w-full").closest("div").find("button").click();
+			jQuery("#prompt-textarea").closest("div").find("button").click();
 		
 			// Stop speech recognition until the answer is received
 			if (CN_SPEECHREC) {
@@ -848,6 +848,26 @@ function CN_ToggleButtonClick() {
 	}
 }
 
+
+function CN_SetTextareaValue(text) {
+    const textarea = jQuery("#prompt-textarea")[0];
+    function setNativeValue(element, value) {
+      const { set: valueSetter } = Object.getOwnPropertyDescriptor(element, 'value') || {}
+      const prototype = Object.getPrototypeOf(element)
+      const { set: prototypeValueSetter } = Object.getOwnPropertyDescriptor(prototype, 'value') || {}
+
+      if (prototypeValueSetter && valueSetter !== prototypeValueSetter) {
+        prototypeValueSetter.call(element, value)
+      } else if (valueSetter) {
+        valueSetter.call(element, value)
+      } else {
+        throw new Error('The given element does not have a value setter')
+      }
+    }
+    setNativeValue(textarea, text)
+    textarea.dispatchEvent(new Event('input', { bubbles: true }))
+}
+
 // Start Talk-to-ChatGPT (Start button)
 function CN_StartTTGPT() {
 	// Play sound & start
@@ -879,7 +899,7 @@ function CN_StartTTGPT() {
 // Check we are on the correct page
 function CN_CheckCorrectPage() {
 	console.log("Checking we are on the correct page...");
-	var wrongPage = jQuery("textarea.w-full").length == 0; // no textarea... login page?
+	var wrongPage = jQuery("#prompt-textarea").length == 0; // no textarea... login page?
 	
 	if (wrongPage) {
 		// We are on the wrong page, keep checking
@@ -941,7 +961,7 @@ function CN_InitScript() {
 				"<a href='https://github.com/C-Nedelcu/talk-to-chatgpt' " +
 					"style='display: inline-block; font-size: 20px; line-height: 80%; padding: 8px 0;' " +
 					"target=_blank title='Visit project website'>TALK-TO-ChatGPT<br />" +
-					"<div style='text-align: right; font-size: 12px; color: grey'>V2.6.0</div>" +
+					"<div style='text-align: right; font-size: 12px; color: grey'>V2.6.1</div>" +
 				"</a>" +
 			"</div>" +
 			
@@ -1268,7 +1288,7 @@ function CN_SaveSettings() {
 		var wantedVoiceIndex = jQuery("#TTGPTVoice").val();
 		var allVoices = speechSynthesis.getVoices();
 		CN_WANTED_VOICE = allVoices[wantedVoiceIndex];
-		CN_WANTED_VOICE_NAME = CN_WANTED_VOICE.lang+"-"+CN_WANTED_VOICE.name;
+		CN_WANTED_VOICE_NAME = CN_WANTED_VOICE ? CN_WANTED_VOICE.lang+"-"+CN_WANTED_VOICE.name : "";
 		CN_TEXT_TO_SPEECH_RATE = Number( jQuery("#TTGPTRate").val() );
 		CN_TEXT_TO_SPEECH_PITCH = Number( jQuery("#TTGPTPitch").val() );
 		
