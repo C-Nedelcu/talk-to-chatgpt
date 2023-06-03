@@ -1,5 +1,7 @@
 **Talk-to-ChatGPT** is a Google Chrome and Microsoft Edge extension that allows users to talk with the ChatGPT AI using their voice (speech recognition), and listen to the bot's answer with a voice (text-to-speech), rather than just by typing. With this tool, users can speak to the AI and receive spoken responses, making the interaction feel more natural and conversational. This could be useful in a variety of settings where it would be helpful to have a more human-like interaction with an AI. **As of version 2.6, we now support ElevenLabs API integration, which means you can create your own voices for text-to-speech!**
 
+## On June 2, OpenAI updated the ChatGPT page which prevents this extension from sending messages. To send a message, you have to click inside the prompt, press any key (such as the space bar), then click the send button manually for the time being. _A new version, v2.6.1, which fixes this issue, is already available for manual install, and pending approval on the Chrome and Edge stores. If you can't wait, install the extension manually - instructions are given further below. Otherwise, please wait a couple of days until the fixed version starts appearing on the Chrome/Edge store._
+
 The extension can be downloaded from here:
 * From the **Chrome Web store** here: https://chrome.google.com/webstore/detail/talk-to-chatgpt/hodadfhfagpiemkeoliaelelfbboamlk
 * From the **Edge Web store** here: https://microsoftedge.microsoft.com/addons/detail/talktochatgpt/bkkdkngklccknmoalpoakglipbibafpn
@@ -72,6 +74,10 @@ Talk-to-ChatGPT has been receiving press coverage since its release. It is curre
 * This list will be updated over time.
 
 # Change log
+
+Version 2.6.1 - June 3rd, 2023
+* Fixed: major issue with ChatGPT page update preventing from sending the prompt (#127, #128, #129, #130, #131)
+* Fixed: saving settings wasn't working when the list of system text-to-speech voices was empty (#125)
 
 Version 2.6.0 - April 29th, 2023
 * New: ElevenLabs API support (#70, #41, #34)
