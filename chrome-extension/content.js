@@ -95,8 +95,10 @@ function CN_SayOutLoud(text) {
         if (!text || CN_SPEAKING_DISABLED) {
             if (CN_SPEECH_REC_SUPPORTED && CN_SPEECHREC && !CN_IS_LISTENING && !CN_PAUSED && !CN_SPEECHREC_DISABLED && !CN_IS_READING) {
                 // Check if speech recognition is already running to avoid error
-                if (!CN_IS_LISTENING) {
+                try {
                     CN_SPEECHREC.start();
+                } catch (error) {
+                    console.error("Failed to start SpeechRecognition:", error);
                 }
             }
             clearTimeout(CN_TIMEOUT_KEEP_SPEECHREC_WORKING);
@@ -109,7 +111,7 @@ function CN_SayOutLoud(text) {
             clearTimeout(CN_TIMEOUT_KEEP_SPEECHREC_WORKING);
             CN_SPEECHREC.stop();
         }
-	
+
 	// What is the TTS method?
 	if (CN_TTS_ELEVENLABS) {
 		// We are using ElevenLabs, so push message to queue
