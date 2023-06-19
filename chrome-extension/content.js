@@ -96,10 +96,14 @@ function CN_SayOutLoud(text) {
             if (CN_SPEECH_REC_SUPPORTED && CN_SPEECHREC && !CN_IS_LISTENING && !CN_PAUSED && !CN_SPEECHREC_DISABLED && !CN_IS_READING) {
                 // Check if speech recognition is already running to avoid error
                 try {
+                    console.log("Attempting to start SpeechRecognition");
                     CN_SPEECHREC.start();
+                    CN_IS_LISTENING = true; // Ensure this flag is set to true here
                 } catch (error) {
                     console.error("Failed to start SpeechRecognition:", error);
                 }
+            } else {
+                console.log("Not starting SpeechRecognition because CN_IS_LISTENING is", CN_IS_LISTENING);
             }
             clearTimeout(CN_TIMEOUT_KEEP_SPEECHREC_WORKING);
             CN_TIMEOUT_KEEP_SPEECHREC_WORKING = setTimeout(CN_KeepSpeechRecWorking, 100);
@@ -109,7 +113,9 @@ function CN_SayOutLoud(text) {
         // If we are about to speak, stop speech recognition
         if (CN_SPEECHREC && text && !CN_SPEAKING_DISABLED) {
             clearTimeout(CN_TIMEOUT_KEEP_SPEECHREC_WORKING);
+            console.log("Stopping SpeechRecognition");
             CN_SPEECHREC.stop();
+            CN_IS_LISTENING = false; // Ensure this flag is set to false here
         }
 
 	// What is the TTS method?
