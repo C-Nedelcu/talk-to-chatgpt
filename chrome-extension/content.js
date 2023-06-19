@@ -91,19 +91,19 @@ var CN_CURRENT_AUDIO = null;
 
 // This function will say the given text out loud using the browser's speech synthesis API, or send the message to the ElevenLabs conversion stack
 function CN_SayOutLoud(text) {
-	// Have we no text to say? Or did we disable text-to-speech? Make sure to continue listening, if that's what we want
-	if (!text || CN_SPEAKING_DISABLED) {
-		if (CN_SPEECH_REC_SUPPORTED && CN_SPEECHREC && !CN_IS_LISTENING && !CN_PAUSED && !CN_SPEECHREC_DISABLED && !CN_IS_READING) CN_SPEECHREC.start();
-		clearTimeout(CN_TIMEOUT_KEEP_SPEECHREC_WORKING);
-		CN_TIMEOUT_KEEP_SPEECHREC_WORKING = setTimeout(CN_KeepSpeechRecWorking, 100);
-		return;
-	}
+	// If TTS is disabled and there's nothing to say, ensure speech recognition is started
+        if (!text || CN_SPEAKING_DISABLED) {
+            if (CN_SPEECH_REC_SUPPORTED && CN_SPEECHREC && !CN_IS_LISTENING && !CN_PAUSED && !CN_SPEECHREC_DISABLED && !CN_IS_READING) CN_SPEECHREC.start();
+            clearTimeout(CN_TIMEOUT_KEEP_SPEECHREC_WORKING);
+            CN_TIMEOUT_KEEP_SPEECHREC_WORKING = setTimeout(CN_KeepSpeechRecWorking, 100);
+            return;
+        }
 	
-	// Are we speaking?
-	if (CN_SPEECHREC) {
-		clearTimeout(CN_TIMEOUT_KEEP_SPEECHREC_WORKING);
-		CN_SPEECHREC.stop();
-	}
+        // If we are about to speak, stop speech recognition
+        if (CN_SPEECHREC && text && !CN_SPEAKING_DISABLED) {
+            clearTimeout(CN_TIMEOUT_KEEP_SPEECHREC_WORKING);
+            CN_SPEECHREC.stop();
+        }
 	
 	// What is the TTS method?
 	if (CN_TTS_ELEVENLABS) {
