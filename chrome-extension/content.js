@@ -487,7 +487,7 @@ function CN_CheckNewMessages() {
 			
 			// There is a new part of a sentence!
 			var nextRead = CN_CURRENT_MESSAGE_SENTENCES_NEXT_READ;
-			for (i = nextRead; i < newSentences.length; i++) {
+			for (let i = nextRead; i < newSentences.length; i++) {
 				CN_CURRENT_MESSAGE_SENTENCES_NEXT_READ = i+1;
 
 				var lastPart = newSentences[i];
