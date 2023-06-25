@@ -91,20 +91,33 @@ var CN_CURRENT_AUDIO = null;
 
 // This function will say the given text out loud using the browser's speech synthesis API, or send the message to the ElevenLabs conversion stack
 function CN_SayOutLoud(text) {
-	// Have we no text to say? Or did we disable text-to-speech? Make sure to continue listening, if that's what we want
-	if (!text || CN_SPEAKING_DISABLED) {
-		if (CN_SPEECH_REC_SUPPORTED && CN_SPEECHREC && !CN_IS_LISTENING && !CN_PAUSED && !CN_SPEECHREC_DISABLED && !CN_IS_READING) CN_SPEECHREC.start();
-		clearTimeout(CN_TIMEOUT_KEEP_SPEECHREC_WORKING);
-		CN_TIMEOUT_KEEP_SPEECHREC_WORKING = setTimeout(CN_KeepSpeechRecWorking, 100);
-		return;
-	}
-	
-	// Are we speaking?
-	if (CN_SPEECHREC) {
-		clearTimeout(CN_TIMEOUT_KEEP_SPEECHREC_WORKING);
-		CN_SPEECHREC.stop();
-	}
-	
+        // If TTS is disabled and there's nothing to say, ensure speech recognition is started
+        if (!text || CN_SPEAKING_DISABLED) {
+            if (CN_SPEECH_REC_SUPPORTED && CN_SPEECHREC && !CN_IS_LISTENING && !CN_PAUSED && !CN_SPEECHREC_DISABLED && !CN_IS_READING) {
+                // Check if speech recognition is already running to avoid error
+                try {
+                    console.log("Attempting to start SpeechRecognition");
+                    CN_SPEECHREC.start();
+                    CN_IS_LISTENING = true; // Ensure this flag is set to true here
+                } catch (error) {
+                    console.error("Failed to start SpeechRecognition:", error);
+                }
+            } else {
+                console.log("Not starting SpeechRecognition because CN_IS_LISTENING is", CN_IS_LISTENING);
+            }
+            clearTimeout(CN_TIMEOUT_KEEP_SPEECHREC_WORKING);
+            CN_TIMEOUT_KEEP_SPEECHREC_WORKING = setTimeout(CN_KeepSpeechRecWorking, 100);
+            return;
+        }
+
+        // If we are about to speak, stop speech recognition
+        if (CN_SPEECHREC && text && !CN_SPEAKING_DISABLED) {
+            clearTimeout(CN_TIMEOUT_KEEP_SPEECHREC_WORKING);
+            console.log("Stopping SpeechRecognition");
+            CN_SPEECHREC.stop();
+            CN_IS_LISTENING = false; // Ensure this flag is set to false here
+        }
+
 	// What is the TTS method?
 	if (CN_TTS_ELEVENLABS) {
 		// We are using ElevenLabs, so push message to queue
@@ -487,7 +500,7 @@ function CN_CheckNewMessages() {
 			
 			// There is a new part of a sentence!
 			var nextRead = CN_CURRENT_MESSAGE_SENTENCES_NEXT_READ;
-			for (i = nextRead; i < newSentences.length; i++) {
+			for (let i = nextRead; i < newSentences.length; i++) {
 				CN_CURRENT_MESSAGE_SENTENCES_NEXT_READ = i+1;
 
 				var lastPart = newSentences[i];
