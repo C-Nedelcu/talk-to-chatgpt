@@ -1,7 +1,7 @@
 {
 	"manifest_version": 3,
 	"name": "Talk-to-ChatGPT",
-	"version": "2.6.1",
+	"version": "2.6.2",
 	"description": "Talk to ChatGPT through your microphone and hear its responses with a voice. Uses speech recognition and text-to-speech technologies",
 	"action": {
 		"default_popup": "popup.html",
@@ -9,7 +9,7 @@
 		  "16": "images/icon-16.png",
 		  "32": "images/icon-32.png"
 		},
-		"default_title": "Talk-to-ChatGPT V2.6.1"
+		"default_title": "Talk-to-ChatGPT V2.6.2"
 	},
 	"content_scripts":[
 		{

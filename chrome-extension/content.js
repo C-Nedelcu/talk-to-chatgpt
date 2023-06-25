@@ -1,7 +1,7 @@
 ﻿// TALK TO CHATGPT
 // ---------------
 // Author		: C. NEDELCU
-// Version		: 2.6.1
+// Version		: 2.6.2
 // Git repo 	: https://github.com/C-Nedelcu/talk-to-chatgpt
 // Chat GPT URL	: https://chat.openai.com/chat
 // How to use   : https://www.youtube.com/watch?v=VXkLQMEs3lA
@@ -974,7 +974,7 @@ function CN_InitScript() {
 				"<a href='https://github.com/C-Nedelcu/talk-to-chatgpt' " +
 					"style='display: inline-block; font-size: 20px; line-height: 80%; padding: 8px 0;' " +
 					"target=_blank title='Visit project website'>TALK-TO-ChatGPT<br />" +
-					"<div style='text-align: right; font-size: 12px; color: grey'>V2.6.1</div>" +
+					"<div style='text-align: right; font-size: 12px; color: grey'>V2.6.2</div>" +
 				"</a>" +
 			"</div>" +
 			
