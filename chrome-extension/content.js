@@ -435,9 +435,11 @@ function CN_SplitIntoSentences(text) {
 	var sentences = [];
 	var currentSentence = "";
 
-	// Use temporary placeholders to prevent splitting inside numbers
+	// Use temporary placeholders to prevent splitting inside numbers or special terms like "i.e." or "e.g."
 	text = text.replace(/(\d),(\d)/g, '$1\x01$2');
 	text = text.replace(/(\d)\.(\d)/g, '$1\x02$2');
+	text = text.replace(/i\.e\./g, 'i\x03e');
+	text = text.replace(/e\.g\./g, 'e\x04g');
 
 	for (var i = 0; i < text.length; i++) {
 		var currentChar = text[i];
@@ -467,7 +469,7 @@ function CN_SplitIntoSentences(text) {
 		) {
 			if (currentSentence.trim() !== "") {
 				// Replace placeholders back to original strings
-				currentSentence = currentSentence.replace(/\x01/g, ',').replace(/\x02/g, '.');
+				currentSentence = currentSentence.replace(/\x01/g, ',').replace(/\x02/g, '.').replace(/\x03/g, '.').replace(/\x04/g, '.');
 				sentences.push(currentSentence.trim());
 			}
 			currentSentence = "";
@@ -477,10 +479,10 @@ function CN_SplitIntoSentences(text) {
 	// Add last sentence if any
 	if (currentSentence.trim() !== "") {
 		// Replace placeholders back to original strings
-		currentSentence = currentSentence.replace(/\x01/g, ',').replace(/\x02/g, '.');
+		currentSentence = currentSentence.replace(/\x01/g, ',').replace(/\x02/g, '.').replace(/\x03/g, '.').replace(/\x04/g, '.');
 		sentences.push(currentSentence.trim());
 	}
-	
+
 	return sentences;
 }
 
