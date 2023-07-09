@@ -434,37 +434,51 @@ function CN_KeepSpeechSynthesisActive() {
 function CN_SplitIntoSentences(text) {
 	var sentences = [];
 	var currentSentence = "";
-	
-	for(var i=0; i<text.length; i++) {
-		//
+
+	// Use temporary placeholders to prevent splitting inside numbers
+	text = text.replace(/(\d),(\d)/g, '$1\x01$2');
+	text = text.replace(/(\d)\.(\d)/g, '$1\x02$2');
+
+	for (var i = 0; i < text.length; i++) {
 		var currentChar = text[i];
-		
+
 		// Add character to current sentence
 		currentSentence += currentChar;
-		
+
 		// is the current character a delimiter? if so, add current part to array and clear
 		if (
 			// Latin punctuation
-		       currentChar == (CN_IGNORE_COMMAS?'.':',')
-			|| currentChar == (CN_IGNORE_COMMAS ? '.' : ':')
-			|| currentChar == '.' 
-			|| currentChar == '!' 
-			|| currentChar == '?' 
-			|| currentChar == (CN_IGNORE_COMMAS ? '.' : ';')
-			|| currentChar == '…'
-			// Chinese/japanese punctuation
-			|| currentChar == (CN_IGNORE_COMMAS ? '.' : '、')
-			|| currentChar == (CN_IGNORE_COMMAS ? '.' : '，')
-			|| currentChar == '。'
-			|| currentChar == '．'
-			|| currentChar == '！'
-			|| currentChar == '？'
-			|| currentChar == (CN_IGNORE_COMMAS ? '.' : '；')
-			|| currentChar == (CN_IGNORE_COMMAS ? '.' : '：')
-			) {
-			if (currentSentence.trim() != "") sentences.push(currentSentence.trim());
+			currentChar == (CN_IGNORE_COMMAS ? '.' : ',') ||
+			currentChar == (CN_IGNORE_COMMAS ? '.' : ':') ||
+			currentChar == '.' ||
+			currentChar == '!' ||
+			currentChar == '?' ||
+			currentChar == (CN_IGNORE_COMMAS ? '.' : ';') ||
+			currentChar == '…' ||
+			// Chinese/Japanese punctuation
+			currentChar == (CN_IGNORE_COMMAS ? '.' : '、') ||
+			currentChar == (CN_IGNORE_COMMAS ? '.' : '，') ||
+			currentChar == '。' ||
+			currentChar == '．' ||
+			currentChar == '！' ||
+			currentChar == '？' ||
+			currentChar == (CN_IGNORE_COMMAS ? '.' : '；') ||
+			currentChar == (CN_IGNORE_COMMAS ? '.' : '：')
+		) {
+			if (currentSentence.trim() !== "") {
+				// Replace placeholders back to original strings
+				currentSentence = currentSentence.replace(/\x01/g, ',').replace(/\x02/g, '.');
+				sentences.push(currentSentence.trim());
+			}
 			currentSentence = "";
 		}
+	}
+
+	// Add last sentence if any
+	if (currentSentence.trim() !== "") {
+		// Replace placeholders back to original strings
+		currentSentence = currentSentence.replace(/\x01/g, ',').replace(/\x02/g, '.');
+		sentences.push(currentSentence.trim());
 	}
 	
 	return sentences;
