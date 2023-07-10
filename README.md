@@ -69,6 +69,7 @@ Talk-to-ChatGPT has been receiving press coverage since its release. It is curre
 * JustGeek - https://www.justgeek.fr/talk-to-chatgpt-discuter-a-voix-haute-avec-chatgpt-103657/
 * Comment Ca Marche - https://www.commentcamarche.net/informatique/technologies/27295-application-et-extension-vocale-chatgpt-de-nouveaux-outils-pour-l-ia/#talk-to-chatgpt--discuter-a-haute-voix-avec-lia
 * Le Blog du Moderateur - https://www.blogdumoderateur.com/meilleures-extensions-chrome-chatgpt/
+* JurojiNet - https://jurojin.net/tout-savoir-sur-chatgpt-fonctionnement-et-utilisation-de-la-celebre-ia/
 * This list will be updated over time.
 
 # Change log
