@@ -1,4 +1,4 @@
-**Talk-to-ChatGPT** is a Google Chrome and Microsoft Edge extension that allows users to talk with the ChatGPT AI using their voice (speech recognition), and listen to the bot's answer with a voice (text-to-speech), rather than just by typing. With this tool, users can speak to the AI and receive spoken responses, making the interaction feel more natural and conversational. This could be useful in a variety of settings where it would be helpful to have a more human-like interaction with an AI. **As of version 2.6, we now support ElevenLabs API integration, which means you can create your own voices for text-to-speech!**
+**Talk-to-ChatGPT** is a Google Chrome and Microsoft Edge extension that allows users to talk with the ChatGPT AI using their voice (speech recognition), and listen to the bot's answer with a voice (text-to-speech), rather than just by typing. With this tool, users can speak to the AI and receive spoken responses, making the interaction feel more natural and conversational. This allows you to have your own personal assistant in the style of Iron Man's Jarvis, which is fun, but it's also a great way to help the elderly and people with disabilities interact with ChatGPT. **As of version 2.6, we now support ElevenLabs API integration, which means you can create your own voices for text-to-speech!**
 
 The extension can be downloaded from here:
 * From the **Chrome Web store** here: https://chrome.google.com/webstore/detail/talk-to-chatgpt/hodadfhfagpiemkeoliaelelfbboamlk
@@ -69,7 +69,6 @@ Talk-to-ChatGPT has been receiving press coverage since its release. It is curre
 * JustGeek - https://www.justgeek.fr/talk-to-chatgpt-discuter-a-voix-haute-avec-chatgpt-103657/
 * Comment Ca Marche - https://www.commentcamarche.net/informatique/technologies/27295-application-et-extension-vocale-chatgpt-de-nouveaux-outils-pour-l-ia/#talk-to-chatgpt--discuter-a-haute-voix-avec-lia
 * Le Blog du Moderateur - https://www.blogdumoderateur.com/meilleures-extensions-chrome-chatgpt/
-* JurojiNet - https://jurojin.net/tout-savoir-sur-chatgpt-fonctionnement-et-utilisation-de-la-celebre-ia/
 * This list will be updated over time.
 
 # Change log
