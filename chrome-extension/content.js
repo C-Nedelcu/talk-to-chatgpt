@@ -434,39 +434,57 @@ function CN_KeepSpeechSynthesisActive() {
 function CN_SplitIntoSentences(text) {
 	var sentences = [];
 	var currentSentence = "";
-	
-	for(var i=0; i<text.length; i++) {
-		//
+
+	// Use temporary placeholders to prevent splitting inside numbers
+	text = text.replace(/(\d),(\d)/g, '$1†$2');
+	text = text.replace(/(\d)\.(\d)/g, '$1‡$2');
+
+	for (var i = 0; i < text.length; i++) {
 		var currentChar = text[i];
-		
+
 		// Add character to current sentence
 		currentSentence += currentChar;
-		
+
 		// is the current character a delimiter? if so, add current part to array and clear
 		if (
 			// Latin punctuation
-		       currentChar == (CN_IGNORE_COMMAS?'.':',')
-			|| currentChar == (CN_IGNORE_COMMAS ? '.' : ':')
-			|| currentChar == '.' 
-			|| currentChar == '!' 
-			|| currentChar == '?' 
-			|| currentChar == (CN_IGNORE_COMMAS ? '.' : ';')
-			|| currentChar == '…'
-			// Chinese/japanese punctuation
-			|| currentChar == (CN_IGNORE_COMMAS ? '.' : '、')
-			|| currentChar == (CN_IGNORE_COMMAS ? '.' : '，')
-			|| currentChar == '。'
-			|| currentChar == '．'
-			|| currentChar == '！'
-			|| currentChar == '？'
-			|| currentChar == (CN_IGNORE_COMMAS ? '.' : '；')
-			|| currentChar == (CN_IGNORE_COMMAS ? '.' : '：')
-			) {
-			if (currentSentence.trim() != "") sentences.push(currentSentence.trim());
+			currentChar == (CN_IGNORE_COMMAS ? '.' : ',') ||
+			currentChar == (CN_IGNORE_COMMAS ? '.' : ':') ||
+			currentChar == '.' ||
+			currentChar == '!' ||
+			currentChar == '?' ||
+			currentChar == (CN_IGNORE_COMMAS ? '.' : ';') ||
+			currentChar == '…' ||
+			// Chinese/Japanese punctuation
+			currentChar == (CN_IGNORE_COMMAS ? '.' : '、') ||
+			currentChar == (CN_IGNORE_COMMAS ? '.' : '，') ||
+			currentChar == '。' ||
+			currentChar == '．' ||
+			currentChar == '！' ||
+			currentChar == '？' ||
+			currentChar == (CN_IGNORE_COMMAS ? '.' : '；') ||
+			currentChar == (CN_IGNORE_COMMAS ? '.' : '：')
+		) {
+			// when the text is a part such as "It is 3." (-> "It is 3.14"), should not split
+			// when text[i] is a dot comma, and text[i-1] and text[i+1] are numbers, then it is a decimal number, so continue
+			// but text[i+1] is " ", then it is not a decimal number, so not continue
+
+			if (i > 0 && i < text.length - 1) {
+				// when this conditions include  && text[i + 1] !== " ", "It is 3.14, however," will be split into "It is 3.14," and "however,"
+				if (currentChar == (CN_IGNORE_COMMAS ? '.' : ',') && !isNaN(text[i - 1]) && !isNaN(text[i + 1])) {
+					console.log("PASSING NOW")
+					continue;
+				}
+			}
+			if (currentSentence.trim() !== "") {
+				// Replace placeholders back to original strings
+				currentSentence = currentSentence.replace(/†/g, ',').replace(/‡/g, '.');
+				sentences.push(currentSentence.trim());
+			}
 			currentSentence = "";
 		}
 	}
-	
+
 	return sentences;
 }
 
