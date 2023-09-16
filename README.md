@@ -1,4 +1,4 @@
-**Talk-to-ChatGPT** is a Google Chrome and Microsoft Edge extension that allows users to talk with the ChatGPT AI using their voice (speech recognition), and listen to the bot's answer with a voice (text-to-speech), rather than just by typing. With this tool, users can speak to the AI and receive spoken responses, making the interaction feel more natural and conversational. This allows you to have your own personal assistant in the style of Iron Man's Jarvis, which is fun, but it's also a great way to help the elderly and people with disabilities interact with ChatGPT. **As of version 2.6, we now support ElevenLabs API integration, which means you can create your own voices for text-to-speech!**
+**Talk-to-ChatGPT** is a Google Chrome and Microsoft Edge extension that allows users to talk with the ChatGPT AI using their voice (speech recognition), and listen to the bot's answer with a voice (text-to-speech), rather than just by typing. With this tool, users can speak to the AI and receive spoken responses, making the interaction feel more natural and conversational. This allows you to have your own personal assistant in the style of Iron Man's Jarvis, which is fun, but it's also a great way to help the elderly and people with disabilities interact with ChatGPT. **We now support ElevenLabs API integration, which means you can create your own voices for text-to-speech!**
 
 The extension can be downloaded from here:
 * From the **Chrome Web store** here: https://chrome.google.com/webstore/detail/talk-to-chatgpt/hodadfhfagpiemkeoliaelelfbboamlk
@@ -72,6 +72,12 @@ Talk-to-ChatGPT has been receiving press coverage since its release. It is curre
 * This list will be updated over time.
 
 # Change log
+
+Version 2.7.0 - September 16th, 2023
+* New: browser warning on first use to better inform those who are not running supported browsers
+* Updated: switched to ElevenLabs v2 models for better text-to-speech quality (#168)
+* Fixed: CRITICAL - ElevenLabs text-to-speech stopped working due to a CSP update from OpenAI. All ElevenLabs TTS playback was migrated to 'offscreen' (#177, #176, #169...)
+* Fixed: prevented commas within numbers from breaking sentences (Credit: decfrr)
 
 Version 2.6.1 - June 3rd, 2023
 * Fixed: major issue with ChatGPT page update preventing from sending the prompt (#127, #128, #129, #130, #131)
