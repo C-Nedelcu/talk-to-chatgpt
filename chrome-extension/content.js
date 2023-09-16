@@ -1,7 +1,7 @@
 ﻿// TALK TO CHATGPT
 // ---------------
 // Author		: C. NEDELCU
-// Version		: 2.6.2
+// Version		: 2.7.0
 // Git repo 	: https://github.com/C-Nedelcu/talk-to-chatgpt
 // Chat GPT URL	: https://chat.openai.com/chat
 // How to use   : https://www.youtube.com/watch?v=VXkLQMEs3lA
@@ -37,7 +37,7 @@ var CN_AUTO_SEND_AFTER_SPEAKING = true;
 var CN_IGNORE_COMMAS = false;
 
 // Determine which word(s) will cause this script to send the current message (if auto-send disabled)
-var CN_SAY_THIS_TO_SEND = "send message now"; 
+var CN_SAY_THIS_TO_SEND = "send message now";
 
 // Indicate "locale-voice name" (the possible values are difficult to determine, you should just ignore this and use the settings menu instead)
 var CN_WANTED_VOICE_NAME = "";
@@ -55,7 +55,7 @@ var CN_TTS_ELEVENLABS_APIKEY = "";
 var CN_TTS_ELEVENLABS_VOICE = "";
 
 // Statically list ElevenLabs models (easier than to request from API)
-var CN_TTS_ELEVENLABS_MODELS = {"eleven_monolingual_v1": "English only", "eleven_multilingual_v1": "Multi-language (autodetect)"};
+var CN_TTS_ELEVENLABS_MODELS = {"eleven_monolingual_v2": "English only", "eleven_multilingual_v2": "Multi-language (autodetect)"};
 
 // Other ElevenLabs settings
 var CN_TTS_ELEVENLABS_STABILITY = "";
@@ -86,8 +86,8 @@ var CN_CONVERSATION_SUSPENDED = false;
 var CN_BAR_COLOR_FLASH_GREY = false;
 var CN_TTS_ELEVENLABS_QUEUE = [];
 var CN_IS_CONVERTING = false;
-var CN_IS_PLAYING = false;
-var CN_CURRENT_AUDIO = null;
+var CN_ELEVENLABS_PLAYING = false;
+var CN_ELEVENLABS_SOUND_INDEX = 0;
 
 // This function will say the given text out loud using the browser's speech synthesis API, or send the message to the ElevenLabs conversion stack
 function CN_SayOutLoud(text) {
@@ -103,7 +103,7 @@ function CN_SayOutLoud(text) {
                     console.error("Failed to start SpeechRecognition:", error);
                 }
             } else {
-                console.log("Not starting SpeechRecognition because CN_IS_LISTENING is", CN_IS_LISTENING);
+                //console.log("Not starting SpeechRecognition because CN_IS_LISTENING is", CN_IS_LISTENING);
             }
             clearTimeout(CN_TIMEOUT_KEEP_SPEECHREC_WORKING);
             CN_TIMEOUT_KEEP_SPEECHREC_WORKING = setTimeout(CN_KeepSpeechRecWorking, 100);
@@ -246,7 +246,7 @@ function CN_ConvertTTSElevenLabs() {
 			
 			try {
 				var status = xhr.status;
-				console.log("Received status from ElevenLabs: "+ status);
+				//console.log("Received status from ElevenLabs: "+ status);
 				
 				// Read response and see what's inside
 				var resp = this.response;
@@ -267,9 +267,9 @@ function CN_ConvertTTSElevenLabs() {
 							if (result.detail.status == "too_many_concurrent_requests") {
 								// Try again after 1 second
 								setTimeout(function () {
-									console.log("[ELEVENLABS] Too many concurrent requests");
+									console.log("[ELEVENLABS] Too many concurrent requests, waiting a bit");
 									CN_ConvertTTSElevenLabs();
-								}, 1000);
+								}, 500);
 								return;
 							} else {
 								// Show error and stop everything
@@ -306,17 +306,17 @@ function CN_ConvertTTSElevenLabs() {
 				// Has the queue been reset? (if we clicked Skip, or if we stopped audio playback)
 				if (CN_TTS_ELEVENLABS_QUEUE.length == 0) return;
 				
+				// Put into queue
 				CN_TTS_ELEVENLABS_QUEUE[objIndex].audio = audioURL;
 				CN_TTS_ELEVENLABS_QUEUE[objIndex].converted = true;
-				console.log("[ELEVENLABS] Text converted to audio successfully");
 				
 				// What's next?
 				setTimeout(function() {
+					// Start audio playback if not already
+					CN_ContinueElevenLabsPlaybackQueue("after-conversion");
+					
 					// Continue conversions if any
 					CN_ConvertTTSElevenLabs();
-					
-					// Start audio playback if not already
-					if (!CN_IS_PLAYING) CN_ContinueElevenLabsPlaybackQueue();
 				}, 100);
 				
 				
@@ -331,25 +331,39 @@ function CN_ConvertTTSElevenLabs() {
 }
 
 // Process the next item in the audio queue
-function CN_ContinueElevenLabsPlaybackQueue() {
-	CN_IS_PLAYING = true;
-	CN_IS_READING = true;
+function CN_ContinueElevenLabsPlaybackQueue(situation) {
+	// Currently playing? ignore, try again later
+	if (CN_ELEVENLABS_PLAYING) {
+		setTimeout(function() {
+			CN_ContinueElevenLabsPlaybackQueue("try-again");
+		}, 100);
+		return;
+	}
 	
 	// Identify next message to be played
 	var obj = null;
 	var objIndex = null;
+	var hasPendingConversion = false;
 	for (var i in CN_TTS_ELEVENLABS_QUEUE) {
 		if (CN_TTS_ELEVENLABS_QUEUE[i].converted && !CN_TTS_ELEVENLABS_QUEUE[i].played) {
 			obj = CN_TTS_ELEVENLABS_QUEUE[i];
 			objIndex = i;
 			break;
 		}
+		if (!CN_TTS_ELEVENLABS_QUEUE[i].converted) {
+			hasPendingConversion = true;
+		}
 	}
 	
 	// If we didn't find an object to play, then we are done
 	if (obj === null) {
-		CN_IS_PLAYING = false;
-		CN_IS_READING = false;
+		// Anything that needs converting?
+		if (hasPendingConversion) {
+			setTimeout(function() {
+				CN_ContinueElevenLabsPlaybackQueue("pending-conversion");
+			}, 100);
+			return;
+		}
 		
 		// Current audio stack complete
 		console.log("[ELEVENLABS] Current stack of audio messages complete");
@@ -367,34 +381,21 @@ function CN_ContinueElevenLabsPlaybackQueue() {
 		if (canResumeListening) {
 			setTimeout(function () {
 				CN_AfterSpeakOutLoudFinished();
-			}, 250);
+			}, 150);
 		}
 		
 		return;
 	}
 	
-	console.log("[ELEVENLABS] Playback of message "+objIndex+": "+obj.text);
 	
-	// Create audio object, set data
-	CN_CURRENT_AUDIO = new Audio();
-	CN_CURRENT_AUDIO.src = obj.audio;
-	
-	// What happens when ended?
-	CN_CURRENT_AUDIO.onended = function () {
-		
-		setTimeout(function () {
-			// Start audio playback if not already
-			CN_ContinueElevenLabsPlaybackQueue();
-		}, 100);
-		
-	};
-	
-	// Annnnd... action!
-	CN_CURRENT_AUDIO.play();
+	// Play and set on-ended function
+	console.log("[ELEVENLABS] [situation: " + situation + "] Playback of message " + objIndex + ": " + obj.text);
+	CN_ELEVENLABS_PLAYING = true;
+	CN_PlaySound(obj.audio, "elevenlabs", obj.text);
 	
 	// Mark as played so it doesn't play twice
 	CN_TTS_ELEVENLABS_QUEUE[objIndex].played = true;
-	CN_TTS_ELEVENLABS_QUEUE[objIndex].audio = null; // Erase audio from memory
+	CN_TTS_ELEVENLABS_QUEUE[objIndex].audio = null; // Erase audio from memory*/
 }
 
 
@@ -409,17 +410,23 @@ function CN_AfterSpeakOutLoudFinished() {
 	
 	// Finished speaking
 	clearTimeout(CN_TIMEOUT_KEEP_SYNTHESIS_WORKING);
-	console.log("Finished speaking out loud");
+	console.log("[BROWSER] Finished speaking out loud");
 	
 	// restart listening
 	CN_IS_READING = false;
 	setTimeout(function() {
 		if (!window.speechSynthesis.speaking) {
-			if (CN_SPEECH_REC_SUPPORTED && CN_SPEECHREC && !CN_IS_LISTENING && !CN_PAUSED && !CN_SPEECHREC_DISABLED && !CN_IS_READING) CN_SPEECHREC.start();
+			if (CN_SPEECH_REC_SUPPORTED && CN_SPEECHREC && !CN_IS_LISTENING && !CN_PAUSED && !CN_SPEECHREC_DISABLED && !CN_IS_READING) {
+				try {
+					CN_SPEECHREC.start();
+				} catch(e) {
+					// Already started ? Ignore
+				}
+			}
 			clearTimeout(CN_TIMEOUT_KEEP_SPEECHREC_WORKING);
 			CN_TIMEOUT_KEEP_SPEECHREC_WORKING = setTimeout(CN_KeepSpeechRecWorking, 100);
 		}
-	}, 500);
+	}, 250);
 }
 
 // This is a workaround for Chromium's bug in the speech synthesis API (https://stackoverflow.com/questions/21947730/chrome-speech-synthesis-with-longer-texts)
@@ -472,7 +479,7 @@ function CN_SplitIntoSentences(text) {
 			if (i > 0 && i < text.length - 1) {
 				// when this conditions include  && text[i + 1] !== " ", "It is 3.14, however," will be split into "It is 3.14," and "however,"
 				if (currentChar == (CN_IGNORE_COMMAS ? '.' : ',') && !isNaN(text[i - 1]) && !isNaN(text[i + 1])) {
-					console.log("PASSING NOW")
+					//console.log("PASSING NOW")
 					continue;
 				}
 			}
@@ -494,7 +501,7 @@ function CN_CheckNewMessages() {
 	var currentMessageCount = jQuery(".text-base").length;
 	if (currentMessageCount > CN_MESSAGE_COUNT) {
 		// New message!
-		console.log("New message detected! currentMessageCount: " + currentMessageCount);
+		console.log("New message detected! current message count: " + currentMessageCount);
 		CN_MESSAGE_COUNT = currentMessageCount;
 		CN_CURRENT_MESSAGE = jQuery(".text-base:last").find(".items-start");
 		CN_CURRENT_MESSAGE_SENTENCES = []; // Reset list of parts already spoken
@@ -504,17 +511,17 @@ function CN_CheckNewMessages() {
 	// Split current message into parts
 	if (CN_CURRENT_MESSAGE && CN_CURRENT_MESSAGE.length) {
 		var currentText = jQuery(".text-base:last").find(".items-start").text()+"";
-		//console.log("currentText:" + currentText);
+		////console.log("currentText:" + currentText);
 		
 		// Remove code blocks?
 		if (CN_IGNORE_CODE_BLOCKS) {
 			currentText = jQuery(".text-base:last").find(".items-start").find(".markdown").contents().not("pre").text();
-			//console.log("[CODE] currentText:" + currentText);
+			////console.log("[CODE] currentText:" + currentText);
 		}
 		
 		var newSentences = CN_SplitIntoSentences(currentText);
 		if (newSentences != null && newSentences.length != CN_CURRENT_MESSAGE_SENTENCES.length) {
-			//console.log("[NEW SENTENCES] newSentences:" + newSentences.length);
+			////console.log("[NEW SENTENCES] newSentences:" + newSentences.length);
 			
 			// There is a new part of a sentence!
 			var nextRead = CN_CURRENT_MESSAGE_SENTENCES_NEXT_READ;
@@ -522,7 +529,7 @@ function CN_CheckNewMessages() {
 				CN_CURRENT_MESSAGE_SENTENCES_NEXT_READ = i+1;
 
 				var lastPart = newSentences[i];
-				//console.log("Will say sentence out loud: "+lastPart);
+				////console.log("Will say sentence out loud: "+lastPart);
 				CN_SayOutLoud(lastPart);
 			}
 			CN_CURRENT_MESSAGE_SENTENCES = newSentences;
@@ -598,9 +605,8 @@ function CN_ResumeAfterSuspension() {
 	// Make a beep sound
 	setTimeout(function () {
 		// Credits: https://freesound.org/people/plasterbrain/sounds/419493/
-		var snd = new Audio("data:audio/mpeg;base64,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OQAgKNwAUMrdjVn1//OEZAwMVMMuzzeyLxHJgoZeFqaKXlFPKH3UMEIXmJkbmIQPBAIr2eWTvwzssgYujuBheiNzev18A/vV3Uykchs5KYpgqPhuSTYDLClSJGqR76///U0oi4f/dkhmhs/9vb//////////9x9YDhAAgG0ww//XnAJD4T4sMIgNrH/1nBBpYAe8/smSK1LMKiaJlRsA4YHzothuz/b239X+ZFP/9ZASr/kf/89////2kPav/7UCA4AG4HH79MuS+HHL//OEZA0LqMEmKzeSPBKRhkweF06YToGhUdYqBxYqmGwIgqy6BYHYYDQiYHIphYALNgadtc7yGv/DPCNgAAiQEb4qAAwiizA9WA9kPgGXJgvmiD////of/y6e//////////T///oAVGoA/N+cFTtYMdQkDi8aFO26SVt0KgPmXUghAYBwAuNFabHLmv/+dsLLRLdVN0EDwa+DYnNBM1d1vvP///+d9vsgDgz//u+7/pUCALwAMAh/94V5RDbgICwA//OEZBAKoMEoLyuzLhW5hkmeFwSYFRljARjmBJeptYtO2rLlGRALmCgIsGh2mxyx7S/+9bmniU1cpUxgUKJjMOYLpFGJErHnX////R229bKHKKv////////rIQAwCyAbDtjc85A8YWOaOSBiQRphP7LqWedkCggwt3DDgXCAMy2HqW1S2pfrHWOVKXORGa6jyYHPR61vlrmuxql7////+/pqf0/aAjf6P/////27UcXSEhQeba6OwHOP+0xPswiC//OEZA8LbGsaBjRdBRNJglG+ByBcM15o02rHgw+BcDAklaxZghd8wQDA1XoozXCp44lXrb19b//WcsGQFFgDb1KcwMIg5aFhJx04hXqA+7/9dmQKu//1//////01//+uUSBAAIANsOAN4V6lPEGBiAKGB5oaTArBpbTXaSG1uGXUaAi04tNjlvLcs/+Z6rrtaZRvABRWYDSgDWMwX0E0P///tX9/raUm6v//9fVamiwBCuAYYAu/I84hTxhw05AC//N0ZBEK7MEivxe1OBMQ0lGWDvJqD5k85ZigASar9RmagNfAqEJgLGJiICCFLrS21ikyvUYhgYR8QURyACRAOkoULNEBLyKSf9Tf/+r7/W05///+39wr////vUEgBBfgAT+eAeFPLH7SxOr4ThSwHArEn9lVDBCO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");
-		snd.play();
-	}, 100);
+		CN_PlaySound("data:audio/mpeg;base64,//OEZAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAAeAAAbMAAHBwcXFxcmJiYmMTExPT09SEhISFFRUVhYWF9fX19mZmZtbW11dXV1fHx8goKCiYmJiZGRkZiYmJ+fn5+np6eurq61tbW1vLy8xMTEy8vLy9HR0djY2ODg4ODn5+f5+fn///8AAAA5TEFNRTMuOTlyAm4AAAAALCAAABRGJALBTgAARgAAGzB/xQaNAAAAAAAAAAAAAAAAAAAA//OEZAAM7FVEC6e8AQ3YfnpdQzAAJAhW0+bv379+zqxOIYchoGgdD0g4GQJASyKxoezrgggGcJGONV4ePHjxXs79+/fg+DgIBj6wcBAEAQBAHwfB8HwcBAEDn/E4IAgGP/KAgc/Ln/g+H//8HwffxOD4PggCAIf+XB8Hw+5YAABNIQGCJon9L9AgAmiITgYGLCAMBhZMHwf0flAQ4Pg+D4PgQEAQOf4nggGP//N+0Hz//gg5FIAAIEMgAZMGATMN//PUZAwcdacmsc7YAKiKllC1nKgAgNdZnUKQgWjJhAAV5wDBIWzJCKTAkITJQqgCBZjpXQG8oT4GJIDgGNsugG0wJoGAgDgGN9c4GjoMYGBEBIGBGI4G7cfwGMkQAGEkGQdUDPSLIDA0AkMtE+BlWEUBgwASGFi2GCQKgCC10LgRGrKSl7xul8ckMuibgy0HzFavoV8hozJGEyOSFrocl//hYUACAQG8oNg0NtUOkLOh6Vb/2f8TsR5FhXQbdD0hOQeyGzA3EFoxdr+v7/+M8FnhHI7RjhySCmutSSVX//r//5kiiy0TEbUFeEgoIDAAAAgh2Ge/32Uu1+fzQqCDFpJcgwq+WjiOZgNBgBAVAy0kgNKBYLGAMDVQDmASAwYFgMsn4DPYfBsFB8QyoHVxaBIBEiwHpwUI3IA4zJFVOj5Q6i8gknUZG++O6kbZiXSAk0OcMsQ3Wh9lNjmlo6TIhKMcLKIkcqP+rM39UmisQ4XMT45QhYQWIaVRXhSP/9f/iUSQICLlIiYl0121//+teQpAFWo9NTX1tMiLECAEgBa6OE8XnMRlQ+EDQDwt5Jkq//PEZCEbdfdKq+pQAamb6q1/0mgDst0EDM0MzcwJwpjnkcLIFMAwAwDKEgOMQASLAOHhqAWwFrDlBridx+FkEaM2UiCFIihiT5xBadO3//////////rdBk2TdTLdTKZbqZaak1ILNzhosvrL6i4iX0i4xcRL7lw8Xz5gbmBoZm5gaHQxOMaGKxlgxQOEMjjaDLgsAjgTgJvEfi0CCA3Q+ciwfORIQoQghONMWYLgHWJ0JUWWTQuQkRlyTIAO8oEEMSDmxFDxfKhmX1FxEzcTIBgGsAAT7/6uxZEKifUW6jcAmRiF5//3QOmocsOeMEACcIsCkFYn5NEzJyC01IUP////////////////1GizdRuouLL6RcRL6JfSLjF8+XDQwNDM3MDQ6XxcANYkwBuCMgG+F+AcgrAe4OQEfB3hJAKAIcC/E2AdAc4CYC1BJw4wmgTgQMJGJqCvjiBaBkhPxOx2DwKhyGI9zYehoXzc6X1FxjNwCBt/4Ah7Rt1fbVjz//OkZAoQSMFG/w8lTKLR1pZcy1NrQPulO/hsoD0VnL//4kar0Cy6zl++a7rLGzWtfk+0VEbB+nqWK6j7u3IeuS7MVQylTeyGll/5nKxnK5WMUCog7GFFhQosKa0s0s00sw0WKGzSyzSzDJZoUWLCiwo0WFjCySokrLBUkVKmjRQwbNCxxRNsHHG2ixcsQLCADAxbzr////1vm9Z/vW4MMDxU8uxy/W48eVBADD1nLH+WnVzq2ZV/yiitSokFN85FFrzWaCmr5Z2f/pLRV+tDSO6VGip4TIdEkYpTDKQqTFJQmITRUlLCYUkpb///////80poqUVLLNLMMCppYuOWNGWOSVEibYKkzThQ2WaFj3JthvzbTSQsedUQAABCshVm//O0ZAcQ0Scg/3eQWiWSTjQMx5SY+XMuYTnP1upNxBmaIAhEcyQ4E2GOjFQFEgMq1X6GhgkBmOiEee3xyULGFAmXeYa7UZpoJYRWxuTMEJ/jIpHA4FgGChiaRGZ62Zj0jKB6PAZcC+0DrFXU6YP/6/6A5mpv7QmFWmr6XrqHMHEtlL/of+3mpd0TsX//lG//8X/+zqCAXf/v/jXwruwu9CQARmyhgWgbmEkFkaUJUBoIiNGC4B+YCoCQCABRySwGgEzA8AlOHMeMxTxhDA4AbAQBSYrOn9l1UmAS+tMyh6yoAAAQexUC8EgFGBSAEYYgKx1BEdhwto0CsTAIpxMxcr5RuUDV83+jfoMnezfOUuBAJjf/8QZM+f///6C0PcfEMi3/8aff//r//61AIyAKLEdrH/yjf/+8M6SRu4nMcwknWEiibYGlpeFlzASAWMFs//OkZCUQbOceW2/UZiF5zkAe92TsJszKWCzF2AwGQDlFXijs1diAOAVr9sQuQM3MCwFAWC9MBkAIwCwSgQVWaP5pgGDlhASC8REiyKQPG7Vmjf/f8+M6hTO/4+gBgAwKH/9ReHbUc/+Iop///////9benWARSYL3//938O3Im4C50BANAJMAYDIwJQ9TDHf1MbwNYwWAJTAZAELWpzJ+iIAgAgamsISmZsFOhS20VnrOUlu48zsT7qGBYaFYjg4GQIGYgio+tGsLBgQgOn42NnqMNqi7UVv//6AuNcwN/6h8gYwS19fsrzoxpBa//xaJP/+l/////R1G1YDwz2uf+4hh3VPDDhrkQnmAAKGEY+mle7nDQSK3Om7DlroL9mBc//OUZCYPEMEcAXfRaBfBzm4+Rw6aC6aREhhiChKo4yi3h3kSHgFsKahiTYSEAQUBdMAgDkwDwFjA5AqMOYEE6qAszDWARBQNQkA6mcW4azDdbdRR///j5GUVMTL+syAPQmH+qr/6mqgaAAgJih0COfwrE04o5gfxQu0cCcRnIZg4FMRf6Ux5spCGjaqSHgEms/Mus5Wa8EZY5WdVUt13OSpiYNERjEpo5PzLrNed//1///ioB3/8SC0s9Pt8wA7//E///0HelY8AMLi2gGBGkfMepeq6wo1qeGQtl0trbqStGQ03xQRTOW//KhnMefh+//N0ZCkK/OU8zzdtSxYZhmWeF058C8mh2YJFFgy0pCIH8wOlRv9L//+RRMf/1ieEajUre/1HRyoR31WdZz///////9aYAGBNUQAN8c7SB5RDbgJVmAQRGlrPAJFnOkFukm2wEgVjIlgEBhIBXGltrG1YZbvuFepH0tAwAJWywwZME5pDIWDdfkDyyn5hv9v//5Qr/+UBod/qb//FFU0AIMrgYoDRv+Sn//OEZAsKsME2zy9tSxUhgm2eFxSa1sTYbjY1sEAR264bWGNdlV2pK38R/NQ4jFAV2pTljrH6nefz8WjqilrghWAOaEhGh6l5EyS9av//40iw//QCtEh/i3/9Tf////6ToAIDjldA+ojqioFjhACTDUlMRgRClxpbax94jPhTMIAF1qXLH8azbc7zLlMhiNAllyNxgJem+kMWhcqM1quX/+///8ZAVv/yMFoIf8Rfo/W3///sOQAgKNwAUMrdjVn1//OEZAwMVMMuzzeyLxHJgoZeFqaKXlFPKH3UMEIXmJkbmIQPBAIr2eWTvwzssgYujuBheiNzev18A/vV3Uykchs5KYpgqPhuSTYDLClSJGqR76///U0oi4f/dkhmhs/9vb//////////9x9YDhAAgG0ww//XnAJD4T4sMIgNrH/1nBBpYAe8/smSK1LMKiaJlRsA4YHzothuz/b239X+ZFP/9ZASr/kf/89////2kPav/7UCA4AG4HH79MuS+HHL//OEZA0LqMEmKzeSPBKRhkweF06YToGhUdYqBxYqmGwIgqy6BYHYYDQiYHIphYALNgadtc7yGv/DPCNgAAiQEb4qAAwiizA9WA9kPgGXJgvmiD////of/y6e//////////T///oAVGoA/N+cFTtYMdQkDi8aFO26SVt0KgPmXUghAYBwAuNFabHLmv/+dsLLRLdVN0EDwa+DYnNBM1d1vvP///+d9vsgDgz//u+7/pUCALwAMAh/94V5RDbgICwA//OEZBAKoMEoLyuzLhW5hkmeFwSYFRljARjmBJeptYtO2rLlGRALmCgIsGh2mxyx7S/+9bmniU1cpUxgUKJjMOYLpFGJErHnX////R229bKHKKv////////rIQAwCyAbDtjc85A8YWOaOSBiQRphP7LqWedkCggwt3DDgXCAMy2HqW1S2pfrHWOVKXORGa6jyYHPR61vlrmuxql7////+/pqf0/aAjf6P/////27UcXSEhQeba6OwHOP+0xPswiC//OEZA8LbGsaBjRdBRNJglG+ByBcM15o02rHgw+BcDAklaxZghd8wQDA1XoozXCp44lXrb19b//WcsGQFFgDb1KcwMIg5aFhJx04hXqA+7/9dmQKu//1//////01//+uUSBAAIANsOAN4V6lPEGBiAKGB5oaTArBpbTXaSG1uGXUaAi04tNjlvLcs/+Z6rrtaZRvABRWYDSgDWMwX0E0P///tX9/raUm6v//9fVamiwBCuAYYAu/I84hTxhw05AC//N0ZBEK7MEivxe1OBMQ0lGWDvJqD5k85ZigASar9RmagNfAqEJgLGJiICCFLrS21ikyvUYhgYR8QURyACRAOkoULNEBLyKSf9Tf/+r7/W05///+39wr////vUEgBBfgAT+eAeFPLH7SxOr4ThSwHArEn9lVDBCO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");
+	}, 50);
 	
 	// Finish alternating colors, reset to grey
 	clearTimeout(CN_TIMEOUT_FLASHBAR);
@@ -630,18 +636,18 @@ function CN_StartSpeechRecognition() {
 		$("#CNStatusBar").css("background", "red");
 		
 		CN_IS_LISTENING = true;
-		console.log("I'm listening");
+		console.log("[SPEECH-REC] I'm listening");
 	};
 	CN_SPEECHREC.onend = () => {
 		// Make border grey again
 		$("#CNStatusBar").css("background", "grey");
 		
 		CN_IS_LISTENING = false;
-		console.log("I've stopped listening");
+		console.log("[SPEECH-REC] I've stopped listening");
 	};
 	CN_SPEECHREC.onerror = () => {
 		CN_IS_LISTENING = false;
-		console.log("Error while listening");
+		console.log("[SPEECH-REC] Error while listening");
 	};
 	CN_SPEECHREC.onresult = (event) => {
 		var final_transcript = "";
@@ -650,22 +656,22 @@ function CN_StartSpeechRecognition() {
 				final_transcript += event.results[i][0].transcript;
 		}
 		
-		console.log("Voice recognition: '"+ (final_transcript)+"'");
+		console.log("[SPEECH-REC] Voice recognition transcript: '"+ (final_transcript)+"'");
 		
 		// Empty? https://github.com/C-Nedelcu/talk-to-chatgpt/issues/72
 		if (final_transcript.trim() == "") {
-			console.log("Empty sentence detected, ignoring");
+			console.log("[SPEECH-REC] Empty sentence detected, ignoring");
 			return;
 		}
 		
 		if (CN_RemovePunctuation(final_transcript) == CN_SAY_THIS_WORD_TO_STOP.toLowerCase().trim()) {
 			
 			if (CN_CONVERSATION_SUSPENDED) {
-				console.log("Conversation is currently suspended, voice command ignored. Use the pause word to resume conversation.");
+				console.log("[SPEECH-REC] Conversation is currently suspended, voice command ignored. Use the pause word to resume conversation.");
 				return;
 			}
 			
-			console.log("You said '"+ CN_SAY_THIS_WORD_TO_STOP+"'. Conversation ended");
+			console.log("[SPEECH-REC] [STOP-WORD] You said '"+ CN_SAY_THIS_WORD_TO_STOP+"'. Conversation ended");
 			CN_FINISHED = true;
 			CN_PAUSED = false;
 			CN_SPEECHREC.stop();
@@ -684,20 +690,19 @@ function CN_StartSpeechRecognition() {
 			
 			// Conversation was suspended: resume it
 			if (CN_CONVERSATION_SUSPENDED) {
-				console.log("You said '" + CN_SAY_THIS_WORD_TO_PAUSE + "' - Conversation resumed");
+				console.log("[SPEECH-REC] [PAUSE-WORD] You said '" + CN_SAY_THIS_WORD_TO_PAUSE + "' - Conversation resumed");
 				CN_ResumeAfterSuspension();
 				return;
 			}
 			
 			// Conversation wasn't suspended;
-			console.log("You said '"+ CN_SAY_THIS_WORD_TO_PAUSE+"' - Conversation paused");
+			console.log("[SPEECH-REC] [PAUSE-WORD] You said '"+ CN_SAY_THIS_WORD_TO_PAUSE+"' - Conversation paused");
 			
 			// Make a beep sound
 			setTimeout(function() {
 				// Credits: https://freesound.org/people/BeezleFM/sounds/512135/
-				var snd = new Audio("data:audio/mpeg;base64,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");
-				snd.play();
-			}, 100);
+				CN_PlaySound("data:audio/mpeg;base64,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");
+			}, 50);
 			
 			// Do we keep listening?
 			if (CN_KEEP_LISTENING) {
@@ -715,22 +720,23 @@ function CN_StartSpeechRecognition() {
 				
 			} else {
 				// No, stop mic, resume when OK button is clicked
+				console.log("[PAUSED] Conversation paused");
 				CN_PAUSED = true;
 				if (CN_SPEECHREC) CN_SPEECHREC.stop();
 				alert("Conversation paused, the browser is no longer listening. Click OK to resume");
 				CN_PAUSED = false;
-				console.log("Conversation resumed");
+				console.log("[UNPAUSED] Conversation resumed");
 			}
 			
 			return;
 		} else if (CN_RemovePunctuation(final_transcript) == CN_SAY_THIS_TO_SEND.toLowerCase().trim() && !CN_AUTO_SEND_AFTER_SPEAKING) {
 			
 			if (CN_CONVERSATION_SUSPENDED) {
-				console.log("Conversation is currently suspended, voice command ignored. Use the pause word to resume conversation.");
+				console.log("[SEND-WORD] [SUSPENDED] Conversation is currently suspended, voice command ignored. Use the pause word to resume conversation.");
 				return;
 			}
 			
-			console.log("You said '"+ CN_SAY_THIS_TO_SEND+"' - the message will be sent");
+			console.log("[SEND-WORD] You said '"+ CN_SAY_THIS_TO_SEND+"' - the message will be sent");
 			
 			// Click button
 			jQuery("#prompt-textarea").closest("div").find("button").click();
@@ -746,14 +752,20 @@ function CN_StartSpeechRecognition() {
 		
 		// Are we speaking?
 		if (CN_CONVERSATION_SUSPENDED) {
-			console.log("Conversation is currently suspended, voice command ignored. Use the pause word to resume conversation.");
+			console.log("[IGNORED] Conversation is currently suspended, voice command ignored. Use the pause word to resume conversation.");
 			return;
 		}
 		
 		// Send the message
 		CN_SendMessage(final_transcript);
 	};
-	if (!CN_IS_LISTENING && CN_SPEECH_REC_SUPPORTED && !CN_SPEECHREC_DISABLED && !CN_IS_READING) CN_SPEECHREC.start();
+	if (!CN_IS_LISTENING && CN_SPEECH_REC_SUPPORTED && !CN_SPEECHREC_DISABLED && !CN_IS_READING) {
+		try {
+			CN_SPEECHREC.start();
+		} catch (e) {
+			// Already started ? Ignore
+		}
+	}
 	clearTimeout(CN_TIMEOUT_KEEP_SPEECHREC_WORKING);
 	CN_TIMEOUT_KEEP_SPEECHREC_WORKING = setTimeout(CN_KeepSpeechRecWorking, 100);
 }
@@ -807,7 +819,13 @@ function CN_ToggleButtonClick() {
 			
 			// Enable speech rec
 			CN_SPEECHREC_DISABLED = false;
-			if (CN_SPEECHREC && !CN_IS_LISTENING && !CN_IS_READING) CN_SPEECHREC.start();
+			if (CN_SPEECHREC && !CN_IS_LISTENING && !CN_IS_READING) {
+				try {
+					CN_SPEECHREC.start();
+				} catch (e) {
+					// Already started ? Ignore
+				}
+			}
 			
 			return;
 		
@@ -821,16 +839,18 @@ function CN_ToggleButtonClick() {
 			// Is there anything in the CN_TTS_ELEVENLABS_QUEUE ? clear it
 			if (CN_TTS_ELEVENLABS_QUEUE.length) {
 				CN_TTS_ELEVENLABS_QUEUE = [];
-				if (CN_CURRENT_AUDIO) CN_CURRENT_AUDIO.pause();
-				CN_CURRENT_AUDIO = null;
-				CN_IS_PLAYING = false;
+				if (CN_ELEVENLABS_PLAYING) CN_PlaySound("", "", "stop");
+				CN_ELEVENLABS_PLAYING = false;
 				CN_IS_READING = false;
 				CN_IS_CONVERTING = false;
 			}
 			
 			// Stop current message (equivalent to 'skip')
-			window.speechSynthesis.pause(); // Pause, and then...
-			window.speechSynthesis.cancel(); // Cancel everything
+			try {
+				window.speechSynthesis.pause(); // Pause, and then...
+				window.speechSynthesis.cancel(); // Cancel everything
+			} catch(e) { }
+			
 			CN_CURRENT_MESSAGE = null; // Remove current message
 			
 			// Restart listening maybe?
@@ -857,15 +877,17 @@ function CN_ToggleButtonClick() {
 			// Is there anything in the CN_TTS_ELEVENLABS_QUEUE ?  clear it
 			if (CN_TTS_ELEVENLABS_QUEUE.length) {
 				CN_TTS_ELEVENLABS_QUEUE = [];
-				if (CN_CURRENT_AUDIO) CN_CURRENT_AUDIO.pause();
-				CN_CURRENT_AUDIO = null;
-				CN_IS_PLAYING = false;
+				if (CN_ELEVENLABS_PLAYING) CN_PlaySound("", "", "stop");
+				CN_ELEVENLABS_PLAYING = false;
 				CN_IS_READING = false;
 				CN_IS_CONVERTING = false;
 			}
 			
-			window.speechSynthesis.pause(); // Pause, and then...
-			window.speechSynthesis.cancel(); // Cancel everything
+			try {
+				window.speechSynthesis.pause(); // Pause, and then...
+				window.speechSynthesis.cancel(); // Cancel everything
+			} catch(e) { }
+			
 			CN_CURRENT_MESSAGE = null; // Remove current message
 			
 			// Restart listening maybe?
@@ -899,11 +921,73 @@ function CN_SetTextareaValue(text) {
     textarea.dispatchEvent(new Event('input', { bubbles: true }))
 }
 
+function CN_PlaySound(audioData, onEnded, transcript) {
+	//console.log("PlaySound - "+onEnded);
+	chrome.runtime.sendMessage({
+		type: "playSound",
+		target: 'offscreen',
+		data: {
+			"audio": audioData,
+			"onEnded": typeof onEnded == "undefined" ? "" : onEnded,
+			"transcript": transcript,
+			"messageId" : CN_ELEVENLABS_SOUND_INDEX
+		}
+	});
+	CN_ELEVENLABS_SOUND_INDEX++;
+}
+
+// Before starting - the first time...
+function CN_StartTTGPT_Prompt() {
+	// Have we seen this message before?
+	var TTGPT_PROMPT_ALREADY_SHOWN = "shown4";
+	try {
+		TTGPT_PROMPT_ALREADY_SHOWN = localStorage.getItem("TTGPT_PROMPT_ALREADY_SHOWN");
+	} catch(e) {
+	}
+	
+	// Already shown prompt before?
+	if (TTGPT_PROMPT_ALREADY_SHOWN == "shown4") {
+		// Start right away
+		CN_StartTTGPT();
+	}
+	else {
+		// Never shown before. Show prompt
+		if (confirm("TALK-TO-CHATGPT - COMPATIBILITY INFO - PLEASE NOTE:\n" +
+			"1) This extension will only work properly in Google Chrome Desktop or Microsoft Edge Desktop. " +
+			"It will NOT work on Brave, Opera, or mobile browsers. " +
+			"That's because it requires specific APIs/mechanisms which are NOT available in most browsers, " +
+			"(including Chromium-based browsers such as Brave or Opera!).\n" +
+			"2) You may need to tweak the settings and select the proper language and options to obtain the desired result.\n" +
+			"3) If you try this in any other browser, and that it happens to work properly, feel free to drop us a message and we will update this list :-)\n" +
+			"This message will not appear again. Enjoy!"
+		)) {
+			try {
+				localStorage.setItem("TTGPT_PROMPT_ALREADY_SHOWN", "shown4");
+			} catch(e) { }
+			
+			// Do start
+			CN_StartTTGPT();
+		}
+	}
+}
+
 // Start Talk-to-ChatGPT (Start button)
 function CN_StartTTGPT() {
+	// Add listener for ElevenLabs
+	chrome.runtime.onMessage.addListener(
+		function (message) {
+			if (message.type === "continueElevenLabs") {
+				// The audio player is telling us it's finished playing and wants to continue
+				CN_ELEVENLABS_PLAYING = false;
+				CN_ContinueElevenLabsPlaybackQueue("after-playback");
+			}
+		}
+	);
+	
 	// Play sound & start
-	var snd = new Audio("data:audio/mpeg;base64,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");
-	snd.play();
+	CN_PlaySound("data:audio/mpeg;base64,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");
+	
+	// Reset
 	CN_FINISHED = false;
 	
 	// Hide start button, show action buttons
@@ -924,12 +1008,12 @@ function CN_StartTTGPT() {
 		
 		// Check for new messages
 		CN_CheckNewMessages();
-	}, 250);
+	}, 150);
 }
 
 // Check we are on the correct page
 function CN_CheckCorrectPage() {
-	console.log("Checking we are on the correct page...");
+	console.log("[STARTUP] Checking we are on the correct page...");
 	var wrongPage = jQuery("#prompt-textarea").length == 0; // no textarea... login page?
 	
 	if (wrongPage) {
@@ -947,12 +1031,13 @@ function CN_InitScript() {
 	
 	var warning = "";
 	if ('webkitSpeechRecognition' in window) {
-		console.log("Speech recognition API supported");
+		console.log("[STARTUP] Speech recognition API supported");
 		CN_SPEECH_REC_SUPPORTED = true;
 	} else {
-		console.log("speech recognition API not supported.");
+		console.log("[STARTUP] Speech recognition API UNSUPPORTED");
 		CN_SPEECH_REC_SUPPORTED = false;
 		warning = "\n\nWARNING: speech recognition (speech-to-text) is only available in Chromium-based browsers - desktop version at the moment. If you are using another browser, you will not be able to dictate text, but you can still listen to the bot's responses.";
+		alert(warning);
 	}
 	
 	// Restore settings
@@ -961,24 +1046,18 @@ function CN_InitScript() {
 	// Wait on voices to be loaded before fetching list
 	window.speechSynthesis.onvoiceschanged = function () {
 		if (!CN_WANTED_VOICE_NAME){
-			console.log("Reading with default browser voice");
+			console.log("[STARTUP] Reading with default browser voice");
 		} else {
 			speechSynthesis.getVoices().forEach(function (voice) {
-				//console.log("Found possible voice: " + voice.name + " (" + voice.lang + ")");
+				//console.log("[STARTUP] Found matching voice: " + voice.name + " (" + voice.lang + ")");
 				if (voice.lang + "-" + voice.name == CN_WANTED_VOICE_NAME) {
 					CN_WANTED_VOICE = voice;
-					console.log("I will read using voice " + voice.name + " (" + voice.lang + ")");
+					console.log("[STARTUP] I will read using voice " + voice.name + " (" + voice.lang + ")");
 					return false;
 				}
 			});
-			if (!CN_WANTED_VOICE)
-				console.log("No voice found for '" + CN_WANTED_VOICE_NAME + "', reading with default browser voice");
+			if (!CN_WANTED_VOICE) console.log("[STARTUP] No voice found for '" + CN_WANTED_VOICE_NAME + "', reading with default browser voice");
 		}
-		
-		// Voice OK
-		setTimeout(function() {
-			//CN_SayOutLoud("OK");
-		}, 1000);
 	};
 	
 	// Add icons on the top right corner
@@ -992,7 +1071,7 @@ function CN_InitScript() {
 				"<a href='https://github.com/C-Nedelcu/talk-to-chatgpt' " +
 					"style='display: inline-block; font-size: 20px; line-height: 80%; padding: 8px 0;' " +
 					"target=_blank title='Visit project website'>TALK-TO-ChatGPT<br />" +
-					"<div style='text-align: right; font-size: 12px; color: grey'>V2.6.2</div>" +
+					"<div style='text-align: right; font-size: 12px; color: grey'>V2.7.0</div>" +
 				"</a>" +
 			"</div>" +
 			
@@ -1051,7 +1130,7 @@ function CN_InitScript() {
 		// Make icons clickable
 		jQuery(".CNToggle").css("cursor", "pointer");
 		jQuery(".CNToggle").on("click", CN_ToggleButtonClick);
-		jQuery("#CNStartButton").on("click", CN_StartTTGPT);
+		jQuery("#CNStartButton").on("click", CN_StartTTGPT_Prompt);
 		jQuery("#CNResumeButton").on("click", CN_ResumeAfterSuspension);
 		
 		// Make icons change opacity on hover
@@ -1092,7 +1171,7 @@ function CN_InitScript() {
 		
 		// ALT+SHIFT+S: Start
 		if (e.altKey && e.shiftKey && e.which === 83) {
-			console.log('ALT+SHIFT+S pressed, starting Talk-To-ChatGPT');
+			console.log('[KEY] ALT+SHIFT+S pressed, starting Talk-To-ChatGPT');
 			CN_StartTTGPT();
 		}
 		
@@ -1102,11 +1181,11 @@ function CN_InitScript() {
 			var wantMicOff = jQuery(".CNToggle[data-cn=micon]").css("display") == "none";
 			if (wantMicOff) {
 				// Turn off bot voice
-				console.log('ALT+SHIFT+H pressed, turning off speech recognition');
+				console.log('[KEY] ALT+SHIFT+H pressed, turning off speech recognition');
 				jQuery(".CNToggle[data-cn=micoff]").click();
 			} else {
 				// Turn on bot voice
-				console.log('ALT+SHIFT+H pressed, turning on speech recognition');
+				console.log('[KEY] ALT+SHIFT+H pressed, turning on speech recognition');
 				jQuery(".CNToggle[data-cn=micon]").click();
 			}
 		}
@@ -1117,18 +1196,18 @@ function CN_InitScript() {
 			var wantSpeakOff = jQuery(".CNToggle[data-cn=speakon]").css("display") == "none";
 			if (wantSpeakOff) {
 				// Turn off bot voice
-				console.log('ALT+SHIFT+V pressed, turning bot voice off');
+				console.log('[KEY] ALT+SHIFT+V pressed, turning bot voice off');
 				jQuery(".CNToggle[data-cn=speakoff]").click();
 			} else {
 				// Turn on bot voice
-				console.log('ALT+SHIFT+V pressed, turning bot voice on');
+				console.log('[KEY] ALT+SHIFT+V pressed, turning bot voice on');
 				jQuery(".CNToggle[data-cn=speakon]").click();
 			}
 		}
 		
 		// ALT+SHIFT+L: skip current message
 		if (e.altKey && e.shiftKey && e.which === 76) {
-			console.log('ALT+SHIFT+L pressed, skipping current message');
+			console.log('[KEY] ALT+SHIFT+L pressed, skipping current message');
 			jQuery(".CNToggle[data-cn=skip]").click();
 		}
 	});
@@ -1136,7 +1215,7 @@ function CN_InitScript() {
 
 // Open settings menu
 function CN_OnSettingsIconClick() {
-	console.log("Opening settings menu");
+	console.log("[MENU] Opening settings menu");
 	
 	// Stop listening
 	CN_PAUSED = true;
@@ -1372,7 +1451,7 @@ function CN_SaveSettings() {
 	} catch(e) { alert('Invalid settings values. '+e.toString()); return; }
 	
 	// Close dialog
-	console.log("Closing settings dialog");
+	console.log("[MENU] Closing settings dialog");
 	jQuery("#TTGPTSettingsArea").remove();
 	
 	// Resume listening
@@ -1385,7 +1464,7 @@ function CN_RestoreSettings() {
 	try {
 		var settings = JSON.parse(settingsRaw);
 		if (typeof settings == "object" && settings != null) {
-			console.log("Reloading settings from cookie: "+settings);
+			console.log("[COOKIE] Reloading settings from cookie: "+settings);
 			CN_WANTED_VOICE_NAME = settings[0];
 			CN_TEXT_TO_SPEECH_RATE = settings[1];
 			CN_TEXT_TO_SPEECH_PITCH = settings[2];
@@ -1410,7 +1489,7 @@ function CN_RestoreSettings() {
 
 // Close dialog: remove area altogether
 function CN_CloseSettingsDialog() {
-	console.log("Closing settings dialog");
+	console.log("[MENU] Closing settings dialog");
 	jQuery("#TTGPTSettingsArea").remove();
 	
 	// Resume listening
