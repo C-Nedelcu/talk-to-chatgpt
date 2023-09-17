@@ -1,7 +1,7 @@
 ﻿// TALK TO CHATGPT
 // ---------------
 // Author		: C. NEDELCU
-// Version		: 2.7.0
+// Version		: 2.7.1
 // Git repo 	: https://github.com/C-Nedelcu/talk-to-chatgpt
 // Chat GPT URL	: https://chat.openai.com/chat
 // How to use   : https://www.youtube.com/watch?v=VXkLQMEs3lA
@@ -55,7 +55,9 @@ var CN_TTS_ELEVENLABS_APIKEY = "";
 var CN_TTS_ELEVENLABS_VOICE = "";
 
 // Statically list ElevenLabs models (easier than to request from API)
-var CN_TTS_ELEVENLABS_MODELS = {"eleven_monolingual_v2": "English only", "eleven_multilingual_v2": "Multi-language (autodetect)"};
+var CN_TTS_ELEVENLABS_MODELS = {"eleven_monolingual_v1": "English only",
+	"eleven_multilingual_v2": "Multi-language (autodetect) V2",
+	"eleven_multilingual_v1": "Multi-language (autodetect) V1"};
 
 // Other ElevenLabs settings
 var CN_TTS_ELEVENLABS_STABILITY = "";
@@ -1062,7 +1064,7 @@ function CN_InitScript() {
 	
 	// Add icons on the top right corner
 	jQuery("body").append(
-		"<div style='position: fixed; top: 8px; right: 16px; display: inline-block; " +
+		"<div style='position: fixed; top: 50px; right: 16px; display: inline-block; " +
 			"background: #41464c; color: white; padding: 0; font-size: 16px; border-radius: 8px; text-align: center;" +
 			"cursor: move; font-weight: bold; z-index: 1111;' id='TTGPTSettings'>" +
 		
@@ -1071,7 +1073,7 @@ function CN_InitScript() {
 				"<a href='https://github.com/C-Nedelcu/talk-to-chatgpt' " +
 					"style='display: inline-block; font-size: 20px; line-height: 80%; padding: 8px 0;' " +
 					"target=_blank title='Visit project website'>TALK-TO-ChatGPT<br />" +
-					"<div style='text-align: right; font-size: 12px; color: grey'>V2.7.0</div>" +
+					"<div style='text-align: right; font-size: 12px; color: grey'>V2.7.1</div>" +
 				"</a>" +
 			"</div>" +
 			
@@ -1568,7 +1570,9 @@ function CN_RefreshElevenLabsVoiceList(useKeyFromTextField) {
 			
 			// Build list of models
 			var found = false;
+			var modelIndex = 0;
 			for(var modelId in CN_TTS_ELEVENLABS_MODELS) {
+				modelIndex++;
 				var modelName = CN_TTS_ELEVENLABS_MODELS[modelId];
 				optionList += "<optgroup label=\""+modelName+"\">";
 				for (var i = 0; i < result.voices.length; i++) {
@@ -1576,6 +1580,11 @@ function CN_RefreshElevenLabsVoiceList(useKeyFromTextField) {
 					var id = modelId+"."+result.voices[i].voice_id;
 					var sel = id == CN_TTS_ELEVENLABS_VOICE ? "selected=selected" : ""; // Restore selected voice
 					if (sel) found = true;
+					
+					// Add to proper list
+					var isMultiling = typeof result.voices[i].high_quality_base_model_ids == "object" ? result.voices[i].high_quality_base_model_ids.length : 0;
+					if (modelIndex == 1 && isMultiling) continue;
+					if (modelIndex > 1 && !isMultiling) continue;
 					optionList += "<option value='" + id + "' " + sel + ">" + name + "</option>";
 				}
 				optionList += "</optgroup>";
