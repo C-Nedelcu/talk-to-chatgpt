@@ -73,6 +73,11 @@ Talk-to-ChatGPT has been receiving press coverage since its release. It is curre
 
 # Change log
 
+Version 2.7.1 - September 17th, 2023
+* Updated: initial position of the widget lowered a bit so that the ChatGPT 'Share Chat' icon is visible (#163)
+* Updated: in the ElevenLabs voice list, it is possible to select v1 or v2 multilanguage model
+* Fixed: monolingual voices in ElevenLabs didn't work in v2.7.0 due to a mistake in the API code
+
 Version 2.7.0 - September 16th, 2023
 * New: browser warning on first use to better inform those who are not running supported browsers
 * Updated: switched to ElevenLabs v2 models for better text-to-speech quality (#168)
