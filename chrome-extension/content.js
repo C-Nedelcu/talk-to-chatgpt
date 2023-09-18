@@ -21,6 +21,9 @@ var CN_TEXT_TO_SPEECH_PITCH = 1; // This will alter the pitch for the bot's voic
 // If you leave this blank, the system's default language will be used
 var CN_WANTED_LANGUAGE_SPEECH_REC = ""; //"fr-FR";
 
+// Indicate whether the bot should describe emojis out loud or say the word "emoji" instead or ignore them altogether
+var CN_SPEAK_EMOJIS = true;
+
 // Determine which word will cause this scrip to stop.
 var CN_SAY_THIS_WORD_TO_STOP = "stop";
 
@@ -90,6 +93,27 @@ var CN_TTS_ELEVENLABS_QUEUE = [];
 var CN_IS_CONVERTING = false;
 var CN_ELEVENLABS_PLAYING = false;
 var CN_ELEVENLABS_SOUND_INDEX = 0;
+
+// This function checks if a character is an emoji
+function isEmoji(char) {
+	const emojiRegExp =
+		/\p{Emoji_Modifier_Base}\p{Emoji_Modifier}?|\p{Emoji_Presentation}|\p{Emoji}\uFE0F/gu;
+	return char.match(emojiRegExp);
+}
+
+// This function replaces emojis in a string with nothing
+function ignoreEmojis(text) {
+	let processedText = "";
+	for (let char of text) {
+		if (isEmoji(char)) {
+			processedText += "";
+		} else {
+			processedText += char;
+		}
+	}
+	console.log("Processed Text: " + processedText);
+	return processedText;
+}
 
 // This function will say the given text out loud using the browser's speech synthesis API, or send the message to the ElevenLabs conversion stack
 function CN_SayOutLoud(text) {
@@ -441,6 +465,11 @@ function CN_KeepSpeechSynthesisActive() {
 
 // Split the text into sentences so the speech synthesis can start speaking as soon as possible
 function CN_SplitIntoSentences(text) {
+
+	// Preprocess text to remove emojis if needed
+	if (!CN_SPEAK_EMOJIS) {
+		text = ignoreEmojis(text);
+	}
 	var sentences = [];
 	var currentSentence = "";
 
@@ -1256,6 +1285,9 @@ function CN_OnSettingsIconClick() {
 		}
 	}
 	rows += "<tr><td style='white-space: nowrap'>Speech recognition language:</td><td><select id='TTGPTRecLang' style='width: 250px; padding: 2px; color: black;' >"+languages+"</select></td></tr>";
+
+	// AI Speak Emojis or not
+	rows += "<tr><td style='white-space: nowrap'>AI Speak Emojis:</td><td><input type=checkbox id='TTGPTSpeakEmojis' " + (CN_SPEAK_EMOJIS ? "checked=checked" : "") + " /> <label for='TTGPTSpeakEmojis'> Allow the bot to descibe emojis (e.g. 'smiling face with heart eyes')</label></td></tr>";
 	
 	rows += "<tr class='CNBrowserTTS' ><td style='white-space: nowrap'>AI voice and language:</td><td><select id='TTGPTVoice' style='width: 250px; padding: 2px; color: black'>" + voices + "</select></td></tr>";
 	
@@ -1413,6 +1445,7 @@ function CN_SaveSettings() {
 		CN_SAY_THIS_TO_SEND = CN_RemovePunctuation( jQuery("#TTGPTSendWord").val() );
 		CN_IGNORE_COMMAS = jQuery("#TTGPTIgnoreCommas").prop("checked");
 		CN_IGNORE_CODE_BLOCKS = jQuery("#TTGPTIgnoreCode").prop("checked");
+		CN_SPEAK_EMOJIS = jQuery("#TTGPTSpeakEmojis").prop("checked");
 		
 		// ElevenLabs
 		CN_TTS_ELEVENLABS = jQuery("#TTGPTElevenLabs").prop("checked");
@@ -1447,7 +1480,8 @@ function CN_SaveSettings() {
 			CN_TTS_ELEVENLABS_APIKEY,
 			CN_TTS_ELEVENLABS_VOICE,
 			CN_TTS_ELEVENLABS_STABILITY,
-			CN_TTS_ELEVENLABS_SIMILARITY
+			CN_TTS_ELEVENLABS_SIMILARITY,
+			CN_SPEAK_EMOJIS?1:0
 		];
 		CN_SetCookie("CN_TTGPT", JSON.stringify(settings));
 	} catch(e) { alert('Invalid settings values. '+e.toString()); return; }
@@ -1483,6 +1517,7 @@ function CN_RestoreSettings() {
 			if (settings.hasOwnProperty(13)) CN_TTS_ELEVENLABS_VOICE = settings[13];
 			if (settings.hasOwnProperty(14)) CN_TTS_ELEVENLABS_STABILITY = settings[14];
 			if (settings.hasOwnProperty(15)) CN_TTS_ELEVENLABS_SIMILARITY = settings[15];
+			if (settings.hasOwnProperty(16)) CN_SPEAK_EMOJIS = settings[16] == 1;
 		}
 	} catch (ex) {
 		console.error(ex);
