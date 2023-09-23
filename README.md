@@ -73,6 +73,10 @@ Talk-to-ChatGPT has been receiving press coverage since its release. It is curre
 
 # Change log
 
+Version 2.7.2 - September 23rd, 2023
+* New: added an option to prevent the text-to-speech engine from reading emojis (#166)
+* Updated: added a note in the voice command setting area to remind users that voice control only works when the microphone is active
+
 Version 2.7.1 - September 17th, 2023
 * Updated: initial position of the widget lowered a bit so that the ChatGPT 'Share Chat' icon is visible (#163)
 * Updated: in the ElevenLabs voice list, it is possible to select v1 or v2 multilanguage model

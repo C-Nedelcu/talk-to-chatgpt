@@ -1,7 +1,7 @@
 ﻿// TALK TO CHATGPT
 // ---------------
 // Author		: C. NEDELCU
-// Version		: 2.7.1 (17/09/2023)
+// Version		: 2.7.2 (17/09/2023)
 // Git repo 	: https://github.com/C-Nedelcu/talk-to-chatgpt
 // Chat GPT URL	: https://chat.openai.com/chat
 // How to use   : https://www.youtube.com/watch?v=VXkLQMEs3lA
@@ -1102,7 +1102,7 @@ function CN_InitScript() {
 				"<a href='https://github.com/C-Nedelcu/talk-to-chatgpt' " +
 					"style='display: inline-block; font-size: 20px; line-height: 80%; padding: 8px 0;' " +
 					"target=_blank title='Visit project website'>TALK-TO-ChatGPT<br />" +
-					"<div style='text-align: right; font-size: 12px; color: grey'>V2.7.1</div>" +
+					"<div style='text-align: right; font-size: 12px; color: grey'>V2.7.2</div>" +
 				"</a>" +
 			"</div>" +
 			
@@ -1285,9 +1285,6 @@ function CN_OnSettingsIconClick() {
 		}
 	}
 	rows += "<tr><td style='white-space: nowrap'>Speech recognition language:</td><td><select id='TTGPTRecLang' style='width: 250px; padding: 2px; color: black;' >"+languages+"</select></td></tr>";
-
-	// AI Speak Emojis or not
-	rows += "<tr><td style='white-space: nowrap'>AI Speak Emojis:</td><td><input type=checkbox id='TTGPTSpeakEmojis' " + (CN_SPEAK_EMOJIS ? "checked=checked" : "") + " /> <label for='TTGPTSpeakEmojis'> Allow the bot to descibe emojis (e.g. 'smiling face with heart eyes')</label></td></tr>";
 	
 	rows += "<tr class='CNBrowserTTS' ><td style='white-space: nowrap'>AI voice and language:</td><td><select id='TTGPTVoice' style='width: 250px; padding: 2px; color: black'>" + voices + "</select></td></tr>";
 	
@@ -1323,7 +1320,8 @@ function CN_OnSettingsIconClick() {
 		"<button class='TTGPTCancel' style='border: 2px solid grey; border-radius: 4px; padding: 6px 24px; margin-left: 40px; font-size: 18px; opacity: 0.7;'>✗ Cancel</button></td></tr></table>";
 	
 	// Header - vocal commands
-	rows += "</table><br /><h2>Voice control</h2>";
+	rows += "</table><br /><h2>Voice control</h2><b>PLEASE NOTE! </b> These commands only work when the microphone is actively listening / when the speech-to-text functionality is active (indicated by a red bar). "+
+		"The system <i>cannot</i> listen to voice commands while the bot is speaking (green bar or grey bar) otherwise, it would be listening to itself and create an infinite feedback loop.<br />";
 	rows += "<table width='100%' cellpadding=6 cellspacing=2 style='margin-top: 15px;'>";
 	
 	// 5. 'Stop' word
@@ -1340,7 +1338,7 @@ function CN_OnSettingsIconClick() {
 	
 	// 9. Manual send word
 	rows += "<tr><td style='white-space: nowrap'>Manual send word(s):</td><td><input type=text id='TTGPTSendWord' style='width: 250px; padding: 2px; color: black;' value='" + CN_SAY_THIS_TO_SEND + "' /><span style='font-size: 10px;'>If 'automatic send' is disabled, you can trigger the sending of the message by saying this word (or sequence of words)</span></td></tr>";
-	
+
 	// Prepare save/close buttons
 	rows += "<tr><td colspan=2 style='text-align: center'><br />" +
 		"<button class='TTGPTSave' style='border: 2px solid grey; border-radius: 4px; padding: 6px 24px; font-size: 18px; font-weight: bold; opacity: 0.7;'>✓ Save</button>&nbsp;" +
@@ -1356,6 +1354,9 @@ function CN_OnSettingsIconClick() {
 	// 11. Ignore code blocks
 	rows += "<tr><td style='white-space: nowrap'>Ignore code blocks:</td><td><input type=checkbox id='TTGPTIgnoreCode' " + (CN_IGNORE_CODE_BLOCKS ? "checked=checked" : "") + " /> <label for='TTGPTIgnoreCode'>Don't read blocks of code out loud (ignore them altogether)</label></td></tr>";
 	
+	// 12. AI Speak Emojis or not
+	rows += "<tr><td style='white-space: nowrap'>AI Speak Emojis:</td><td><input type=checkbox id='TTGPTSpeakEmojis' " + (CN_SPEAK_EMOJIS ? "checked=checked" : "") + " /> <label for='TTGPTSpeakEmojis'> Allow the bot to describe emojis (e.g. 'smiling face with heart eyes')</label> <span style='font-size: 10px;'>This setting doesn't apply if you have the ElevenLabs text-to-speech enabled (ElevenLabs ignores emojis)</span></td></tr>";
+
 	// Keyboard shortcuts
 	rows += "<tr><td style='white-space: nowrap'>Keyboard shortcuts:</td><td><ul>" +
 		"<li>ALT+SHIFT+S: <u>S</u>tart Talk-To-ChatGPT</li>" +
