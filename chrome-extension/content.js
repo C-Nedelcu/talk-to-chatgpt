@@ -431,7 +431,7 @@ function CN_AfterSpeakOutLoudFinished() {
 	
 	// Make border grey again
 	$("#CNStatusBar").css("background", "grey");
-	
+	CN_IS_READING = false;
 	if (CN_FINISHED) return;
 	
 	// Finished speaking
@@ -649,6 +649,19 @@ function CN_ResumeAfterSuspension() {
 	// Say OK and resume conversation
 	CN_PAUSED = false;
 	CN_CONVERSATION_SUSPENDED = false;
+	
+	// Stop speech rec
+	try {
+		if (CN_SPEECHREC) CN_SPEECHREC.stop();
+	} catch (e) {
+	}
+	
+	// Resume
+	setTimeout(function() {
+		// Restart
+		CN_StartSpeechRecognition();
+		
+	}, 50);
 }
 
 // Start speech recognition using the browser's speech recognition API
