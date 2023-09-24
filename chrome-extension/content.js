@@ -161,7 +161,7 @@ function CN_SayOutLoud(text) {
 	msg.pitch = CN_TEXT_TO_SPEECH_PITCH;
 	msg.onstart = () => {
 		// Make border green
-		$("#CNStatusBar").css("background", "green");
+		setStatusBarBackground("green");
 		
 		// If speech recognition is active, disable it
 		if (CN_IS_LISTENING) CN_SPEECHREC.stop();
@@ -181,7 +181,7 @@ function CN_SayOutLoud(text) {
 // Say a message out loud using ElevenLabs
 function CN_SayOutLoudElevenLabs(text) {
 	// Make border green
-	$("#CNStatusBar").css("background", "green");
+	setStatusBarBackground("green");
 	
 	// Push message into queue (sequentially)
 	CN_TTS_ELEVENLABS_QUEUE.push({
@@ -617,11 +617,11 @@ function CN_FlashRedBar() {
 		// Ignore
 	} else if (CN_BAR_COLOR_FLASH_GREY) {
 		// Grey? switch to red
-		$("#CNStatusBar").css("background", "red");
+		setStatusBarBackground("red");
 		CN_BAR_COLOR_FLASH_GREY = false;
 	} else {
 		// Anything else? switch to grey
-		$("#CNStatusBar").css("background", "grey");
+		setStatusBarBackground("grey");
 		CN_BAR_COLOR_FLASH_GREY = true;
 	}
 	
@@ -664,6 +664,10 @@ function CN_ResumeAfterSuspension() {
 	}, 50);
 }
 
+function setStatusBarBackground(color) {
+	$("#CNStatusBar").css("background", color);
+}
+
 // Start speech recognition using the browser's speech recognition API
 function CN_StartSpeechRecognition() {
 	if (CN_IS_READING) {
@@ -677,14 +681,14 @@ function CN_StartSpeechRecognition() {
 	CN_SPEECHREC.lang = CN_WANTED_LANGUAGE_SPEECH_REC;
 	CN_SPEECHREC.onstart = () => {
 		// Make bar red
-		$("#CNStatusBar").css("background", "red");
+		setStatusBarBackground("red");
 		
 		CN_IS_LISTENING = true;
 		console.log("[SPEECH-REC] I'm listening");
 	};
 	CN_SPEECHREC.onend = () => {
 		// Make border grey again
-		$("#CNStatusBar").css("background", "grey");
+		setStatusBarBackground("grey");
 		
 		CN_IS_LISTENING = false;
 		console.log("[SPEECH-REC] I've stopped listening");
