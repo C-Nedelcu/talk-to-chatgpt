@@ -94,6 +94,11 @@ var CN_IS_CONVERTING = false;
 var CN_ELEVENLABS_PLAYING = false;
 var CN_ELEVENLABS_SOUND_INDEX = 0;
 
+// reusable function to set the value of the status bar
+function setStatusBarBackground(color) {
+	$("#CNStatusBar").css("background", color);
+}
+
 // This function checks if a character is an emoji
 function isEmoji(char) {
 	const emojiRegExp =
@@ -425,13 +430,14 @@ function CN_ContinueElevenLabsPlaybackQueue(situation) {
 }
 
 
+
 // Occurs when speaking out loud is finished
 function CN_AfterSpeakOutLoudFinished() {
 	if (CN_SPEECHREC_DISABLED) return;
 	
 	// Make border grey again
-	$("#CNStatusBar").css("background", "grey");
-	CN_IS_READING = false;
+	setStatusBarBackground("grey");
+	
 	if (CN_FINISHED) return;
 	
 	// Finished speaking
@@ -641,7 +647,7 @@ function CN_ResumeAfterSuspension() {
 	
 	// Finish alternating colors, reset to grey
 	clearTimeout(CN_TIMEOUT_FLASHBAR);
-	$("#CNStatusBar").css("background", "grey");
+	setStatusBarBackground("grey");
 	
 	// Hide suspend area
 	jQuery("#CNSuspendedArea").hide();
@@ -649,24 +655,6 @@ function CN_ResumeAfterSuspension() {
 	// Say OK and resume conversation
 	CN_PAUSED = false;
 	CN_CONVERSATION_SUSPENDED = false;
-	
-	// Stop speech rec
-	try {
-		if (CN_SPEECHREC) CN_SPEECHREC.stop();
-	} catch (e) {
-	}
-	
-	// Resume
-	setTimeout(function() {
-		// Restart
-		CN_StartSpeechRecognition();
-		
-	}, 50);
-}
-
-function setStatusBarBackground(color) {
-	$("#CNStatusBar").css("background", color);
-}
 
 // Start speech recognition using the browser's speech recognition API
 function CN_StartSpeechRecognition() {
@@ -837,118 +825,78 @@ function CN_KeepSpeechRecWorking() {
 	}
 }
 
-// Toggle button clicks: settings, pause, skip...
-function CN_ToggleButtonClick() {
-	var action = $(this).data("cn");
-	switch(action) {
-	
-		// Open settings menu
-		case "settings":
-			CN_OnSettingsIconClick();
-			return;
-		
-		// The microphone is on. Turn it off
-		case "micon":
-			// Show other icon and hide this one
-			$(this).css("display", "none");
-			$(".CNToggle[data-cn=micoff]").css("display", "");
-			
-			// Disable speech rec
-			CN_SPEECHREC_DISABLED = true;
-			if (CN_SPEECHREC && CN_IS_LISTENING) CN_SPEECHREC.stop();
-			
-			return;
-		
-		// The microphone is off. Turn it on
-		case "micoff":
-			// Show other icon and hide this one
-			$(this).css("display", "none");
-			$(".CNToggle[data-cn=micon]").css("display", "");
-			
-			// Enable speech rec
-			CN_SPEECHREC_DISABLED = false;
-			if (CN_SPEECHREC && !CN_IS_LISTENING && !CN_IS_READING) {
-				try {
-					CN_SPEECHREC.start();
-				} catch (e) {
-					// Already started ? Ignore
-				}
-			}
-			
-			return;
-		
-		// The bot's voice is on. Turn it off
-		case "speakon":
-			// Show other icon and hide this one
-			$(this).css("display", "none");
-			$(".CNToggle[data-cn=speakoff]").css("display", "");
-			CN_SPEAKING_DISABLED = true;
-			
-			// Is there anything in the CN_TTS_ELEVENLABS_QUEUE ? clear it
-			if (CN_TTS_ELEVENLABS_QUEUE.length) {
-				CN_TTS_ELEVENLABS_QUEUE = [];
-				if (CN_ELEVENLABS_PLAYING) CN_PlaySound("", "", "stop");
-				CN_ELEVENLABS_PLAYING = false;
-				CN_IS_READING = false;
-				CN_IS_CONVERTING = false;
-			}
-			
-			// Stop current message (equivalent to 'skip')
-			try {
-				window.speechSynthesis.pause(); // Pause, and then...
-				window.speechSynthesis.cancel(); // Cancel everything
-			} catch(e) { }
-			
-			CN_CURRENT_MESSAGE = null; // Remove current message
-			
-			// Restart listening maybe?
-			if (!CN_SPEECHREC_DISABLED) {
-				setTimeout(function () {
-					CN_AfterSpeakOutLoudFinished();
-				}, 100);
-			}
-			
-			return;
-		
-		// The bot's voice is off. Turn it on
-		case "speakoff":
-			// Show other icon and hide this one
-			$(this).css("display", "none");
-			$(".CNToggle[data-cn=speakon]").css("display", "");
-			CN_SPEAKING_DISABLED = false;
-			
-			return;
-		
-		// Skip current message being read
-		case "skip":
-			
-			// Is there anything in the CN_TTS_ELEVENLABS_QUEUE ?  clear it
-			if (CN_TTS_ELEVENLABS_QUEUE.length) {
-				CN_TTS_ELEVENLABS_QUEUE = [];
-				if (CN_ELEVENLABS_PLAYING) CN_PlaySound("", "", "stop");
-				CN_ELEVENLABS_PLAYING = false;
-				CN_IS_READING = false;
-				CN_IS_CONVERTING = false;
-			}
-			
-			try {
-				window.speechSynthesis.pause(); // Pause, and then...
-				window.speechSynthesis.cancel(); // Cancel everything
-			} catch(e) { }
-			
-			CN_CURRENT_MESSAGE = null; // Remove current message
-			
-			// Restart listening maybe?
-			if (!CN_SPEECHREC_DISABLED) {
-				setTimeout(function () {
-					CN_AfterSpeakOutLoudFinished();
-				}, 100);
-			}
-			
-			return;
+// Function definitions for different button actions
+const buttonActions = {
+	settings: CN_OnSettingsIconClick,
+	micon: function() { toggleMicrophone(this, 'micoff', true); },
+	micoff: function() { toggleMicrophone(this, 'micon', false); },
+	speakon: function() { toggleSpeaking(this, 'speakoff', true); },
+	speakoff: function() { toggleSpeaking(this, 'speakon', false); },
+	skip: skipMessage
+  };
+  
+  // Toggle button clicks: settings, pause, skip...
+  function CN_ToggleButtonClick() {
+	const action = $(this).data("cn");
+	const handler = buttonActions[action];
+	if (handler) handler.call(this);
+  }
+  
+  function toggleMicrophone(element, targetIcon, isDisabled) {
+	$(element).css("display", "none");
+	$(`.CNToggle[data-cn=${targetIcon}]`).css("display", "");
+  
+	CN_SPEECHREC_DISABLED = isDisabled;
+  
+	if (CN_SPEECHREC && CN_IS_LISTENING) {
+	  CN_SPEECHREC.stop();
 	}
-}
-
+  
+	if (!isDisabled && CN_SPEECHREC && !CN_IS_LISTENING && !CN_IS_READING) {
+	  try {
+		CN_SPEECHREC.start();
+	  } catch (e) {
+		// Handle error, if needed
+	  }
+	}
+  }
+  
+  function toggleSpeaking(element, targetIcon, isDisabled) {
+	$(element).css("display", "none");
+	$(`.CNToggle[data-cn=${targetIcon}]`).css("display", "");
+  
+	CN_SPEAKING_DISABLED = isDisabled;
+	clearAndStopReading();
+  }
+  
+  function skipMessage() {
+	clearAndStopReading();
+  
+	if (!CN_SPEECHREC_DISABLED) {
+	  setTimeout(() => {
+		CN_AfterSpeakOutLoudFinished();
+	  }, 100);
+	}
+  }
+  
+  function clearAndStopReading() {
+	if (CN_TTS_ELEVENLABS_QUEUE.length) {
+	  CN_TTS_ELEVENLABS_QUEUE = [];
+	  if (CN_ELEVENLABS_PLAYING) CN_PlaySound("", "", "stop");
+	  CN_ELEVENLABS_PLAYING = false;
+	  CN_IS_READING = false;
+	  CN_IS_CONVERTING = false;
+	}
+  
+	try {
+	  window.speechSynthesis.pause();
+	  window.speechSynthesis.cancel();
+	} catch(e) {
+	  // Handle error, if needed
+	}
+  
+	CN_CURRENT_MESSAGE = null;
+  }
 
 // Declare descriptor caches and textarea element outside of any function to cache them.
 let textareaDescriptorCache = null;
