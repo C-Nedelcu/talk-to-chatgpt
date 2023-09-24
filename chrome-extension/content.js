@@ -655,6 +655,8 @@ function CN_ResumeAfterSuspension() {
 	// Say OK and resume conversation
 	CN_PAUSED = false;
 	CN_CONVERSATION_SUSPENDED = false;
+}
+
 
 // Start speech recognition using the browser's speech recognition API
 function CN_StartSpeechRecognition() {
