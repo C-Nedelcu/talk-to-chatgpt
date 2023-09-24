@@ -655,6 +655,19 @@ function CN_ResumeAfterSuspension() {
 	// Say OK and resume conversation
 	CN_PAUSED = false;
 	CN_CONVERSATION_SUSPENDED = false;
+	
+	// Stop speech rec
+	try {
+		if (CN_SPEECHREC) CN_SPEECHREC.stop();
+	} catch (e) {
+	}
+	
+	// Resume
+	setTimeout(function() {
+		// Restart
+		CN_StartSpeechRecognition();
+		
+	}, 50);
 }
 
 
