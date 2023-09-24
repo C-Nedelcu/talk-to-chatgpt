@@ -904,24 +904,37 @@ function CN_ToggleButtonClick() {
 }
 
 
-function CN_SetTextareaValue(text) {
-    const textarea = jQuery("#prompt-textarea")[0];
-    function setNativeValue(element, value) {
-      const { set: valueSetter } = Object.getOwnPropertyDescriptor(element, 'value') || {}
-      const prototype = Object.getPrototypeOf(element)
-      const { set: prototypeValueSetter } = Object.getOwnPropertyDescriptor(prototype, 'value') || {}
+// Declare descriptor caches and textarea element outside of any function to cache them.
+let textareaDescriptorCache = null;
+let prototypeDescriptorCache = null;
+const textarea = jQuery("#prompt-textarea")[0];
 
-      if (prototypeValueSetter && valueSetter !== prototypeValueSetter) {
-        prototypeValueSetter.call(element, value)
-      } else if (valueSetter) {
-        valueSetter.call(element, value)
-      } else {
-        throw new Error('The given element does not have a value setter')
-      }
-    }
-    setNativeValue(textarea, text)
-    textarea.dispatchEvent(new Event('input', { bubbles: true }))
+// Moved setNativeValue out of CN_SetTextareaValue to avoid re-defining it.
+function setNativeValue(element, value) {
+  if (!textareaDescriptorCache || !prototypeDescriptorCache) {
+    textareaDescriptorCache = Object.getOwnPropertyDescriptor(element, 'value') || {};
+    const prototype = Object.getPrototypeOf(element);
+    prototypeDescriptorCache = Object.getOwnPropertyDescriptor(prototype, 'value') || {};
+  }
+
+  const { set: valueSetter } = textareaDescriptorCache;
+  const { set: prototypeValueSetter } = prototypeDescriptorCache;
+
+  if (prototypeValueSetter && valueSetter !== prototypeValueSetter) {
+    prototypeValueSetter.call(element, value);
+  } else if (valueSetter) {
+    valueSetter.call(element, value);
+  } else {
+    throw new Error('The given element does not have a value setter');
+  }
 }
+
+// The main function that sets the textarea value and triggers an input event
+function CN_SetTextareaValue(text) {
+  setNativeValue(textarea, text);
+  textarea.dispatchEvent(new Event('input', { bubbles: true }));
+}
+
 
 function CN_PlaySound(audioData, onEnded, transcript) {
 	//console.log("PlaySound - "+onEnded);
@@ -1016,7 +1029,7 @@ function CN_StartTTGPT() {
 // Check we are on the correct page
 function CN_CheckCorrectPage() {
 	console.log("[STARTUP] Checking we are on the correct page...");
-	var wrongPage = jQuery("#prompt-textarea").length == 0; // no textarea... login page?
+	var wrongPage = jQuery("#prompt-textarea").length === 0; // no textarea... login page?
 	
 	if (wrongPage) {
 		// We are on the wrong page, keep checking
@@ -1029,7 +1042,9 @@ function CN_CheckCorrectPage() {
 
 // Perform initialization after jQuery is loaded
 function CN_InitScript() {
-	if (typeof $ === null || typeof $ === undefined) $ = jQuery;
+	if (typeof jQuery === 'undefined') {
+		jQuery = $;
+	}
 	
 	var warning = "";
 	if ('webkitSpeechRecognition' in window) {
