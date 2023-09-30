@@ -1,7 +1,7 @@
 ﻿// TALK TO CHATGPT
 // ---------------
 // Author		: C. NEDELCU
-// Version		: 2.7.2 (17/09/2023)
+// Version		: 2.8.0 (17/09/2023)
 // Git repo 	: https://github.com/C-Nedelcu/talk-to-chatgpt
 // Chat GPT URL	: https://chat.openai.com/chat
 // How to use   : https://www.youtube.com/watch?v=VXkLQMEs3lA
@@ -1089,15 +1089,15 @@ function CN_InitScript() {
 	// Add icons on the top right corner
 	jQuery("body").append(
 		"<div style='position: fixed; top: 50px; right: 16px; display: inline-block; " +
-			"background: #41464c; color: white; padding: 0; font-size: 16px; border-radius: 8px; text-align: center;" +
+			"background: #41464cDD; color: white; padding: 0; font-size: 14px; border-radius: 4px; text-align: center;" +
 			"cursor: move; font-weight: bold; z-index: 1111;' id='TTGPTSettings'>" +
 		
 			// Logo / title
-			"<div style='padding: 4px 40px; border-bottom: 1px solid grey;'>" +
+			"<div style='padding: 4px 30px; border-bottom: 1px solid grey;'>" +
 				"<a href='https://github.com/C-Nedelcu/talk-to-chatgpt' " +
-					"style='display: inline-block; font-size: 20px; line-height: 80%; padding: 8px 0;' " +
+					"style='display: inline-block; font-size: 16px; line-height: 80%; padding: 4px 0;' " +
 					"target=_blank title='Visit project website'>TALK-TO-ChatGPT<br />" +
-					"<div style='text-align: right; font-size: 12px; color: grey'>V2.7.2</div>" +
+					"<div style='text-align: right; font-size: 11px; color: grey'>V2.8.0</div>" +
 				"</a>" +
 			"</div>" +
 			
@@ -1105,12 +1105,12 @@ function CN_InitScript() {
 			"<div>" +
 				
 				// Start button
-				"<div style='font-size: 16px; padding: 8px;' class='CNStartZone'>" +
-					"<button style='border: 2px solid grey; padding: 6px 40px; margin: 6px; border-radius: 6px; opacity: 0.7;' id='CNStartButton' title='ALT+SHIFT+S'><i class=\"fa-solid fa-play\"></i>&nbsp;&nbsp;START</button>"+
+				"<div style='font-size: 14px; padding: 6px;' class='CNStartZone'>" +
+					"<button style='border: 2px solid grey; padding: 3px 30px; margin: 4px; border-radius: 4px; opacity: 0.7;' id='CNStartButton' title='ALT+SHIFT+S'><i class=\"fa-solid fa-play\"></i>&nbsp;&nbsp;Start</button>"+
 				"</div>"+
 		
 				// Action buttons
-				"<div style='font-size: 20px; padding: 12px 8px; padding-bottom: 0px; display:none;' class='CNActionButtons'>" +
+				"<div style='font-size: 16px; padding: 8px 4px; padding-bottom: 0px; display:none;' class='CNActionButtons'>" +
 					"<table width='100%' cellpadding=0 cellspacing=0><tr>" +
 						"<td width='24%' style='text-align: center;'>" +
 							"<span class='CNToggle' title='Voice recognition enabled. Click to disable. (Shortcut: ALT+SHIFT+H)' data-cn='micon' style='opacity: 0.7;'><i class=\"fa-solid fa-microphone\"></i></span>" + // Microphone enabled
