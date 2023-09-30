@@ -94,6 +94,11 @@ var CN_IS_CONVERTING = false;
 var CN_ELEVENLABS_PLAYING = false;
 var CN_ELEVENLABS_SOUND_INDEX = 0;
 
+// reusable function to set the value of the status bar
+function setStatusBarBackground(color) {
+	$("#CNStatusBar").css("background", color);
+}
+
 // This function checks if a character is an emoji
 function isEmoji(char) {
 	const emojiRegExp =
@@ -161,7 +166,7 @@ function CN_SayOutLoud(text) {
 	msg.pitch = CN_TEXT_TO_SPEECH_PITCH;
 	msg.onstart = () => {
 		// Make border green
-		$("#CNStatusBar").css("background", "green");
+		setStatusBarBackground("green");
 		
 		// If speech recognition is active, disable it
 		if (CN_IS_LISTENING) CN_SPEECHREC.stop();
@@ -181,7 +186,7 @@ function CN_SayOutLoud(text) {
 // Say a message out loud using ElevenLabs
 function CN_SayOutLoudElevenLabs(text) {
 	// Make border green
-	$("#CNStatusBar").css("background", "green");
+	setStatusBarBackground("green");
 	
 	// Push message into queue (sequentially)
 	CN_TTS_ELEVENLABS_QUEUE.push({
@@ -425,13 +430,14 @@ function CN_ContinueElevenLabsPlaybackQueue(situation) {
 }
 
 
+
 // Occurs when speaking out loud is finished
 function CN_AfterSpeakOutLoudFinished() {
 	if (CN_SPEECHREC_DISABLED) return;
 	
 	// Make border grey again
-	$("#CNStatusBar").css("background", "grey");
-	CN_IS_READING = false;
+	setStatusBarBackground("grey");
+	
 	if (CN_FINISHED) return;
 	
 	// Finished speaking
@@ -617,11 +623,11 @@ function CN_FlashRedBar() {
 		// Ignore
 	} else if (CN_BAR_COLOR_FLASH_GREY) {
 		// Grey? switch to red
-		$("#CNStatusBar").css("background", "red");
+		setStatusBarBackground("red");
 		CN_BAR_COLOR_FLASH_GREY = false;
 	} else {
 		// Anything else? switch to grey
-		$("#CNStatusBar").css("background", "grey");
+		setStatusBarBackground("grey");
 		CN_BAR_COLOR_FLASH_GREY = true;
 	}
 	
@@ -641,7 +647,7 @@ function CN_ResumeAfterSuspension() {
 	
 	// Finish alternating colors, reset to grey
 	clearTimeout(CN_TIMEOUT_FLASHBAR);
-	$("#CNStatusBar").css("background", "grey");
+	setStatusBarBackground("grey");
 	
 	// Hide suspend area
 	jQuery("#CNSuspendedArea").hide();
@@ -664,6 +670,7 @@ function CN_ResumeAfterSuspension() {
 	}, 50);
 }
 
+
 // Start speech recognition using the browser's speech recognition API
 function CN_StartSpeechRecognition() {
 	if (CN_IS_READING) {
@@ -677,14 +684,14 @@ function CN_StartSpeechRecognition() {
 	CN_SPEECHREC.lang = CN_WANTED_LANGUAGE_SPEECH_REC;
 	CN_SPEECHREC.onstart = () => {
 		// Make bar red
-		$("#CNStatusBar").css("background", "red");
+		setStatusBarBackground("red");
 		
 		CN_IS_LISTENING = true;
 		console.log("[SPEECH-REC] I'm listening");
 	};
 	CN_SPEECHREC.onend = () => {
 		// Make border grey again
-		$("#CNStatusBar").css("background", "grey");
+		setStatusBarBackground("grey");
 		
 		CN_IS_LISTENING = false;
 		console.log("[SPEECH-REC] I've stopped listening");
@@ -833,137 +840,110 @@ function CN_KeepSpeechRecWorking() {
 	}
 }
 
-// Toggle button clicks: settings, pause, skip...
-function CN_ToggleButtonClick() {
-	var action = $(this).data("cn");
-	switch(action) {
-	
-		// Open settings menu
-		case "settings":
-			CN_OnSettingsIconClick();
-			return;
-		
-		// The microphone is on. Turn it off
-		case "micon":
-			// Show other icon and hide this one
-			$(this).css("display", "none");
-			$(".CNToggle[data-cn=micoff]").css("display", "");
-			
-			// Disable speech rec
-			CN_SPEECHREC_DISABLED = true;
-			if (CN_SPEECHREC && CN_IS_LISTENING) CN_SPEECHREC.stop();
-			
-			return;
-		
-		// The microphone is off. Turn it on
-		case "micoff":
-			// Show other icon and hide this one
-			$(this).css("display", "none");
-			$(".CNToggle[data-cn=micon]").css("display", "");
-			
-			// Enable speech rec
-			CN_SPEECHREC_DISABLED = false;
-			if (CN_SPEECHREC && !CN_IS_LISTENING && !CN_IS_READING) {
-				try {
-					CN_SPEECHREC.start();
-				} catch (e) {
-					// Already started ? Ignore
-				}
-			}
-			
-			return;
-		
-		// The bot's voice is on. Turn it off
-		case "speakon":
-			// Show other icon and hide this one
-			$(this).css("display", "none");
-			$(".CNToggle[data-cn=speakoff]").css("display", "");
-			CN_SPEAKING_DISABLED = true;
-			
-			// Is there anything in the CN_TTS_ELEVENLABS_QUEUE ? clear it
-			if (CN_TTS_ELEVENLABS_QUEUE.length) {
-				CN_TTS_ELEVENLABS_QUEUE = [];
-				if (CN_ELEVENLABS_PLAYING) CN_PlaySound("", "", "stop");
-				CN_ELEVENLABS_PLAYING = false;
-				CN_IS_READING = false;
-				CN_IS_CONVERTING = false;
-			}
-			
-			// Stop current message (equivalent to 'skip')
-			try {
-				window.speechSynthesis.pause(); // Pause, and then...
-				window.speechSynthesis.cancel(); // Cancel everything
-			} catch(e) { }
-			
-			CN_CURRENT_MESSAGE = null; // Remove current message
-			
-			// Restart listening maybe?
-			if (!CN_SPEECHREC_DISABLED) {
-				setTimeout(function () {
-					CN_AfterSpeakOutLoudFinished();
-				}, 100);
-			}
-			
-			return;
-		
-		// The bot's voice is off. Turn it on
-		case "speakoff":
-			// Show other icon and hide this one
-			$(this).css("display", "none");
-			$(".CNToggle[data-cn=speakon]").css("display", "");
-			CN_SPEAKING_DISABLED = false;
-			
-			return;
-		
-		// Skip current message being read
-		case "skip":
-			
-			// Is there anything in the CN_TTS_ELEVENLABS_QUEUE ?  clear it
-			if (CN_TTS_ELEVENLABS_QUEUE.length) {
-				CN_TTS_ELEVENLABS_QUEUE = [];
-				if (CN_ELEVENLABS_PLAYING) CN_PlaySound("", "", "stop");
-				CN_ELEVENLABS_PLAYING = false;
-				CN_IS_READING = false;
-				CN_IS_CONVERTING = false;
-			}
-			
-			try {
-				window.speechSynthesis.pause(); // Pause, and then...
-				window.speechSynthesis.cancel(); // Cancel everything
-			} catch(e) { }
-			
-			CN_CURRENT_MESSAGE = null; // Remove current message
-			
-			// Restart listening maybe?
-			if (!CN_SPEECHREC_DISABLED) {
-				setTimeout(function () {
-					CN_AfterSpeakOutLoudFinished();
-				}, 100);
-			}
-			
-			return;
+// Function definitions for different button actions
+const buttonActions = {
+	settings: CN_OnSettingsIconClick,
+	micon: function() { toggleMicrophone(this, 'micoff', true); },
+	micoff: function() { toggleMicrophone(this, 'micon', false); },
+	speakon: function() { toggleSpeaking(this, 'speakoff', true); },
+	speakoff: function() { toggleSpeaking(this, 'speakon', false); },
+	skip: skipMessage
+  };
+  
+  // Toggle button clicks: settings, pause, skip...
+  function CN_ToggleButtonClick() {
+	const action = $(this).data("cn");
+	const handler = buttonActions[action];
+	if (handler) handler.call(this);
+  }
+  
+  function toggleMicrophone(element, targetIcon, isDisabled) {
+	$(element).css("display", "none");
+	$(`.CNToggle[data-cn=${targetIcon}]`).css("display", "");
+  
+	CN_SPEECHREC_DISABLED = isDisabled;
+  
+	if (CN_SPEECHREC && CN_IS_LISTENING) {
+	  CN_SPEECHREC.stop();
 	}
+  
+	if (!isDisabled && CN_SPEECHREC && !CN_IS_LISTENING && !CN_IS_READING) {
+	  try {
+		CN_SPEECHREC.start();
+	  } catch (e) {
+		// Handle error, if needed
+	  }
+	}
+  }
+  
+  function toggleSpeaking(element, targetIcon, isDisabled) {
+	$(element).css("display", "none");
+	$(`.CNToggle[data-cn=${targetIcon}]`).css("display", "");
+  
+	CN_SPEAKING_DISABLED = isDisabled;
+	clearAndStopReading();
+  }
+  
+  function skipMessage() {
+	clearAndStopReading();
+  
+	if (!CN_SPEECHREC_DISABLED) {
+	  setTimeout(() => {
+		CN_AfterSpeakOutLoudFinished();
+	  }, 100);
+	}
+  }
+  
+  function clearAndStopReading() {
+	if (CN_TTS_ELEVENLABS_QUEUE.length) {
+	  CN_TTS_ELEVENLABS_QUEUE = [];
+	  if (CN_ELEVENLABS_PLAYING) CN_PlaySound("", "", "stop");
+	  CN_ELEVENLABS_PLAYING = false;
+	  CN_IS_READING = false;
+	  CN_IS_CONVERTING = false;
+	}
+  
+	try {
+	  window.speechSynthesis.pause();
+	  window.speechSynthesis.cancel();
+	} catch(e) {
+	  // Handle error, if needed
+	}
+  
+	CN_CURRENT_MESSAGE = null;
+  }
+
+// Declare descriptor caches and textarea element outside of any function to cache them.
+let textareaDescriptorCache = null;
+let prototypeDescriptorCache = null;
+const textarea = jQuery("#prompt-textarea")[0];
+
+// Moved setNativeValue out of CN_SetTextareaValue to avoid re-defining it.
+function setNativeValue(element, value) {
+  if (!textareaDescriptorCache || !prototypeDescriptorCache) {
+    textareaDescriptorCache = Object.getOwnPropertyDescriptor(element, 'value') || {};
+    const prototype = Object.getPrototypeOf(element);
+    prototypeDescriptorCache = Object.getOwnPropertyDescriptor(prototype, 'value') || {};
+  }
+
+  const { set: valueSetter } = textareaDescriptorCache;
+  const { set: prototypeValueSetter } = prototypeDescriptorCache;
+
+  if (prototypeValueSetter && valueSetter !== prototypeValueSetter) {
+    prototypeValueSetter.call(element, value);
+  } else if (valueSetter) {
+    valueSetter.call(element, value);
+  } else {
+    throw new Error('The given element does not have a value setter');
+  }
 }
 
-
+// The main function that sets the textarea value and triggers an input event
 function CN_SetTextareaValue(text) {
-    const textarea = jQuery("#prompt-textarea")[0];
-    function setNativeValue(element, value) {
-      const { set: valueSetter } = Object.getOwnPropertyDescriptor(element, 'value') || {}
-      const prototype = Object.getPrototypeOf(element)
-      const { set: prototypeValueSetter } = Object.getOwnPropertyDescriptor(prototype, 'value') || {}
-
-      if (prototypeValueSetter && valueSetter !== prototypeValueSetter) {
-        prototypeValueSetter.call(element, value)
-      } else if (valueSetter) {
-        valueSetter.call(element, value)
-      } else {
-        throw new Error('The given element does not have a value setter')
-      }
-    }
-    setNativeValue(textarea, text)
-    textarea.dispatchEvent(new Event('input', { bubbles: true }))
+  setNativeValue(textarea, text);
+  textarea.dispatchEvent(new Event('input', { bubbles: true }));
 }
+
 
 function CN_PlaySound(audioData, onEnded, transcript) {
 	//console.log("PlaySound - "+onEnded);
@@ -1058,7 +1038,7 @@ function CN_StartTTGPT() {
 // Check we are on the correct page
 function CN_CheckCorrectPage() {
 	console.log("[STARTUP] Checking we are on the correct page...");
-	var wrongPage = jQuery("#prompt-textarea").length == 0; // no textarea... login page?
+	var wrongPage = jQuery("#prompt-textarea").length === 0; // no textarea... login page?
 	
 	if (wrongPage) {
 		// We are on the wrong page, keep checking
@@ -1071,7 +1051,9 @@ function CN_CheckCorrectPage() {
 
 // Perform initialization after jQuery is loaded
 function CN_InitScript() {
-	if (typeof $ === null || typeof $ === undefined) $ = jQuery;
+	if (typeof jQuery === 'undefined') {
+		jQuery = $;
+	}
 	
 	var warning = "";
 	if ('webkitSpeechRecognition' in window) {
