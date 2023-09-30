@@ -73,6 +73,10 @@ Talk-to-ChatGPT has been receiving press coverage since its release. It is curre
 
 # Change log
 
+Version 2.8.0 - September 30th, 2023
+* Updated: more compact widget (#186)
+* Updated: lot of code refactoring and cleanup (credit: PxPerfectMike)
+
 Version 2.7.2 - September 23rd, 2023
 * New: added an option to prevent the text-to-speech engine from reading emojis (#166) Credit: PxPerfectMike
 * Updated: added a note in the voice command setting area to remind users that voice control only works when the microphone is active
