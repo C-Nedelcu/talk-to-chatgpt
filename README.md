@@ -73,6 +73,9 @@ Talk-to-ChatGPT has been receiving press coverage since its release. It is curre
 
 # Change log
 
+Version 2.8.1 - October 9th, 2023
+* Fixed: conflict with OpenAI's new image upload functionality (#189)
+
 Version 2.8.0 - September 30th, 2023
 * Updated: more compact widget (#186)
 * Updated: lot of code refactoring and cleanup (credit: PxPerfectMike)

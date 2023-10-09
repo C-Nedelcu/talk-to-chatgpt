@@ -1,7 +1,7 @@
 ﻿// TALK TO CHATGPT
 // ---------------
 // Author		: C. NEDELCU
-// Version		: 2.8.0 (17/09/2023)
+// Version		: 2.8.1 (17/09/2023)
 // Git repo 	: https://github.com/C-Nedelcu/talk-to-chatgpt
 // Chat GPT URL	: https://chat.openai.com/chat
 // How to use   : https://www.youtube.com/watch?v=VXkLQMEs3lA
@@ -593,9 +593,9 @@ function CN_SendMessage(text) {
 	jQuery("#prompt-textarea").css("height", height+"px");
 	
 	// Send the message, if autosend is enabled
-	jQuery("#prompt-textarea").closest("div").find("button").prop("disabled", false);
+	jQuery("#prompt-textarea").closest("div").find("button:last").prop("disabled", false);
 	if (CN_AUTO_SEND_AFTER_SPEAKING) {
-		jQuery("#prompt-textarea").closest("div").find("button").click();
+		jQuery("#prompt-textarea").closest("div").find("button:last").click();
 		
 		// Stop speech recognition until the answer is received
 		if (CN_SPEECHREC) {
@@ -790,7 +790,7 @@ function CN_StartSpeechRecognition() {
 			console.log("[SEND-WORD] You said '"+ CN_SAY_THIS_TO_SEND+"' - the message will be sent");
 			
 			// Click button
-			jQuery("#prompt-textarea").closest("div").find("button").click();
+			jQuery("#prompt-textarea").closest("div").find("button:last").click();
 		
 			// Stop speech recognition until the answer is received
 			if (CN_SPEECHREC) {
@@ -1097,7 +1097,7 @@ function CN_InitScript() {
 				"<a href='https://github.com/C-Nedelcu/talk-to-chatgpt' " +
 					"style='display: inline-block; font-size: 16px; line-height: 80%; padding: 4px 0;' " +
 					"target=_blank title='Visit project website'>TALK-TO-ChatGPT<br />" +
-					"<div style='text-align: right; font-size: 11px; color: grey'>V2.8.0</div>" +
+					"<div style='text-align: right; font-size: 11px; color: grey'>V2.8.1</div>" +
 				"</a>" +
 			"</div>" +
 			
