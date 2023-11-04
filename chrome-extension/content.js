@@ -1101,7 +1101,7 @@ function CN_InitScript() {
     // Add icons on the top right corner
     jQuery("body").append(
         "<div style='position: fixed; top: 50px; right: 16px; display: inline-block; " +
-        "background: #41464cDD; color: white; padding: 0; font-size: 14px; border-radius: 4px; text-align: center;" +
+        "background: #41464cDD; color: #e7e7e7; padding: 0; font-size: 14px; border-radius: 4px; text-align: center;" +
         "cursor: move; font-weight: bold; z-index: 1111;' id='TTGPTSettings'>" +
 
         // Logo / title
@@ -1271,7 +1271,7 @@ function CN_OnSettingsIconClick() {
     if (CN_SPEECHREC) CN_SPEECHREC.stop();
 
     // A short text at the beginning
-    var desc = "<div style='text-align: left; margin: 8px;'>" +
+    var desc = "<div style='text-align: left; margin: 1rem 0 1.5rem 0; border: 2px solid white; border-radius: 25px; padding: 1em;'>" +
         "<a href='https://github.com/C-Nedelcu/talk-to-chatgpt/wiki/Status-page' target=_blank style='font-size: 16px; color: orange;'>If something doesn't appear to work, click here for status and troubleshooting</a>." +
         "<br />Thank you for not instantly posting a 1-star review on the extension store if something doesn't work as expected :-) This is a free program I do in my spare time and I appreciate constructive criticism. Make sure to tell me what's wrong and I will look into it." +
         "</div>";
@@ -1332,11 +1332,6 @@ function CN_OnSettingsIconClick() {
     // 7. ElevenLabs warning
     rows += "<tr class='CNElevenLabs' style='display: none;'><td colspan=2>Warning: the ElevenLabs API is experimental. It doesn't work with every language, make sure you check the list of supported language from their website. We will keep up with ElevenLabs progress to ensure all ElevenLabs API functionality is available in Talk-to-ChatGPT.</td></tr>";
 
-    // Prepare save/close buttons
-    rows += "<tr><td colspan=2 style='text-align: center'><br />" +
-        "<button class='TTGPTSave' style='border: 2px solid grey; border-radius: 4px; padding: 6px 24px; font-size: 18px; font-weight: bold; opacity: 0.7;'>✓ Save</button>&nbsp;" +
-        "<button class='TTGPTCancel' style='border: 2px solid grey; border-radius: 4px; padding: 6px 24px; margin-left: 40px; font-size: 18px; opacity: 0.7;'>✗ Cancel</button></td></tr></table>";
-
     // Header - vocal commands
     rows += "</table><br /><h2>Voice control</h2><b>PLEASE NOTE! </b> These commands only work when the microphone is actively listening / when the speech-to-text functionality is active (indicated by a red bar). " +
         "The system <i>cannot</i> listen to voice commands while the bot is speaking (green bar or grey bar) otherwise, it would be listening to itself and create an infinite feedback loop.<br />";
@@ -1356,11 +1351,6 @@ function CN_OnSettingsIconClick() {
 
     // 9. Manual send word
     rows += "<tr><td style='white-space: nowrap'>Manual send word(s):</td><td><input type=text id='TTGPTSendWord' style='width: 250px; padding: 2px; color: black;' value='" + CN_SAY_THIS_TO_SEND + "' /><span style='font-size: 10px;'>If 'automatic send' is disabled, you can trigger the sending of the message by saying this word (or sequence of words)</span></td></tr>";
-
-    // Prepare save/close buttons
-    rows += "<tr><td colspan=2 style='text-align: center'><br />" +
-        "<button class='TTGPTSave' style='border: 2px solid grey; border-radius: 4px; padding: 6px 24px; font-size: 18px; font-weight: bold; opacity: 0.7;'>✓ Save</button>&nbsp;" +
-        "<button class='TTGPTCancel' style='border: 2px solid grey; border-radius: 4px; padding: 6px 24px; margin-left: 40px; font-size: 18px; opacity: 0.7;'>✗ Cancel</button></td></tr></table>";
 
     // Header - advanced options
     rows += "</table><br /><h2>Advanced settings</h2>";
@@ -1383,11 +1373,6 @@ function CN_OnSettingsIconClick() {
         "<li>ALT+SHIFT+L: skip current message (<u>L</u>eap)</li>" +
         "</ul></td></tr>";
 
-    // Prepare save/close buttons
-    rows += "<tr><td colspan=2 style='text-align: center'><br />" +
-        "<button class='TTGPTSave' style='border: 2px solid grey; border-radius: 4px; padding: 6px 24px; font-size: 18px; font-weight: bold; opacity: 0.7;'>✓ Save</button>&nbsp;" +
-        "<button class='TTGPTCancel' style='border: 2px solid grey; border-radius: 4px; padding: 6px 24px; margin-left: 40px; font-size: 18px; opacity: 0.7;'>✗ Cancel</button></td></tr></table>";
-
     // Add donations frame
     var donations = "<br/><h2>Support the project</h2><p style='font-size: 15px; margin-top: 15px;'>Are you enjoying Talk-To-ChatGPT and want me to continue improving it? \n" +
         "\t\t<b>You can help by making a donation to the project.</b> \n" +
@@ -1396,12 +1381,27 @@ function CN_OnSettingsIconClick() {
         "\t\t\t<img src='https://edunext.com.sg/paypal.png' alt='' height=80 style='height: 80px;' />\n" +
         "\t\t</a></center>";
 
-    // Open a whole screenful of settings
-    jQuery("body").append("<div style='background: rgba(0,0,0,0.8); position: absolute; overflow-y: auto; top: 0; right: 0; left: 0; bottom: 0; z-index: 999999; padding: 20px; color: white; font-size: 13px;' id='TTGPTSettingsArea'>" +
-        "<div style='width: 600px; margin-left: auto; margin-right: auto; overflow-y: auto;'><h1>⚙️ Talk-to-ChatGPT settings</h1>" + desc + rows + donations + "</div></div>");
+    var saveButtons = `<div style="background-color:#060606; display: flex; position: fixed; bottom: 0; padding: 25px 0; left: 0; justify-content: center; width: 100%">
+        <button class='TTGPTSave' style='border: 2px solid grey; border-radius: 4px; padding: 6px 24px; font-size: 18px; font-weight: bold; opacity: 0.7;'>✓ Save</button>&nbsp;
+        <button class='TTGPTCancel' style='border: 2px solid grey; border-radius: 4px; padding: 6px 24px; margin-left: 40px; font-size: 18px; opacity: 0.7;'>✗ Cancel</button></div>`;
+
+    // Open the settings page fullscreen
+    jQuery("body").append("<div style='margin-bottom: 90px; background: rgb(56,61,65); position: absolute; overflow-y: auto; top: 0; right: 0; left: 0; bottom: 0; z-index: 999999; padding: 20px; color: white; font-size: 1rem;font-family: sans-serif;' id='TTGPTSettingsArea'>" +
+        saveButtons + "<div style='width: 600px; margin-left: auto; margin-right: auto; overflow-y: auto;'><h1>⚙️ Talk-to-ChatGPT settings</h1>" + desc + rows + donations+ "</div></div>");
 
     // Assign events
     setTimeout(function () {
+        //handle on escape pressed to close settings window
+        jQuery(document).on('keydown', function (e) {
+           if(e.key === "Escape") {
+               CN_SaveSettings();
+               CN_CloseSettingsDialog();
+
+               // Unbind the escape key press event after it has been pressed once
+               $(document).off('keydown');
+           }
+        });
+
         jQuery(".TTGPTSave").on("click", CN_SaveSettings);
         jQuery(".TTGPTCancel").on("click", CN_CloseSettingsDialog);
 
