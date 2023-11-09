@@ -71,6 +71,8 @@ var CN_TTS_ELEVENLABS_MODELS = {
 var CN_TTS_ELEVENLABS_STABILITY = "";
 var CN_TTS_ELEVENLABS_SIMILARITY = "";
 
+//Volume slider value
+var CN_TTS_VOLUME = 0.5;
 // ----------------------------
 
 
@@ -165,6 +167,7 @@ function CN_SayOutLoud(text) {
     console.log("[BROWSER] Saying out loud: " + text);
     var msg = new SpeechSynthesisUtterance();
     msg.text = text;
+    msg.volume = CN_TTS_VOLUME;
 
     if (CN_WANTED_VOICE) msg.voice = CN_WANTED_VOICE;
     msg.rate = CN_TEXT_TO_SPEECH_RATE;
@@ -966,7 +969,8 @@ function CN_PlaySound(audioData, onEnded, transcript) {
             "audio": audioData,
             "onEnded": typeof onEnded == "undefined" ? "" : onEnded,
             "transcript": transcript,
-            "messageId": CN_ELEVENLABS_SOUND_INDEX
+            "messageId": CN_ELEVENLABS_SOUND_INDEX,
+            "volume": CN_TTS_VOLUME
         }
     });
     CN_ELEVENLABS_SOUND_INDEX++;
@@ -1143,6 +1147,11 @@ function CN_InitScript() {
         "</td>" +
         "</tr></table>" +
 
+        //volume slider
+        "<div style=''>" +
+        "  <input type='range' step='0.1' id='cnVolumeSlider' min='0' max='1' value='.75'>" +
+        "</div>" +
+
         // Colored bar - transparent by default, red when mic on, green when bot speaks
         "<div style='padding-top: 12px; padding-bottom: 6px;'>" +
         "<div id='CNStatusBar' style='background: grey; width: 100%; height: 8px; border-radius: 4px; overflow: hidden;'>&nbsp;</div>" +
@@ -1185,8 +1194,31 @@ function CN_InitScript() {
             jQuery(this).css("opacity", 0.7);
         });
 
+        //set initial slider volume
+        chrome.storage.local.get(["CN_TTS_VOLUME"]).then((result) => {
+            if (result !== undefined && result.CN_TTS_VOLUME) {
+                CN_TTS_VOLUME = result.CN_TTS_VOLUME;
+                jQuery('#cnVolumeSlider').val(CN_TTS_VOLUME);
+            }
+        });
+
+        //handle vol val change
+        jQuery('#cnVolumeSlider').on('change', function () {
+            CN_TTS_VOLUME = jQuery(this).val();
+
+            chrome.storage.local.set({"CN_TTS_VOLUME": CN_TTS_VOLUME});
+            console.log("[VOLUME] changed " + CN_TTS_VOLUME);
+        });
+
+
         // Make TTGPTSettings draggable
         jQuery("#TTGPTSettings").mousedown(function (e) {
+
+            // Check if the mousedown event is on the slider - if yes, return and do not initiate dragging
+            if (jQuery(e.target).is('#cnVolumeSlider') || jQuery(e.target).closest('#cnVolumeSlider').length) {
+                return;
+            }
+
             window.my_dragging = {};
             my_dragging.pageX0 = e.pageX;
             my_dragging.pageY0 = e.pageY;
@@ -1387,13 +1419,13 @@ function CN_OnSettingsIconClick() {
 
     // Open the settings page fullscreen
     jQuery("body").append("<div style='margin-bottom: 90px; background: rgb(56,61,65); position: absolute; overflow-y: auto; top: 0; right: 0; left: 0; bottom: 0; z-index: 999999; padding: 20px; color: white; font-size: 1rem;font-family: sans-serif;' id='TTGPTSettingsArea'>" +
-        saveButtons + "<div style='width: 600px; margin-left: auto; margin-right: auto; overflow-y: auto;'><h1>⚙️ Talk-to-ChatGPT settings</h1>" + desc + rows + donations+ "</div></div>");
+        saveButtons + "<div style='width: 600px; margin-left: auto; margin-right: auto; overflow-y: auto;'><h1>⚙️ Talk-to-ChatGPT settings</h1>" + desc + rows + donations + "</div></div>");
 
     // Assign events
     setTimeout(function () {
         //handle on escape pressed to close settings window
         jQuery(document).on('keydown', function (e) {
-            if(e.key === "Escape" && jQuery('#TTGPTSettingsArea').length !== 0) {
+            if (e.key === "Escape" && jQuery('#TTGPTSettingsArea').length !== 0) {
                 CN_SaveSettings();
                 CN_CloseSettingsDialog();
             }
@@ -1414,9 +1446,9 @@ function CN_OnSettingsIconClick() {
 
         // handle api key hide/show
         jQuery('#TTGPTElevenLabsKeyVisibility').prop('checked', CN_TTS_ELEVENLABS_APIKEY_HIDDEN);
-        jQuery('#TTGPTElevenLabsKeyVisibility').on('change', function() {
+        jQuery('#TTGPTElevenLabsKeyVisibility').on('change', function () {
             CN_TTS_ELEVENLABS_APIKEY_HIDDEN = jQuery(this).prop('checked');
-            if(CN_TTS_ELEVENLABS_APIKEY_HIDDEN) {
+            if (CN_TTS_ELEVENLABS_APIKEY_HIDDEN) {
                 jQuery('#TTGPTElevenLabsKey').attr('type', 'password');
             } else {
                 jQuery('#TTGPTElevenLabsKey').attr('type', 'text');
@@ -1444,7 +1476,6 @@ function CN_OnSettingsIconClick() {
         jQuery("#TTGPTElevenLabsKey").on("change", function () {
             CN_RefreshElevenLabsVoiceList(true);
         });
-
 
 
     }, 100);
@@ -1514,7 +1545,7 @@ function CN_SaveSettings() {
         ];
         CN_SetCookie("CN_TTGPT", JSON.stringify(settings));
     } catch (e) {
-        alert('Invalid settings values. ' + e.toString());
+        console.error('Invalid settings values. ' + e.toString());
         return;
     }
 
@@ -1550,6 +1581,7 @@ function CN_RestoreSettings() {
             if (settings.hasOwnProperty(14)) CN_TTS_ELEVENLABS_STABILITY = settings[14];
             if (settings.hasOwnProperty(15)) CN_TTS_ELEVENLABS_SIMILARITY = settings[15];
             if (settings.hasOwnProperty(16)) CN_SPEAK_EMOJIS = settings[16] == 1;
+            if (settings.hasOwnProperty(17)) CN_TTS_ELEVENLABS_APIKEY_HIDDEN = settings[17] == 1;
         }
     } catch (ex) {
         console.error(ex);

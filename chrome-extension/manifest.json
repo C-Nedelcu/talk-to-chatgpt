@@ -11,9 +11,9 @@
 		},
 		"default_title": "Talk-to-ChatGPT V2.8.2"
 	},
-	"content_scripts":[
+	"content_scripts": [
 		{
-			"matches":[
+			"matches": [
 				"https://chat.openai.com/*"
 			],
 			"js": ["jquery.min.js", "fontawesome.min.js", "content.js"]
@@ -29,6 +29,10 @@
 		"service_worker": "background.js"
 	},
 	"permissions": [
+		"storage",
 		"offscreen"
+	],
+	"host_permissions": [
+		"https://chat.openai.com/*"
 	]
 }

@@ -22,9 +22,16 @@ async function sendMessageToOffscreenDocument(type, data) {
 chrome.runtime.onMessage.addListener(handleMessages);
 
 async function handleMessages(message) {
-  if (message.type === "playSound") {
-    await sendMessageToOffscreenDocument('playSound', message.data);
-  } else if (message.type === "continueElevenLabs") {
+    if (message.type === "playSound") {
+      return await sendMessageToOffscreenDocument('playSound', message.data);
+    } else if (message.type === "changeVolume") {
+      return await sendMessageToOffscreenDocument("changeVolume", message.data);
+    } else if (message.type === "continueElevenLabs") {
+        return await handleElevenLabs();
+    }
+}
+
+async function handleElevenLabs() {
     try {
       const tabs = await chrome.tabs.query({});
       for (const activeTab of tabs) {
@@ -33,7 +40,6 @@ async function handleMessages(message) {
     } catch (error) {
       console.error(`Error in handling continueElevenLabs: ${error}`);
     }
-  }
 }
 
 async function closeOffscreenDocument() {
