@@ -3,19 +3,31 @@ let AUDIO_PLAYER = null;
 
 // Listen for messages from the extension
 chrome.runtime.onMessage.addListener(msg => {
-  console.log(msg);
   if (msg.type === "playSound" && 'data' in msg)  {
     playAudio(msg.data);
+  }
+
+  if(msg.type === "changeVolume" && 'data' in msg) {
+    changeVolume(msg.data.volume);
   }
 });
 
 
+//change player
+function changeVolume(vol) {
+  if(vol <= 0 || vol >= 1) {
+    return;
+  }
+
+  if(AUDIO_PLAYER !== null) {
+    AUDIO_PLAYER.volume = vol;
+  }
+}
+
 // Play sound with access to DOM APIs
 function playAudio(source) {
   const messageId = `${source.messageId}${source.onEnded}`;
-  let volume = source.volume || 0.1;
-  console.log(`offscreen.js: Audio volume ${volume}`);
-  
+
   if (MESSAGES_PLAYED.has(messageId)) {
     console.log(`offscreen.js: Message ${messageId} already played once`);
     return;
@@ -38,7 +50,7 @@ function playAudio(source) {
 
   // Set source and attributes
   AUDIO_PLAYER.src = source.audio;
-  AUDIO_PLAYER.volume = volume;
+  AUDIO_PLAYER.volume = source.volume;
 
   if (source.onEnded === "elevenlabs") {
     AUDIO_PLAYER.onended = function () {

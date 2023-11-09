@@ -72,7 +72,7 @@ var CN_TTS_ELEVENLABS_STABILITY = "";
 var CN_TTS_ELEVENLABS_SIMILARITY = "";
 
 //Volume slider value
-let CN_TTS_VOLUME = 0.5;
+var CN_TTS_VOLUME = 0.5;
 // ----------------------------
 
 
@@ -167,6 +167,7 @@ function CN_SayOutLoud(text) {
     console.log("[BROWSER] Saying out loud: " + text);
     var msg = new SpeechSynthesisUtterance();
     msg.text = text;
+    msg.volume = CN_TTS_VOLUME;
 
     if (CN_WANTED_VOICE) msg.voice = CN_WANTED_VOICE;
     msg.rate = CN_TEXT_TO_SPEECH_RATE;
@@ -1193,10 +1194,22 @@ function CN_InitScript() {
             jQuery(this).css("opacity", 0.7);
         });
 
+        //set initial slider volume
+        chrome.storage.local.get(["CN_TTS_VOLUME"]).then((result) => {
+            if (result !== undefined && result.CN_TTS_VOLUME) {
+                CN_TTS_VOLUME = result.CN_TTS_VOLUME;
+                jQuery('#cnVolumeSlider').val(CN_TTS_VOLUME);
+            }
+        });
+
+        //handle vol val change
         jQuery('#cnVolumeSlider').on('change', function () {
             CN_TTS_VOLUME = jQuery(this).val();
-            chrome.storage.local.set({ "CN_TTS_VOLUME": CN_TTS_VOLUME });
+
+            chrome.storage.local.set({"CN_TTS_VOLUME": CN_TTS_VOLUME});
+            console.log("[VOLUME] changed " + CN_TTS_VOLUME);
         });
+
 
         // Make TTGPTSettings draggable
         jQuery("#TTGPTSettings").mousedown(function (e) {
@@ -1406,13 +1419,13 @@ function CN_OnSettingsIconClick() {
 
     // Open the settings page fullscreen
     jQuery("body").append("<div style='margin-bottom: 90px; background: rgb(56,61,65); position: absolute; overflow-y: auto; top: 0; right: 0; left: 0; bottom: 0; z-index: 999999; padding: 20px; color: white; font-size: 1rem;font-family: sans-serif;' id='TTGPTSettingsArea'>" +
-        saveButtons + "<div style='width: 600px; margin-left: auto; margin-right: auto; overflow-y: auto;'><h1>⚙️ Talk-to-ChatGPT settings</h1>" + desc + rows + donations+ "</div></div>");
+        saveButtons + "<div style='width: 600px; margin-left: auto; margin-right: auto; overflow-y: auto;'><h1>⚙️ Talk-to-ChatGPT settings</h1>" + desc + rows + donations + "</div></div>");
 
     // Assign events
     setTimeout(function () {
         //handle on escape pressed to close settings window
         jQuery(document).on('keydown', function (e) {
-            if(e.key === "Escape" && jQuery('#TTGPTSettingsArea').length !== 0) {
+            if (e.key === "Escape" && jQuery('#TTGPTSettingsArea').length !== 0) {
                 CN_SaveSettings();
                 CN_CloseSettingsDialog();
             }
@@ -1433,9 +1446,9 @@ function CN_OnSettingsIconClick() {
 
         // handle api key hide/show
         jQuery('#TTGPTElevenLabsKeyVisibility').prop('checked', CN_TTS_ELEVENLABS_APIKEY_HIDDEN);
-        jQuery('#TTGPTElevenLabsKeyVisibility').on('change', function() {
+        jQuery('#TTGPTElevenLabsKeyVisibility').on('change', function () {
             CN_TTS_ELEVENLABS_APIKEY_HIDDEN = jQuery(this).prop('checked');
-            if(CN_TTS_ELEVENLABS_APIKEY_HIDDEN) {
+            if (CN_TTS_ELEVENLABS_APIKEY_HIDDEN) {
                 jQuery('#TTGPTElevenLabsKey').attr('type', 'password');
             } else {
                 jQuery('#TTGPTElevenLabsKey').attr('type', 'text');
@@ -1463,7 +1476,6 @@ function CN_OnSettingsIconClick() {
         jQuery("#TTGPTElevenLabsKey").on("change", function () {
             CN_RefreshElevenLabsVoiceList(true);
         });
-
 
 
     }, 100);
@@ -1529,12 +1541,11 @@ function CN_SaveSettings() {
             CN_TTS_ELEVENLABS_STABILITY,
             CN_TTS_ELEVENLABS_SIMILARITY,
             CN_SPEAK_EMOJIS ? 1 : 0,
-            CN_TTS_ELEVENLABS_APIKEY_HIDDEN ? 1 : 0,
-            CN_TTS_VOLUME
+            CN_TTS_ELEVENLABS_APIKEY_HIDDEN ? 1 : 0
         ];
         CN_SetCookie("CN_TTGPT", JSON.stringify(settings));
     } catch (e) {
-        alert('Invalid settings values. ' + e.toString());
+        console.error('Invalid settings values. ' + e.toString());
         return;
     }
 
@@ -1570,8 +1581,7 @@ function CN_RestoreSettings() {
             if (settings.hasOwnProperty(14)) CN_TTS_ELEVENLABS_STABILITY = settings[14];
             if (settings.hasOwnProperty(15)) CN_TTS_ELEVENLABS_SIMILARITY = settings[15];
             if (settings.hasOwnProperty(16)) CN_SPEAK_EMOJIS = settings[16] == 1;
-            if(settings.hasOwnProperty(17)) CN_TTS_ELEVENLABS_APIKEY_HIDDEN = settings[17] == 1;
-            if(settings.hasOwnProperty(18)) CN_TTS_VOLUME = settings[18];
+            if (settings.hasOwnProperty(17)) CN_TTS_ELEVENLABS_APIKEY_HIDDEN = settings[17] == 1;
         }
     } catch (ex) {
         console.error(ex);
