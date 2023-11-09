@@ -29,6 +29,7 @@
 		"service_worker": "background.js"
 	},
 	"permissions": [
-		"offscreen"
+		"offscreen",
+		"storage"
 	]
 }
