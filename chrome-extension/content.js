@@ -1393,13 +1393,10 @@ function CN_OnSettingsIconClick() {
     setTimeout(function () {
         //handle on escape pressed to close settings window
         jQuery(document).on('keydown', function (e) {
-           if(e.key === "Escape") {
-               CN_SaveSettings();
-               CN_CloseSettingsDialog();
-
-               // Unbind the escape key press event after it has been pressed once
-               $(document).off('keydown');
-           }
+            if(e.key === "Escape" && jQuery('#TTGPTSettingsArea').length !== 0) {
+                CN_SaveSettings();
+                CN_CloseSettingsDialog();
+            }
         });
 
         jQuery(".TTGPTSave").on("click", CN_SaveSettings);
