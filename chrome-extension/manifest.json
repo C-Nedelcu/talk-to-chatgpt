@@ -1,7 +1,7 @@
 {
 	"manifest_version": 3,
 	"name": "Talk-to-ChatGPT",
-	"version": "2.8.1",
+	"version": "2.8.2",
 	"description": "Talk to ChatGPT through your microphone and hear its responses with a voice. Uses speech recognition and text-to-speech technologies",
 	"action": {
 		"default_popup": "popup.html",
@@ -9,11 +9,11 @@
 		  "16": "images/icon-16.png",
 		  "32": "images/icon-32.png"
 		},
-		"default_title": "Talk-to-ChatGPT V2.8.1"
+		"default_title": "Talk-to-ChatGPT V2.8.2"
 	},
-	"content_scripts":[
+	"content_scripts": [
 		{
-			"matches":[
+			"matches": [
 				"https://chat.openai.com/*"
 			],
 			"js": ["jquery.min.js", "fontawesome.min.js", "content.js"]
@@ -29,6 +29,10 @@
 		"service_worker": "background.js"
 	},
 	"permissions": [
+		"storage",
 		"offscreen"
+	],
+	"host_permissions": [
+		"https://chat.openai.com/*"
 	]
 }
