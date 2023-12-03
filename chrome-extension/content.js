@@ -1,7 +1,7 @@
 ﻿// TALK TO CHATGPT
 // ---------------
 // Author		: C. NEDELCU
-// Version		: 2.8.1 (17/09/2023)
+// Version		: 2.9.0 (03/12/2023)
 // Git repo 	: https://github.com/C-Nedelcu/talk-to-chatgpt
 // Chat GPT URL	: https://chat.openai.com/chat
 // How to use   : https://www.youtube.com/watch?v=VXkLQMEs3lA
@@ -58,9 +58,13 @@ var CN_TTS_ELEVENLABS_APIKEY = "";
 var CN_TTS_ELEVENLABS_VOICE = "";
 
 // Statically list ElevenLabs models (easier than to request from API)
-var CN_TTS_ELEVENLABS_MODELS = {"eleven_monolingual_v1": "English only",
+var CN_TTS_ELEVENLABS_MODELS = {
+	"eleven_monolingual_v1": "English only",
 	"eleven_multilingual_v2": "Multi-language (autodetect) V2",
-	"eleven_multilingual_v1": "Multi-language (autodetect) V1"};
+	"eleven_multilingual_v1": "Multi-language (autodetect) V1",
+	"eleven_english_sts_v2": "Eleven English v2",
+	"eleven_turbo_v2": "Eleven Turbo v2"
+};
 
 // Other ElevenLabs settings
 var CN_TTS_ELEVENLABS_STABILITY = "";
@@ -337,7 +341,9 @@ function processAzurePlaybackQueue() {
 }
 
 function getAzureVoices(apikey, region) {
-
+	if (!region) return;
+	if (!apikey) return;
+	
     // Define the endpoint
     var endpoint = `https://${region}.tts.speech.microsoft.com/cognitiveservices/voices/list`;
 
@@ -1279,7 +1285,7 @@ function CN_InitScript() {
 				"<a href='https://github.com/C-Nedelcu/talk-to-chatgpt' " +
 					"style='display: inline-block; font-size: 16px; line-height: 80%; padding: 4px 0;' " +
 					"target=_blank title='Visit project website'>TALK-TO-ChatGPT<br />" +
-					"<div style='text-align: right; font-size: 11px; color: grey'>V2.8.1</div>" +
+					"<div style='text-align: right; font-size: 11px; color: grey'>V2.9.0</div>" +
 				"</a>" +
 			"</div>" +
 			
@@ -1463,13 +1469,13 @@ function CN_OnSettingsIconClick() {
 	}
 	rows += "<tr><td style='white-space: nowrap'>Speech recognition language:</td><td><select id='TTGPTRecLang' style='width: 250px; padding: 2px; color: black;' >"+languages+"</select></td></tr>";
 	
-	rows += "<tr class='CNBrowserTTS' ><td style='white-space: nowrap'>AI voice and language:</td><td><select id='TTGPTVoice' style='width: 250px; padding: 2px; color: black'>" + voices + "</select></td></tr>";
+	rows += "<tr class='CNBrowserTTS' id='CNBrowserTTS0'><td style='white-space: nowrap'>AI voice and language:</td><td><select id='TTGPTVoice' style='width: 250px; padding: 2px; color: black'>" + voices + "</select></td></tr>";
 	
 	// 2. AI talking speed
-	rows += "<tr class='CNBrowserTTS' ><td style='white-space: nowrap'>AI talking speed (speech rate):</td><td><input type=number step='.1' id='TTGPTRate' style='color: black; padding: 2px; width: 100px;' value='" + CN_TEXT_TO_SPEECH_RATE + "' /></td></tr>";
+	rows += "<tr class='CNBrowserTTS' id='CNBrowserTTS1'><td style='white-space: nowrap'>AI talking speed (speech rate):</td><td><input type=number step='.1' id='TTGPTRate' style='color: black; padding: 2px; width: 100px;' value='" + CN_TEXT_TO_SPEECH_RATE + "' /></td></tr>";
 	
 	// 3. AI voice pitch
-	rows += "<tr class='CNBrowserTTS' ><td style='white-space: nowrap'>AI voice pitch:</td><td><input type=number step='.1' id='TTGPTPitch' style='width: 100px; padding: 2px; color: black;' value='" + CN_TEXT_TO_SPEECH_PITCH + "' /></td></tr>";
+	rows += "<tr class='CNBrowserTTS' id='CNBrowserTTS2'><td style='white-space: nowrap'>AI voice pitch:</td><td><input type=number step='.1' id='TTGPTPitch' style='width: 100px; padding: 2px; color: black;' value='" + CN_TEXT_TO_SPEECH_PITCH + "' /></td></tr>";
 
 	// 4. ElevenLabs
 	rows += "<tr><td style='white-space: nowrap'>ElevenLabs text-to-speech:</td><td><input type=checkbox id='TTGPTElevenLabs' " + (CN_TTS_ELEVENLABS ? "checked=checked" : "") + " /> <label for='TTGPTElevenLabs'> Use ElevenLabs API for text-to-speech (tick this to reveal additional settings)</label></td></tr>";
@@ -1490,8 +1496,6 @@ function CN_OnSettingsIconClick() {
 	
 	// 7. ElevenLabs warning
 	rows += "<tr class='CNElevenLabs' style='display: none;'><td colspan=2>Warning: the ElevenLabs API is experimental. It doesn't work with every language, make sure you check the list of supported language from their website. We will keep up with ElevenLabs progress to ensure all ElevenLabs API functionality is available in Talk-to-ChatGPT.</td></tr>";
-	
-
 
 	// Azure text-to-speech
 	rows += "<tr><td style='white-space: nowrap'>Azure text-to-speech:</td><td><input type=checkbox id='TTGPTAzureTTS' " + (CN_TTS_AZURE ? "checked=checked" : "") + " /> <label for='TTGPTAzureTTS'> Use Azure API for text-to-speech (tick this to reveal additional settings)</label></td></tr>";
@@ -1579,19 +1583,10 @@ function CN_OnSettingsIconClick() {
 		jQuery(".TTGPTSave").on("click", CN_SaveSettings);
 		jQuery(".TTGPTCancel").on("click", CN_CloseSettingsDialog);
 		
-		// Is ElevenLabs enabled? toggle visibility, refresh voice list
-		if (CN_TTS_ELEVENLABS) {
-			jQuery(".CNElevenLabs").show();
-			jQuery(".CNBrowserTTS").hide();
-			CN_RefreshElevenLabsVoiceList(true);
-		} else {
-			jQuery(".CNElevenLabs").hide();
-			jQuery(".CNBrowserTTS").show();
-		}
-		
 		// When the ElevenLabs option is changed
 		jQuery("#TTGPTElevenLabs").on("change", function() {
 			if (jQuery(this).prop("checked")) {
+				jQuery("#TTGPTAzureTTS").prop("checked", false).trigger("change");
 				jQuery(".CNElevenLabs").show();
 				jQuery(".CNBrowserTTS").hide();
 				CN_RefreshElevenLabsVoiceList(true);
@@ -1612,8 +1607,7 @@ function CN_OnSettingsIconClick() {
 			CN_RefreshElevenLabsVoiceList(true);
 		});
 
-
-
+		
 		if (CN_TTS_AZURE) {
 			// Enable Azure feature
 			jQuery(".CNAzureTTS").show();
@@ -1638,10 +1632,14 @@ function CN_OnSettingsIconClick() {
 		// When the Azure TTS option is changed
 		jQuery("#TTGPTAzureTTS").on("change", function() {
 			if (jQuery(this).prop("checked")) {
-			jQuery(".CNAzureTTS").show();
-			jQuery(".CNElevenLabs").hide(); // Hide ElevenLabs settings if Azure is selected
+				jQuery("#TTGPTElevenLabs").prop("checked", false).trigger("change");
+				jQuery(".CNAzureTTS").show();
+				jQuery(".CNBrowserTTS").hide();
+				jQuery(".CNElevenLabs").hide(); // Hide ElevenLabs settings if Azure is selected
+				refreshAzureVoices();
 			} else {
-			jQuery(".CNAzureTTS").hide();
+				jQuery(".CNAzureTTS").hide();
+				jQuery(".CNBrowserTTS").show();
 			}
 		});
 
@@ -1659,7 +1657,11 @@ function CN_OnSettingsIconClick() {
 			refreshAzureVoices();
 		});
 		
-		
+		// Is ElevenLabs enabled? toggle visibility, refresh voice list
+		setTimeout(function() {
+			$("#TTGPTElevenLabs").trigger("change");
+			$("#TTGPTAzureTTS").trigger("change");
+		}, 50);
 	}, 100);
 }
 
@@ -1908,9 +1910,14 @@ function CN_RefreshElevenLabsVoiceList(useKeyFromTextField) {
 					if (sel) found = true;
 					
 					// Add to proper list
-					var isMultiling = typeof result.voices[i].high_quality_base_model_ids == "object" ? result.voices[i].high_quality_base_model_ids.length : 0;
-					if (modelIndex == 1 && isMultiling) continue;
-					if (modelIndex > 1 && !isMultiling) continue;
+					var isMultiling = typeof result.voices[i].high_quality_base_model_ids == "object" ?
+						result.voices[i].high_quality_base_model_ids.length : 0;
+					var isCloned = result.voices[i].category == "cloned";
+					if (!isCloned) {
+						// Cloned voices can be used with all models
+						if (modelIndex == 1 && isMultiling) continue;
+						if (modelIndex > 1 && !isMultiling) continue;
+					}
 					optionList += "<option value='" + id + "' " + sel + ">" + name + "</option>";
 				}
 				optionList += "</optgroup>";
