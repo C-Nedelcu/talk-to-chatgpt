@@ -1,7 +1,7 @@
-﻿// TALK TO CHATGPT
+// TALK TO CHATGPT
 // ---------------
 // Author		: C. NEDELCU
-// Version		: 2.7.2 (17/09/2023)
+// Version		: 2.9.0 (17/09/2023)
 // Git repo 	: https://github.com/C-Nedelcu/talk-to-chatgpt
 // Chat GPT URL	: https://chat.openai.com/chat
 // How to use   : https://www.youtube.com/watch?v=VXkLQMEs3lA
@@ -1107,23 +1107,25 @@ function CN_InitScript() {
 	// Add icons on the top right corner
 	jQuery("body").append(
 		"<div style='position: fixed; top: 50px; right: 16px; display: inline-block; " +
-		"background: #41464c; color: white; padding: 0; font-size: 16px; border-radius: 8px; text-align: center;" +
-		"cursor: move; font-weight: bold; z-index: 1111;' id='TTGPTSettings'>" +
+		"background: #41464cDD; color: white; padding: 0; font-size: 14px; border-radius: 4px; text-align: center;" +
+			"cursor: move; font-weight: bold; z-index: 1111;' id='TTGPTSettings'>" +
 		
 		// Minimize button
-		"<button id='minimizeButton' style='display: flex; align-items: center; position: absolute; padding: 0 5px; top: 7px; right: 10px; z-index: 1000; border: 2px solid grey; border-radius: 3px; height: 10px; user-select: none;'>-</button>" +
+		"<button id='minimizeButton' style='display: flex; align-items: center; position: absolute; padding: 2px 5px; top: 7px; right: 7px; z-index: 1000; border: 2px solid grey; border-radius: 3px; height: 12px; user-select: none;'>-</button>" +
 		
 		// Minimized icon HTML
 		"<img id='minimizedIcon' src='https://lh3.googleusercontent.com/ufCa1c1doD50YSxS3L66-0_lasxCwSrZGcBxYgLHSGidy1aTQE0RL5yx6FLMnepLDUlIiK2VkCb67RYOJpnzNJmv3g=s60' alt='TTGPT icon' style='height: 32px; display: none; user-select: none; user-drag: none; -webkit-user-drag: none;'/>" +
 			
-		// Logo / title
-		"<div id='logoContainer' style='padding: 4px 40px; border-bottom: 1px solid grey;'>" +
-			"<a href='https://github.com/C-Nedelcu/talk-to-chatgpt' " +
-				"style='display: inline-block; font-size: 20px; line-height: 80%; padding: 8px 0;' " +
-				"target=_blank title='Visit project website'>TALK-TO-ChatGPT<br />" +
-				"<div style='text-align: right; font-size: 12px; color: grey'>V2.7.2</div>" +
-			"</a>" +
-		"</div>" +
+		
+		
+			// Logo / title
+			"<div style='padding: 4px 30px; border-bottom: 1px solid grey;'>" +
+				"<a href='https://github.com/C-Nedelcu/talk-to-chatgpt' " +
+					"style='display: inline-block; font-size: 16px; line-height: 80%; padding: 4px 0;' " +
+					"target=_blank title='Visit project website'>TALK-TO-ChatGPT<br />" +
+					"<div style='text-align: right; font-size: 11px; color: grey'>V2.9.0</div>" +
+				"</a>" +
+			"</div>" +
 			
 			// Below logo
 			"<div>" +
@@ -1195,6 +1197,7 @@ function CN_InitScript() {
             $('#logoContainer').css({ padding: '4px 40px' });
             $('#TTGPTSettings').css({ width: 'auto', height: 'auto' });
 			$('#minimizedIcon').css({ display: 'none' });
+			$('#minimizeButton').css({ right: '7px' });
             isMinimized = false;
         } else {
 			// Minimize the size
@@ -1202,6 +1205,7 @@ function CN_InitScript() {
             $('#logoContainer').css({ padding: '4px 0px' });
             $('#TTGPTSettings').css({ width: '40px', height: '60px' });
 			$('#minimizedIcon').css({ display: 'block', bottom: '4px', right: '4px', position: 'absolute' });
+			$('#minimizeButton').css({ right: '10px' });
             isMinimized = true;
         }
     });

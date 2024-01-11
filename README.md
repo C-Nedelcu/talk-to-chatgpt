@@ -69,9 +69,22 @@ Talk-to-ChatGPT has been receiving press coverage since its release. It is curre
 * JustGeek - https://www.justgeek.fr/talk-to-chatgpt-discuter-a-voix-haute-avec-chatgpt-103657/
 * Comment Ca Marche - https://www.commentcamarche.net/informatique/technologies/27295-application-et-extension-vocale-chatgpt-de-nouveaux-outils-pour-l-ia/#talk-to-chatgpt--discuter-a-haute-voix-avec-lia
 * Le Blog du Moderateur - https://www.blogdumoderateur.com/meilleures-extensions-chrome-chatgpt/
+* JackGPT - https://www.youtube.com/watch?v=IlaOq9dFZnA
 * This list will be updated over time.
 
 # Change log
+
+Version 2.9.0 - December 3rd, 2023
+* New: added Azure Text-To-Speech (#210) Full credits: lout33
+* Updated: ElevenLabs - added eleven_english_sts_v2 and eleven_turbo_v2 models
+* Fixed: ElevenLabs - cloned voices can now be used with all models (#200)
+
+Version 2.8.1 - October 9th, 2023
+* Fixed: conflict with OpenAI's new image upload functionality (#189)
+
+Version 2.8.0 - September 30th, 2023
+* Updated: more compact widget (#186)
+* Updated: lot of code refactoring and cleanup (credit: PxPerfectMike)
 
 Version 2.7.2 - September 23rd, 2023
 * New: added an option to prevent the text-to-speech engine from reading emojis (#166) Credit: PxPerfectMike
