@@ -1101,10 +1101,9 @@ const buttonActions = {
 	CN_CURRENT_MESSAGE = null;
   }
 
-// Declare descriptor caches and textarea element outside of any function to cache them.
+// Declare descriptor caches.
 let textareaDescriptorCache = null;
 let prototypeDescriptorCache = null;
-const textarea = jQuery("#prompt-textarea")[0];
 
 // Moved setNativeValue out of CN_SetTextareaValue to avoid re-defining it.
 function setNativeValue(element, value) {
@@ -1128,6 +1127,7 @@ function setNativeValue(element, value) {
 
 // The main function that sets the textarea value and triggers an input event
 function CN_SetTextareaValue(text) {
+  const textarea = jQuery("#prompt-textarea")[0];
   setNativeValue(textarea, text);
   textarea.dispatchEvent(new Event('input', { bubbles: true }));
 }
