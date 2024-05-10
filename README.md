@@ -5,7 +5,7 @@ The extension can be downloaded from here:
 * From the **Edge Web store** here: https://microsoftedge.microsoft.com/addons/detail/talktochatgpt/bkkdkngklccknmoalpoakglipbibafpn
 * Manual installation option, detailed further below
 
-After installing the extension, open or reload the ChatGPT page ( https://chat.openai.com/ ) and you should be seeing a 'Start' button on the top right corner of the page. After you click Start, you will be asked for permission to use your Microphone. This is required to enable voice recognition.
+After installing the extension, open or reload the ChatGPT page ( https://chatgpt.com/ ) and you should be seeing a 'Start' button on the top right corner of the page. After you click Start, you will be asked for permission to use your Microphone. This is required to enable voice recognition.
 
 ![Talk-to-GPT Widget](/images/260-main.png?raw=true "Talk-to-ChatGPT Widget")
 

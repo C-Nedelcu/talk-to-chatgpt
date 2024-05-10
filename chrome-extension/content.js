@@ -3,7 +3,7 @@
 // Author		: C. NEDELCU
 // Version		: 2.9.0 (17/09/2023)
 // Git repo 	: https://github.com/C-Nedelcu/talk-to-chatgpt
-// Chat GPT URL	: https://chat.openai.com/chat
+// Chat GPT URL	: https://chatgpt.com
 // How to use   : https://www.youtube.com/watch?v=VXkLQMEs3lA
 // Credits		: C. NEDELCU (code), pixelsoda (GUI), S. James (GUI)
 
@@ -955,27 +955,37 @@ function CN_ToggleButtonClick() {
 			
 			return;
 	}
+// Global descriptor caches to avoid repeated definitions
+let textareaDescriptorCache = null;
+let prototypeDescriptorCache = null;
+
+// Function to set native value with descriptor caching
+function setNativeValue(element, value) {
+  if (!textareaDescriptorCache || !prototypeDescriptorCache) {
+    textareaDescriptorCache = Object.getOwnPropertyDescriptor(element, 'value') || {};
+    const prototype = Object.getPrototypeOf(element);
+    prototypeDescriptorCache = Object.getOwnPropertyDescriptor(prototype, 'value') || {};
+  }
+
+  const { set: valueSetter } = textareaDescriptorCache;
+  const { set: prototypeValueSetter } = prototypeDescriptorCache;
+
+  if (prototypeValueSetter && valueSetter !== prototypeValueSetter) {
+    prototypeValueSetter.call(element, value);
+  } else if (valueSetter) {
+    valueSetter.call(element, value);
+  } else {
+    throw new Error('The given element does not have a value setter');
+  }
 }
 
-
+// Function to set textarea value and dispatch input event
 function CN_SetTextareaValue(text) {
-    const textarea = jQuery("#prompt-textarea")[0];
-    function setNativeValue(element, value) {
-      const { set: valueSetter } = Object.getOwnPropertyDescriptor(element, 'value') || {}
-      const prototype = Object.getPrototypeOf(element)
-      const { set: prototypeValueSetter } = Object.getOwnPropertyDescriptor(prototype, 'value') || {}
-
-      if (prototypeValueSetter && valueSetter !== prototypeValueSetter) {
-        prototypeValueSetter.call(element, value)
-      } else if (valueSetter) {
-        valueSetter.call(element, value)
-      } else {
-        throw new Error('The given element does not have a value setter')
-      }
-    }
-    setNativeValue(textarea, text)
-    textarea.dispatchEvent(new Event('input', { bubbles: true }))
+  const textarea = jQuery("#prompt-textarea")[0];
+  setNativeValue(textarea, text);
+  textarea.dispatchEvent(new Event('input', { bubbles: true }));
 }
+
 
 function CN_PlaySound(audioData, onEnded, transcript) {
 	//console.log("PlaySound - "+onEnded);
