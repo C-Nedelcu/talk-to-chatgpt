@@ -766,35 +766,47 @@ function CN_CheckNewMessages() {
 
 // Send a message to the bot (will simply put text in the textarea and simulate a send button click)
 function CN_SendMessage(text) {
-	// Put message in textarea
-	jQuery("#prompt-textarea").focus();
-	var existingText = jQuery("#prompt-textarea").val();
-	
-	// Is there already existing text?
-	if (!existingText) CN_SetTextareaValue(text);
-	else CN_SetTextareaValue(existingText+" "+text);
-	
-	// Change height in case
-	var fullText = existingText+" "+text;
-	var rows = Math.ceil( fullText.length / 88);
-	var height = rows * 24;
-	jQuery("#prompt-textarea").css("height", height+"px");
-	
-	// Send the message, if autosend is enabled
-	jQuery("#prompt-textarea").closest("div").find("button:last").prop("disabled", false);
-	if (CN_AUTO_SEND_AFTER_SPEAKING) {
-		jQuery("#prompt-textarea").closest("div").find("button:last").click();
-		
-		// Stop speech recognition until the answer is received
-		if (CN_SPEECHREC) {
-			clearTimeout(CN_TIMEOUT_KEEP_SPEECHREC_WORKING);
-			CN_SPEECHREC.stop();
-		}
-	} else {
-		// No autosend, so continue recognizing
-		clearTimeout(CN_TIMEOUT_KEEP_SPEECHREC_WORKING);
-		CN_TIMEOUT_KEEP_SPEECHREC_WORKING = setTimeout(CN_KeepSpeechRecWorking, 100);
-	}
+        // Find the textarea within the specific class container
+        var textarea = jQuery(".overflow-hidden textarea");
+
+        // Ensure the textarea is found
+        if (!textarea.length) {
+                console.error("Textarea not found");
+                return;
+        }
+
+        // Focus on the textarea and simulate typing
+        textarea.focus();
+        var existingText = textarea.val();
+        var fullText = existingText ? existingText + " " + text : text;
+        var event = new Event('input', { bubbles: true });
+        textarea.val(fullText)[0].dispatchEvent(event);
+
+        // Adjust the height of the textarea
+        var rows = Math.ceil(fullText.length / 88);
+        var height = rows * 24;
+        textarea.css("height", height + "px");
+
+        // Find the send button
+        var sendButton = textarea.closest(".overflow-hidden").find("button[data-testid='send-button']");
+
+        // Remove 'disabled' attribute and class, if present
+        sendButton.removeAttr('disabled').removeClass('disabled');
+
+        // Send the message, if autosend is enabled
+        if (CN_AUTO_SEND_AFTER_SPEAKING) {
+                sendButton[0].click();
+
+                // Additional logic for speech recognition, if applicable
+                if (CN_SPEECHREC) {
+                        clearTimeout(CN_TIMEOUT_KEEP_SPEECHREC_WORKING);
+                        CN_SPEECHREC.stop();
+                }
+        } else {
+                // Continue speech recognition
+                clearTimeout(CN_TIMEOUT_KEEP_SPEECHREC_WORKING);
+                CN_TIMEOUT_KEEP_SPEECHREC_WORKING = setTimeout(CN_KeepSpeechRecWorking, 100);
+        }
 }
 
 // Flash the red bar
