@@ -2,6 +2,8 @@
 
 It's been fun while it lasted, but for various reasons this extension will not be maintained anymore. You are welcome to create forks and improve upon it. I am unable to keep the extension up to date against OpenAI's changes, and besides, they are releasing desktop apps for MacOS and Windows soon, free of use, which will make this extension obsolete.
 
+--------------------------
+
 **Talk-to-ChatGPT** is a Google Chrome and Microsoft Edge extension that allows users to talk with the ChatGPT AI using their voice (speech recognition), and listen to the bot's answer with a voice (text-to-speech), rather than just by typing. With this tool, users can speak to the AI and receive spoken responses, making the interaction feel more natural and conversational. This allows you to have your own personal assistant in the style of Iron Man's Jarvis, which is fun, but it's also a great way to help the elderly and people with disabilities interact with ChatGPT. **We now support ElevenLabs API integration, which means you can create your own voices for text-to-speech!**
 
 The extension can be downloaded from here:
